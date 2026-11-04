@@ -8,3 +8,6 @@ content/
 # Hand-maintained documents keep their authored formatting.
 docs/SPEC.md
 CLAUDE.md
+# Generated mockups and reference material, not app code. The guide stays formatted.
+design/*
+!design/README.md
