@@ -77,7 +77,7 @@ Protocol. `Input.dispatchKeyEvent` goes through the normal input pipeline, and t
 written, to a temporary folder. The run is 5000 presses per text: 40 at 20 per second, then 20 at 60
 per second, with 2% wrong presses corrected by Backspace. Probes exist only in this build.
 
-Results of 2026-11-04, 60 Hz display, times in milliseconds:
+Results of 2026-11-04 on a 144 Hz laptop display, times in milliseconds:
 
 | Text, characters | Queue p50 / p99 / max | Handler p50 / p99 / max | To next frame p50 / p95 / max | To paint: over 16 ms, p95, max | Long tasks |
 | ---------------- | --------------------- | ----------------------- | ----------------------------- | ------------------------------ | ---------- |
@@ -85,11 +85,16 @@ Results of 2026-11-04, 60 Hz display, times in milliseconds:
 | 100,000          | 0.2 / 0.5 / 2.4       | 0.0 / 0.2 / 0.3         | 0.5 / 6.3 / 8.6               | 20%, 16, 24                    | 0          |
 | 1,000,000        | 0.2 / 0.6 / 3.0       | 0.0 / 0.2 / 0.3         | 0.5 / 6.3 / 8.6               | 19%, 16, 24                    | 0          |
 
-All 15,004 presses reached the journal, and the DOM never held more than about 1,300 characters.
+All 15,004 presses reached the journal. At the end of each session the DOM held about 1,300
+characters at most, on any length of text.
 
 The targets were a queue p99 of 4 ms at most, a handler p99 of 2 ms at most, 33 ms at most to the
-frame at p95, no long tasks, and no growth with length. All hold, and the figures do not depend on
-the length of the text.
+frame at p95 on a 60 Hz display, no long tasks, and no growth with length. All hold on this display,
+and the figures do not depend on the length of the text.
+
+The 60 Hz case was not measured. Queue and handler do not depend on the display. The wait for a frame
+does: a frame lasts 16.7 ms at 60 Hz against 6.9 ms here, so the two frame columns would be higher.
+With 33 ms as the target, the margin should cover that, but only a run on such a display shows it.
 
 - **Queue** is `event.timeStamp` to the start of the handler. **Handler** is its own run time.
 - **To next frame** ends at the next `requestAnimationFrame` callback. It shows that nothing blocks
