@@ -4,8 +4,9 @@ An offline desktop touch-typing trainer for Windows. It records every keystroke 
 a local journal and uses that data to find your weak keys and transitions, then
 builds training around them. "Keymind" is a working name.
 
-**Status: early scaffold (roadmap stage 0).** The app opens a window and checks the
-connection to its core; typing arrives in stage 1. The full plan is in
+**Status: typing core (roadmap stage 1).** Words, Texts and Zen work, with a journal
+of every keystroke and a session summary. The adaptive training comes in later
+stages. The full plan is in
 [`docs/SPEC.md`](docs/SPEC.md) (in Russian), and architecture decisions are in
 [`docs/adr/`](docs/adr/).
 
@@ -48,6 +49,22 @@ are fast.
 | Rust tests                   | `npm run rust:test`   |
 | Format UI code               | `npm run format`      |
 | Release build with installer | `npm run tauri build` |
+
+### Measuring input latency
+
+The input path has its own bench against the real WebView2. Probes exist only in
+a build made for it, and the run writes to a temporary folder rather than to your
+journal. See [ADR-0004](docs/adr/0004-input-path.md).
+
+```bash
+VITE_LATENCY_PROBE=1 npx tauri build --no-bundle
+node scripts/latency-bench.mjs
+```
+
+Keep the window in front during the run. Rebuild without the variable afterwards.
+
+Setting `KEYMIND_DATA_DIR` points the app at another data folder, which is what the
+bench does.
 
 ## Repository layout
 

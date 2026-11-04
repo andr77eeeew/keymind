@@ -24,8 +24,9 @@ The app icon is the next key, lit as on the typing screen, on a relief. To chang
 Copy only the five files listed in `src-tauri/tauri.conf.json` and `icon.png` into `src-tauri/icons/`:
 the command also creates Android, iOS and Windows Store sizes, which this project does not use.
 
-The UI in `src/` does not use these tokens yet: `src/styles/tokens.css` stays minimal until the
-stage that moves the app to this design.
+The app imports `tokens.css` directly. `src/styles/relief.css` is a copy of the parts of
+`screens/assets/screens.css` it uses so far, and `src/styles/app.css` holds what the mockups do not
+draw, such as the session setup on the home screen.
 
 ## Principles
 

@@ -11,6 +11,7 @@ export default tseslint.config(
       "src-tauri/target/",
       "src-tauri/gen/",
       "design/",
+      "tools/content/.venv/",
     ],
   },
   js.configs.recommended,
@@ -21,6 +22,13 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: { parser: tseslint.parser },
     },
+    // The type checker covers undefined names, and this rule does not know DOM types.
+    rules: { "no-undef": "off" },
+  },
+  // Node scripts: the same reason, for Node globals.
+  {
+    files: ["scripts/**/*.mjs"],
+    rules: { "no-undef": "off" },
   },
   // Must stay last: turns off every style rule that Prettier owns.
   prettier,

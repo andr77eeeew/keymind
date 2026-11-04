@@ -1,0 +1,14 @@
+{"v":1,"type":"settings_changed","ts":"2026-11-04T09:00:00Z","key":"on_error","old":"continue","new":"stop"}
+{"v":1,"type":"session_started","sid":"s1","seq":0,"ts":"2026-11-04T12:04:00+02:00","mode":"texts","layout":"en-qwerty","source":{"kind":"passage","id":"austen-pride-0001"},"settings":{"on_error":"continue"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"s1","seq":1,"t":0.0,"kind":"char","code":"KeyT","key":"T","expected":"T","correct":true,"pos":0,"mods":["ShiftLeft"]}
+{"v":1,"type":"keystroke","sid":"s1","seq":2,"t":120.5,"kind":"modifier","code":"ShiftLeft"}
+{"v":1,"type":"keystroke","sid":"s1","seq":3,"t":200.0,"kind":"char","code":"KeyJ","key":"j","expected":"h","correct":false,"pos":1}
+{"v":1,"type":"keystroke","sid":"s1","seq":3,"t":200.0,"kind":"char","code":"KeyJ","key":"j","expected":"h","correct":false,"pos":1}
+{"v":1,"type":"keystroke","sid":"s1","seq":4,"t":310.0,"kind":"backspace","code":"Backspace","pos":1}
+{"v":1,"type":"session_paused","sid":"s1","seq":5,"t":400.0}
+{"v":1,"type":"session_resumed","sid":"s1","seq":6,"t":5400.0}
+{"v":1,"type":"future_event","sid":"s1","seq":7,"payload":[1,2,3]}
+{"v":1,"type":"keystroke","sid":"s1","seq":8,"t":5500.0,"kind":"char","code":"KeyH","key":"h","expected":"h","correct":true,"pos":1,"new_field":"ignored by old readers"}
+{"v":1,"type":"keystroke","sid":"s1","seq":9,"t":5610.0,"kind":"char","code":"KeyE","key":"у","correct":false,"pos":2,"ignored":"layout"}
+{"v":1,"type":"session_ended","sid":"s1","seq":10,"t":5700.0,"reason":"completed","duration":700.0}
+{"v":1,"type":"keystroke","sid":"s2","seq":1,"t":0.0,"kind":"char","co

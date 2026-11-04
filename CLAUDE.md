@@ -26,17 +26,21 @@ Read the relevant SPEC sections before starting any task.
 ## Repository layout
 
 ```
-src/                     Vue UI
+src/                     Vue UI; src/typing/ is the non-reactive input path (ADR-0004)
 src-tauri/src/
   journal/               append-only event journal
   projector/             journal -> SQLite derived tables
+  stats/                 session metrics, shared by the summary and the projector
   brain/                 student model, decision model, heuristic fallback
-  generator/             exercise text generation
+  generator/             exercise text generation, and loading of content/
+  settings/              policies: settings_changed events and their cache
+  imports/               TXT and EPUB import, kept only in the local data folder
   rules/                 XP, levels, goals, quests, events, achievements, tips
   sync/                  folder and Git sync of journals
   integrations/          LRCLIB, Windows media controls, yt-dlp
 content/                 word lists, passages, rule files (*.toml), LICENSES.md
 tools/content/           Python pipeline that builds content/ from sources
+scripts/                 latency bench and its CDP helper
 research/                notebooks and registered experiments
 design/                  mockups and design tokens
 docs/                    SPEC.md, adr/
@@ -53,6 +57,10 @@ Keep up to date:
   (apply formatting with `npm run format` and `cargo fmt --manifest-path src-tauri/Cargo.toml`)
 - Everything above plus type checks: `npm run check`
 - Release build: `npm run tauri build`
+- Input latency bench: `VITE_LATENCY_PROBE=1 npx tauri build --no-bundle`, then
+  `node scripts/latency-bench.mjs` (ADR-0004). Rebuild without the variable afterwards.
+- `KEYMIND_DATA_DIR` points the app at another data folder. Automated runs must always set it,
+  so they never write to real journals.
 
 ## Architecture rules (do not break)
 

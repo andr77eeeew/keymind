@@ -1,0 +1,66 @@
+/* Additions to relief.css for what the mockups do not draw. */
+
+/* Characters measure their line against the stream, see TextRenderer. */
+.stream {
+  position: relative;
+}
+
+/* Zen text grows from the bottom, and older lines leave through the top. */
+.window--zen {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.zen__text {
+  color: var(--color-done);
+}
+
+/* Holds its height while empty, so a hint never moves the text. */
+.hint {
+  min-height: 1lh;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* The mockups have no session setup, so it is composed of their settings rows. */
+.setup {
+  display: grid;
+  gap: var(--space-sm);
+  max-width: 860px;
+}
+.setting--first {
+  border-top: 0;
+  padding-top: 0;
+}
+.setup__a {
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-rule);
+}
+.paste__area {
+  min-height: 9rem;
+  padding-block: var(--space-xs);
+  resize: vertical;
+  font-family: var(--font-ui);
+  line-height: 1.5;
+}
+.library {
+  display: grid;
+  gap: var(--space-sm);
+}
+.library__pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+}
+.library__pick input {
+  accent-color: var(--color-accent);
+}
+.library__a {
+  text-align: right;
+  padding-right: 0;
+}
+.btn:has(input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
