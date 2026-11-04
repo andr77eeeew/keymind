@@ -32,6 +32,8 @@ journals/
 *.sqlite-shm
 *.db
 imports/
+# The imports source module is code, not user texts.
+!src-tauri/src/imports/
 
 # Lyrics, subtitles and videos are never committed
 lyrics/
