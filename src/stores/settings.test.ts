@@ -24,6 +24,38 @@ describe("settings store", () => {
     expect(document.documentElement.dataset.theme).toBe("dark");
   });
 
+  it("follows Windows while the theme is system, and only then", async () => {
+    const listeners: (() => void)[] = [];
+    const scheme = {
+      matches: true,
+      addEventListener: (_: string, listener: () => void) =>
+        listeners.push(listener),
+    };
+    vi.stubGlobal("matchMedia", () => scheme);
+    const answer = (theme: string) =>
+      vi.mocked(invoke).mockResolvedValue({
+        on_error: "continue",
+        backspace: "allowed",
+        theme,
+      });
+    const store = useSettingsStore();
+
+    answer("system");
+    await store.load();
+    expect(document.documentElement.dataset.theme).toBe("dark");
+
+    scheme.matches = false;
+    listeners.forEach((listener) => listener());
+    expect(document.documentElement.dataset.theme).toBe("light");
+
+    answer("dark");
+    await store.change("theme", "dark");
+    listeners.forEach((listener) => listener());
+    expect(document.documentElement.dataset.theme).toBe("dark");
+
+    vi.unstubAllGlobals();
+  });
+
   it("stays on the defaults when the core does not answer", async () => {
     vi.mocked(invoke).mockRejectedValue("no core");
     const store = useSettingsStore();

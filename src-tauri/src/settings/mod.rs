@@ -35,6 +35,8 @@ pub enum Theme {
     #[default]
     Light,
     Dark,
+    /// Follows Windows. The UI resolves it, since the webview is what knows the current scheme.
+    System,
 }
 
 /// Missing keys take their default, so old caches and journals keep working.
@@ -196,6 +198,13 @@ mod tests {
             change("2026-11-04T10:00:00Z", "sparkles", json!(true)),
         ]);
         assert_eq!(settings.theme, Theme::Dark);
+    }
+
+    #[test]
+    fn the_system_theme_is_a_valid_value() {
+        let settings = Settings::default().with("theme", &json!("system")).unwrap();
+        assert_eq!(settings.theme, Theme::System);
+        assert_eq!(settings.value_of("theme"), json!("system"));
     }
 
     #[test]

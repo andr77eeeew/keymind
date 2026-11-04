@@ -4,7 +4,7 @@ export const SCHEMA_VERSION = 1;
 
 export type OnError = "continue" | "stop";
 export type BackspacePolicy = "allowed" | "blocked";
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "system";
 
 /** Mirrors `settings::Settings`. */
 export interface Settings {
