@@ -1,0 +1,80 @@
+/* Рельеф: direction tokens. Both themes come from the same role names. */
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms; --z-toast: 500;
+  --font-ui: "Golos Text", ui-sans-serif, system-ui, sans-serif; --font-display: "Golos Text", ui-sans-serif, system-ui, sans-serif; --font-typing: "Golos Text", ui-sans-serif, system-ui, sans-serif; --font-code: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --radius-ui: 6px; --radius-key: 6px; --radius-glyph: 4px; --key-gap: 5px; --display-weight: 600; --tracking-display: -0.02em; --rule-weight: 1px; --typing-weight: 400; --typing-done-weight: 400; --typing-spacing: 0.01em;
+}
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --color-paper: oklch(96% 0.011 85);
+  --color-paper-2: oklch(99% 0.005 85);
+  --color-paper-3: oklch(92% 0.016 85);
+  --color-ink: oklch(18% 0.006 60);
+  --color-ink-2: oklch(28% 0.008 60);
+  --color-muted: oklch(44% 0.012 60);
+  --color-rule: oklch(86% 0.014 85);
+  --color-rule-2: oklch(91% 0.012 85);
+  --color-accent: oklch(70% 0.19 40);
+  --color-accent-ink: oklch(18% 0.006 60);
+  --color-signal: oklch(18% 0.006 60);
+  --color-signal-ink: oklch(97% 0.008 85);
+  --color-focus: oklch(52% 0.17 40);
+  --color-upcoming: oklch(44% 0.012 60);
+  --color-done: oklch(18% 0.006 60);
+  --color-caret-bg: oklch(65% 0.19 40);
+  --color-caret-ink: oklch(18% 0.006 60);
+  --color-error-ink: oklch(97% 0.008 85);
+  --color-error-bg: oklch(18% 0.006 60);
+  --color-error-mark: oklch(18% 0.006 60);
+  --color-target: oklch(48% 0.11 150);
+  --color-key-bg: oklch(99% 0.005 85 / 0.86);
+  --color-key-edge: oklch(80% 0.016 85);
+  --color-key-ink: oklch(28% 0.008 60);
+  --color-key-quiet: oklch(44% 0.012 60);
+  --color-key-next-bg: oklch(65% 0.19 40);
+  --color-key-next-ink: oklch(18% 0.006 60);
+  --color-key-wrong-bg: oklch(18% 0.006 60);
+  --color-key-wrong-ink: oklch(97% 0.008 85);
+  --color-hand-idle: oklch(84% 0.016 85);
+  --color-contour: oklch(62% 0.07 58);
+  --color-key-lit: oklch(99.5% 0.003 85 / 0.9);
+  --color-key-shade: oklch(40% 0.03 60 / 0.22);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: oklch(18.5% 0.012 65);
+  --color-paper-2: oklch(22.5% 0.013 65);
+  --color-paper-3: oklch(15.5% 0.011 65);
+  --color-ink: oklch(93% 0.012 85);
+  --color-ink-2: oklch(85% 0.013 85);
+  --color-muted: oklch(73% 0.014 80);
+  --color-rule: oklch(33% 0.014 70);
+  --color-rule-2: oklch(26% 0.013 70);
+  --color-accent: oklch(74% 0.16 42);
+  --color-accent-ink: oklch(16% 0.010 60);
+  --color-signal: oklch(93% 0.012 85);
+  --color-signal-ink: oklch(17% 0.012 65);
+  --color-focus: oklch(78% 0.14 42);
+  --color-upcoming: oklch(73% 0.014 80);
+  --color-done: oklch(95% 0.010 85);
+  --color-caret-bg: oklch(74% 0.16 42);
+  --color-caret-ink: oklch(16% 0.010 60);
+  --color-error-ink: oklch(17% 0.012 65);
+  --color-error-bg: oklch(93% 0.012 85);
+  --color-error-mark: oklch(93% 0.012 85);
+  --color-target: oklch(76% 0.13 150);
+  --color-key-bg: oklch(25% 0.014 65 / 0.88);
+  --color-key-edge: oklch(34% 0.014 68);
+  --color-key-ink: oklch(88% 0.012 85);
+  --color-key-quiet: oklch(73% 0.014 80);
+  --color-key-next-bg: oklch(74% 0.16 42);
+  --color-key-next-ink: oklch(16% 0.010 60);
+  --color-key-wrong-bg: oklch(93% 0.012 85);
+  --color-key-wrong-ink: oklch(17% 0.012 65);
+  --color-hand-idle: oklch(36% 0.014 68);
+  --color-contour: oklch(50% 0.05 62);
+  --color-key-lit: oklch(96% 0.01 85 / 0.08);
+  --color-key-shade: oklch(8% 0.01 60 / 0.5);
+}

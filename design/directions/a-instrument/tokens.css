@@ -1,0 +1,74 @@
+/* Прибор: direction tokens. Both themes come from the same role names. */
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms; --z-toast: 500;
+  --font-ui: "Geist", ui-sans-serif, system-ui, sans-serif; --font-display: "Geist", ui-sans-serif, system-ui, sans-serif; --font-typing: "Geist Mono", ui-monospace, Consolas, monospace; --font-code: "Geist Mono", ui-monospace, Consolas, monospace;
+  --radius-ui: 0; --radius-key: 1px; --radius-glyph: 0; --key-gap: 4px; --display-weight: 500; --tracking-display: -0.025em; --rule-weight: 1px; --typing-weight: 400; --typing-done-weight: 400; --typing-spacing: 0;
+}
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --color-paper: oklch(97.5% 0.005 80);
+  --color-paper-2: oklch(94.5% 0.007 80);
+  --color-paper-3: oklch(99% 0.003 80);
+  --color-ink: oklch(19% 0.010 75);
+  --color-ink-2: oklch(30% 0.010 75);
+  --color-muted: oklch(46% 0.012 78);
+  --color-rule: oklch(84% 0.008 78);
+  --color-rule-2: oklch(91% 0.006 78);
+  --color-accent: oklch(46% 0.13 250);
+  --color-accent-ink: oklch(98% 0.005 250);
+  --color-signal: oklch(50% 0.17 42);
+  --color-signal-ink: oklch(98% 0.005 42);
+  --color-focus: oklch(46% 0.13 250);
+  --color-upcoming: oklch(19% 0.010 75);
+  --color-done: oklch(50% 0.012 78);
+  --color-caret-bg: oklch(46% 0.13 250);
+  --color-caret-ink: oklch(98% 0.005 250);
+  --color-error-ink: oklch(44% 0.16 42);
+  --color-error-bg: oklch(82% 0.10 50);
+  --color-error-mark: oklch(50% 0.17 42);
+  --color-target: oklch(46% 0.13 250);
+  --color-key-bg: oklch(99% 0.003 80);
+  --color-key-edge: oklch(76% 0.010 78);
+  --color-key-ink: oklch(30% 0.010 75);
+  --color-key-quiet: oklch(46% 0.012 78);
+  --color-key-next-bg: oklch(46% 0.13 250);
+  --color-key-next-ink: oklch(98% 0.005 250);
+  --color-key-wrong-bg: oklch(50% 0.17 42);
+  --color-key-wrong-ink: oklch(98% 0.005 42);
+  --color-hand-idle: oklch(84% 0.008 78);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: oklch(14.5% 0.008 75);
+  --color-paper-2: oklch(18% 0.009 75);
+  --color-paper-3: oklch(11.5% 0.007 75);
+  --color-ink: oklch(93% 0.010 80);
+  --color-ink-2: oklch(84% 0.011 80);
+  --color-muted: oklch(70% 0.012 80);
+  --color-rule: oklch(32% 0.010 78);
+  --color-rule-2: oklch(23% 0.009 78);
+  --color-accent: oklch(76% 0.11 250);
+  --color-accent-ink: oklch(14% 0.02 250);
+  --color-signal: oklch(73% 0.16 45);
+  --color-signal-ink: oklch(14% 0.02 45);
+  --color-focus: oklch(76% 0.11 250);
+  --color-upcoming: oklch(93% 0.010 80);
+  --color-done: oklch(64% 0.012 80);
+  --color-caret-bg: oklch(76% 0.11 250);
+  --color-caret-ink: oklch(14% 0.02 250);
+  --color-error-ink: oklch(78% 0.15 48);
+  --color-error-bg: oklch(30% 0.06 45);
+  --color-error-mark: oklch(73% 0.16 45);
+  --color-target: oklch(76% 0.11 250);
+  --color-key-bg: oklch(18% 0.009 75);
+  --color-key-edge: oklch(36% 0.010 78);
+  --color-key-ink: oklch(84% 0.011 80);
+  --color-key-quiet: oklch(68% 0.012 80);
+  --color-key-next-bg: oklch(76% 0.11 250);
+  --color-key-next-ink: oklch(14% 0.02 250);
+  --color-key-wrong-bg: oklch(73% 0.16 45);
+  --color-key-wrong-ink: oklch(14% 0.02 45);
+  --color-hand-idle: oklch(32% 0.010 78);
+}

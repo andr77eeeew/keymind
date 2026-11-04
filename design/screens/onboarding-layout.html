@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keymind setup: layout</title>
+<meta name="description" content="First run: choose the keyboard layout.">
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/screens.css">
+</head>
+<body>
+<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs>
+<filter id="cvd-protan"><feColorMatrix values="0.152286 1.052583 -0.204868 0 0  0.114503 0.786281 0.099216 0 0  -0.003882 -0.048116 1.051998 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-deutan"><feColorMatrix values="0.367322 0.860646 -0.227968 0 0  0.280085 0.672501 0.047413 0 0  -0.011820 0.042940 0.968881 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-tritan"><feColorMatrix values="1.255528 -0.076749 -0.178779 0 0  -0.078411 0.930809 0.147602 0 0  0.004733 0.691367 0.303900 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-achroma"><feColorMatrix type="saturate" values="0"/></filter>
+</defs></svg>
+<div class="page">
+<div class="ob"><header class="top"><span class="wordmark">Keymind</span><ol class="steps" aria-label="Setup steps"><li aria-current="step">Layout</li><li>Starting test</li><li>Your relief</li></ol></header>
+<main class="ob__body">
+  <div class="stack">
+    <h1>Which layout do you type on?</h1>
+    <p class="muted">Keymind stores the physical key with every press, so adding a layout later keeps your statistics.</p>
+  </div>
+  <fieldset class="pick" style="border:0;padding:0;margin:0">
+    <legend class="visually-hidden">Keyboard layout</legend>
+    <label><input type="radio" name="layout" checked><b>English, QWERTY</b><span>Available now</span></label>
+    <label><input type="radio" name="layout" disabled><b>Russian</b><span>Planned</span></label>
+    <label><input type="radio" name="layout" disabled><b>Ukrainian</b><span>Planned</span></label>
+  </fieldset>
+  <div class="ob__kbd">
+    <div class="hand hand--l"><div class="hand__fingers"><i class="f" data-f="lp" style="--l:0.62"></i><i class="f" data-f="lr" style="--l:0.86"></i><i class="f" data-f="lm" style="--l:1"></i><i class="f" data-f="li" style="--l:0.9"></i><i class="f" data-f="lt" style="--l:0.46"></i></div><div class="hand__label">Each tint is one finger</div></div>
+    <div class="kbd kbd--zones" aria-hidden="true"><div class="kbd__row"><span class="key" data-code="Backquote" data-f="lp" data-base="`" data-shift="~" data-alt="~"><span class="key__l">`</span></span><span class="key" data-code="Digit1" data-f="lp" data-base="1" data-shift="!" data-alt="!"><span class="key__l">1</span></span><span class="key" data-code="Digit2" data-f="lr" data-base="2" data-shift="@" data-alt="@"><span class="key__l">2</span></span><span class="key" data-code="Digit3" data-f="lm" data-base="3" data-shift="#" data-alt="#"><span class="key__l">3</span></span><span class="key" data-code="Digit4" data-f="li" data-base="4" data-shift="$" data-alt="$"><span class="key__l">4</span></span><span class="key" data-code="Digit5" data-f="li" data-base="5" data-shift="%" data-alt="%"><span class="key__l">5</span></span><span class="key" data-code="Digit6" data-f="ri" data-base="6" data-shift="^" data-alt="^"><span class="key__l">6</span></span><span class="key" data-code="Digit7" data-f="ri" data-base="7" data-shift="&amp;" data-alt="&amp;"><span class="key__l">7</span></span><span class="key" data-code="Digit8" data-f="rm" data-base="8" data-shift="*" data-alt="*"><span class="key__l">8</span></span><span class="key" data-code="Digit9" data-f="rr" data-base="9" data-shift="(" data-alt="("><span class="key__l">9</span></span><span class="key" data-code="Digit0" data-f="rp" data-base="0" data-shift=")" data-alt=")"><span class="key__l">0</span></span><span class="key" data-code="Minus" data-f="rp" data-base="-" data-shift="_" data-alt="_"><span class="key__l">-</span></span><span class="key" data-code="Equal" data-f="rp" data-base="=" data-shift="+" data-alt="+"><span class="key__l">=</span></span><span class="key key--mod" data-code="Backspace" data-f="rp" style="--u:2"><span class="key__l">Backspace</span></span></div>
+<div class="kbd__row"><span class="key key--mod" data-code="Tab" data-f="lp" style="--u:1.5"><span class="key__l">Tab</span></span><span class="key" data-code="KeyQ" data-f="lp" data-base="q" data-shift="Q"><span class="key__l">Q</span></span><span class="key" data-code="KeyW" data-f="lr" data-base="w" data-shift="W"><span class="key__l">W</span></span><span class="key" data-code="KeyE" data-f="lm" data-base="e" data-shift="E"><span class="key__l">E</span></span><span class="key" data-code="KeyR" data-f="li" data-base="r" data-shift="R"><span class="key__l">R</span></span><span class="key" data-code="KeyT" data-f="li" data-base="t" data-shift="T"><span class="key__l">T</span></span><span class="key" data-code="KeyY" data-f="ri" data-base="y" data-shift="Y"><span class="key__l">Y</span></span><span class="key" data-code="KeyU" data-f="ri" data-base="u" data-shift="U"><span class="key__l">U</span></span><span class="key" data-code="KeyI" data-f="rm" data-base="i" data-shift="I"><span class="key__l">I</span></span><span class="key" data-code="KeyO" data-f="rr" data-base="o" data-shift="O"><span class="key__l">O</span></span><span class="key" data-code="KeyP" data-f="rp" data-base="p" data-shift="P"><span class="key__l">P</span></span><span class="key" data-code="BracketLeft" data-f="rp" data-base="[" data-shift="{" data-alt="{"><span class="key__l">[</span></span><span class="key" data-code="BracketRight" data-f="rp" data-base="]" data-shift="}" data-alt="}"><span class="key__l">]</span></span><span class="key" data-code="Backslash" data-f="rp" data-base="\" data-shift="|" data-alt="|" style="--u:1.5"><span class="key__l">\</span></span></div>
+<div class="kbd__row"><span class="key key--mod" data-code="CapsLock" data-f="lp" style="--u:1.75"><span class="key__l">Caps</span></span><span class="key" data-code="KeyA" data-f="lp" data-base="a" data-shift="A"><span class="key__l">A</span></span><span class="key" data-code="KeyS" data-f="lr" data-base="s" data-shift="S"><span class="key__l">S</span></span><span class="key" data-code="KeyD" data-f="lm" data-base="d" data-shift="D"><span class="key__l">D</span></span><span class="key key--home" data-code="KeyF" data-f="li" data-base="f" data-shift="F"><span class="key__l">F</span></span><span class="key" data-code="KeyG" data-f="li" data-base="g" data-shift="G"><span class="key__l">G</span></span><span class="key" data-code="KeyH" data-f="ri" data-base="h" data-shift="H"><span class="key__l">H</span></span><span class="key key--home" data-code="KeyJ" data-f="ri" data-base="j" data-shift="J"><span class="key__l">J</span></span><span class="key" data-code="KeyK" data-f="rm" data-base="k" data-shift="K"><span class="key__l">K</span></span><span class="key" data-code="KeyL" data-f="rr" data-base="l" data-shift="L"><span class="key__l">L</span></span><span class="key" data-code="Semicolon" data-f="rp" data-base=";" data-shift=":" data-alt=":"><span class="key__l">;</span></span><span class="key" data-code="Quote" data-f="rp" data-base="'" data-shift="&quot;" data-alt="&quot;"><span class="key__l">'</span></span><span class="key key--mod" data-code="Enter" data-f="rp" data-base="&#10;" style="--u:2.25"><span class="key__l">Enter</span></span></div>
+<div class="kbd__row"><span class="key key--mod" data-code="ShiftLeft" data-f="lp" style="--u:2.25"><span class="key__l">Shift</span></span><span class="key" data-code="KeyZ" data-f="lp" data-base="z" data-shift="Z"><span class="key__l">Z</span></span><span class="key" data-code="KeyX" data-f="lr" data-base="x" data-shift="X"><span class="key__l">X</span></span><span class="key" data-code="KeyC" data-f="lm" data-base="c" data-shift="C"><span class="key__l">C</span></span><span class="key" data-code="KeyV" data-f="li" data-base="v" data-shift="V"><span class="key__l">V</span></span><span class="key" data-code="KeyB" data-f="li" data-base="b" data-shift="B"><span class="key__l">B</span></span><span class="key" data-code="KeyN" data-f="ri" data-base="n" data-shift="N"><span class="key__l">N</span></span><span class="key" data-code="KeyM" data-f="ri" data-base="m" data-shift="M"><span class="key__l">M</span></span><span class="key" data-code="Comma" data-f="rm" data-base="," data-shift="&lt;" data-alt="&lt;"><span class="key__l">,</span></span><span class="key" data-code="Period" data-f="rr" data-base="." data-shift="&gt;" data-alt="&gt;"><span class="key__l">.</span></span><span class="key" data-code="Slash" data-f="rp" data-base="/" data-shift="?" data-alt="?"><span class="key__l">/</span></span><span class="key key--mod" data-code="ShiftRight" data-f="rp" style="--u:2.75"><span class="key__l">Shift</span></span></div>
+<div class="kbd__row"><span class="key key--mod" data-code="ControlLeft" data-f="lp" style="--u:1.25"><span class="key__l">Ctrl</span></span><span class="key key--mod" data-code="MetaLeft" data-f="lp" style="--u:1.25"><span class="key__l">Win</span></span><span class="key key--mod" data-code="AltLeft" data-f="lt" style="--u:1.25"><span class="key__l">Alt</span></span><span class="key" data-code="Space" data-f="rt" data-base=" " style="--u:6.25"><span class="key__l"></span></span><span class="key key--mod" data-code="AltRight" data-f="rt" style="--u:1.25"><span class="key__l">Alt</span></span><span class="key key--mod" data-code="ContextMenu" data-f="rp" style="--u:2.5"><span class="key__l">Menu</span></span><span class="key key--mod" data-code="ControlRight" data-f="rp" style="--u:1.25"><span class="key__l">Ctrl</span></span></div></div>
+    <div class="hand hand--r"><div class="hand__fingers"><i class="f" data-f="rt" style="--l:0.46"></i><i class="f" data-f="ri" style="--l:0.9"></i><i class="f" data-f="rm" style="--l:1"></i><i class="f" data-f="rr" style="--l:0.86"></i><i class="f" data-f="rp" style="--l:0.62"></i></div><div class="hand__label">F and J have a ridge</div></div>
+  </div>
+  <div class="ob__foot">
+    <span class="muted" style="font-size:var(--text-sm)">You can change this in Settings.</span>
+    <a class="btn btn--primary" href="onboarding-test.html">Continue to the test</a>
+  </div>
+</main></div>
+</div>
+<details class="review">
+  <summary>Mockup</summary>
+  <div class="review__body">
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    
+    
+    
+    <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>
+    <p>Figures are sample data.</p>
+    <a href="index.html">All screens</a>
+  </div>
+</details>
+<script src="assets/review.js"></script>
+</body>
+</html>
