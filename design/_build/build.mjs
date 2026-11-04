@@ -6,6 +6,7 @@ import { contrast, contrastPairs, themes, tokensCss, tokensJson } from './tokens
 import { typingPages } from './screens-typing.mjs';
 import { dataPages } from './screens-data.mjs';
 import { progressPages } from './screens-progress.mjs';
+import { sessionPages } from './screens-session.mjs';
 import { componentsPage, galleryPage } from './screens-system.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -15,7 +16,7 @@ const screens = join(design, 'screens');
 writeFileSync(join(design, 'tokens.css'), tokensCss());
 writeFileSync(join(design, 'tokens.json'), tokensJson());
 
-const pages = { ...typingPages, ...dataPages, ...progressPages, components: componentsPage, index: galleryPage };
+const pages = { ...typingPages, ...dataPages, ...progressPages, ...sessionPages, components: componentsPage, index: galleryPage };
 for (const [name, html] of Object.entries(pages)) writeFileSync(join(screens, `${name}.html`), html);
 console.log(`${Object.keys(pages).length} pages written`);
 
