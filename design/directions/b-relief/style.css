@@ -1,0 +1,25 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Furrow (deal 2/3, seed offline-desktop-touch-typing-4c51·6d890869·2026-11-04·r0)
+ * nav: none, the typing screen is the shell · signature: рельеф навыка: слабые клавиши как холмы на топографической карте · states: glyph states, keyboard next and wrong key
+ * axes: light/grotesk-sans/warm · posture: committed · contrast: pass · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: P5 H4 E4 S5 R3 V5 · weakest: R, contours behind a typing surface can distract; they stay on the keyboard band only, never behind the text */
+@import url("./tokens.css");
+@import url("../shared/typing.css");
+
+/* Moulded keys and a relief band. Contours never run behind the reading surface. */
+.c.cur { box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--color-caret-ink) 28%, transparent); }
+.deck { background: var(--color-paper-3); border-top: 1px solid var(--color-rule); }
+.relief { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.relief__thin { fill: none; stroke: var(--color-contour); stroke-width: 0.7; opacity: 0.5; vector-effect: non-scaling-stroke; }
+.relief__bold { fill: none; stroke: var(--color-contour); stroke-width: 1.1; opacity: 0.75; vector-effect: non-scaling-stroke; }
+.kbd, .hand { position: relative; }
+.key { box-shadow: inset 0 1px 0 var(--color-key-lit), 0 1px 0 var(--color-key-edge), 0 2px 3px -1px var(--color-key-shade); transition: transform var(--dur-micro) var(--ease-out); }
+.key--target { box-shadow: inset 0 1px 0 var(--color-key-lit), inset 0 -3px 0 var(--color-target), 0 1px 0 var(--color-key-edge), 0 2px 3px -1px var(--color-key-shade); }
+.key.is-next, .key.is-mod { box-shadow: inset 0 1px 0 var(--color-key-lit), inset 0 -2px 0 color-mix(in oklab, var(--color-key-next-ink) 22%, transparent), 0 2px 3px -1px var(--color-key-shade); }
+.btn { box-shadow: inset 0 1px 0 var(--color-key-lit), 0 1px 1px var(--color-rule); }
+.f { border-radius: 999px; }
+.map { position: relative; margin: var(--space-lg) 0 0; aspect-ratio: 26.8 / 6.1; background: var(--color-paper-3); border: 1px solid var(--color-rule); border-radius: var(--radius-ui); overflow: clip; }
+.map .relief__thin { opacity: 0.6; }
+.map .relief__bold { opacity: 1; }
+.pin { position: absolute; translate: -50% -50%; padding: 1px var(--space-xs); font-family: var(--font-code); font-size: var(--text-xs); white-space: nowrap; background: var(--color-signal); color: var(--color-signal-ink); border-radius: var(--radius-glyph); }
+.pin b { font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .key { transition: none; } }

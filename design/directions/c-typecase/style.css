@@ -1,0 +1,26 @@
+/* Hallmark · shape: app screen · genre: playful · theme: Werkstatt (deal 2/3, seed personal-desktop-typing-trainer-42f0·f8e35f43·2026-11-04·r0)
+ * nav: none, the typing screen is the shell · signature: клавиатура как наборная касса, ячейки без зазоров · states: glyph states, keyboard next and wrong key
+ * axes: mid/geometric-sans/cool · posture: committed · contrast: pass · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: P5 H5 E4 S4 R3 V5 · weakest: R, heavy rules can tire over long sessions; rules stay on the keyboard and the word strip, the text sits on a calm well */
+@import url("./tokens.css");
+@import url("../shared/typing.css");
+
+/* Flush ruled cells: the type case. Each primary has one job across the app. */
+.bar { border-bottom: 2px solid var(--color-rule); }
+.bar__mode, .passport h1, .passport h2 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; text-wrap: balance; }
+.bar__mode { font-size: var(--text-md); letter-spacing: 0; }
+.gram { box-shadow: none; background: var(--color-target); color: var(--color-target-ink); }
+.c.err::after { outline: 1px solid var(--color-rule); }
+.window { background: var(--color-paper-3); padding-inline: 0.6em; border: 2px solid var(--color-rule); height: calc(var(--window-lines) * 1.85em + 4px); width: min(100%, calc(62ch + 1.2em + 4px)); }
+.window--code { height: calc(9 * 1.75em + 4px); width: min(100%, calc(72ch + 1.2em + 4px)); }
+.deck { border-top: 2px solid var(--color-rule); background: var(--color-paper-2); }
+.kbd { border: 3px solid var(--color-key-edge); background: var(--color-key-edge); gap: 0; }
+.kbd__row { gap: 0; }
+.key { border: 0; border-right: 1px solid var(--color-key-edge); border-bottom: 1px solid var(--color-key-edge); font-weight: 500; }
+.kbd__row:last-child .key { border-bottom: 0; }
+.key:last-child { border-right: 0; }
+.key.is-next, .key.is-mod, .key.is-wrong { border-color: var(--color-key-edge); }
+.f { border: 2px solid var(--color-rule); background: transparent; }
+.f.is-on { background: var(--color-key-next-bg); }
+.c.tgt:not(.done):not(.cur):not(.err):not(.fixed) { box-shadow: none; background: var(--color-target); color: var(--color-target-ink); }
+.key--target:not(.is-next):not(.is-mod):not(.is-wrong) { box-shadow: none; background: var(--color-target); color: var(--color-target-ink); }
