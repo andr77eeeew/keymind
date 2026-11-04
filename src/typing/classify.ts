@@ -69,6 +69,14 @@ export function classifyKey(input: KeyInput): KeyAction {
   return { action: "layout", key: input.key };
 }
 
+/** Keys that would reload or print the app. Enter, Tab and Space stay with the focused control. */
+export function isAppShortcut(input: KeyInput): boolean {
+  return (
+    !input.altKey &&
+    (input.ctrlKey || input.metaKey || /^F\d{1,2}$/.test(input.key))
+  );
+}
+
 /** Tracks which modifier keys are physically down, from presses and releases. */
 export class HeldModifiers {
   private readonly held: string[] = [];

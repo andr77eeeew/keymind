@@ -1,5 +1,10 @@
 import { Batcher } from "./batcher";
-import { classifyKey, HeldModifiers, type KeyInput } from "./classify";
+import {
+  classifyKey,
+  HeldModifiers,
+  isAppShortcut,
+  type KeyInput,
+} from "./classify";
 import { TypingEngine } from "./engine";
 import { probe } from "./probe";
 import type { TextView } from "./renderer";
@@ -130,8 +135,15 @@ export class TypingSession {
   handleKeyDown(event: SessionEventLike): void {
     const handlerStart = probe ? performance.now() : 0;
     this.held.press(event.code);
-    // While paused the dialog owns the keyboard: Space and Enter must reach its buttons.
-    if (this.ended || this.isPaused) {
+    if (this.ended) {
+      return;
+    }
+    if (this.isPaused) {
+      // The dialog owns the keyboard, so Space and Enter must reach its buttons. A held Esc must
+      // not close the dialog that its first press opened.
+      if (isAppShortcut(event) || (event.repeat && event.key === "Escape")) {
+        event.preventDefault();
+      }
       return;
     }
     const decision = classifyKey(event);

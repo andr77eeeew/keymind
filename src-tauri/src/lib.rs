@@ -24,7 +24,11 @@ pub use error::AppError;
 
 /// Opens the data folder and starts the writer thread before the first window needs them.
 fn prepare_state(app: &tauri::App) -> Result<commands::AppState, AppError> {
-    let root = app.path().app_local_data_dir()?;
+    // Automated runs use a throwaway folder, so they never touch the journals of a real user.
+    let root = match std::env::var_os("KEYMIND_DATA_DIR") {
+        Some(dir) => std::path::PathBuf::from(dir),
+        None => app.path().app_local_data_dir()?,
+    };
     let paths = storage::AppPaths::prepare(&root).map_err(AppError::Storage)?;
     let journal = journal::JournalService::start(&paths.journal).map_err(AppError::Storage)?;
     let settings = settings::load(&paths.settings_cache, &paths.journal)?;

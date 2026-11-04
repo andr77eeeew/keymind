@@ -288,6 +288,22 @@ describe("TypingSession", () => {
     expect(events[5]).toMatchObject({ t: 2200, duration: 200 });
   });
 
+  it("still blocks reload keys and a held Esc while paused", () => {
+    const { session } = setup();
+    session.handleKeyDown(key("Escape", 1, { code: "Escape" }));
+    for (const k of [
+      key("F5", 2, { code: "F5" }),
+      key("r", 2, { ctrlKey: true }),
+      key("Escape", 2, { code: "Escape", repeat: true }),
+    ]) {
+      session.handleKeyDown(k);
+      expect(k.prevented).toBe(true);
+    }
+    const esc = key("Escape", 3, { code: "Escape" });
+    session.handleKeyDown(esc);
+    expect(esc.prevented).toBe(false);
+  });
+
   it("pauses on blur only once a session runs", () => {
     const { session, pausedCount } = setup();
     session.handleBlur();

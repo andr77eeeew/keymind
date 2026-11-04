@@ -8,9 +8,13 @@ export interface AppInfo {
   version: string;
 }
 
+/** A handful of screens with no deep links, so a router would add nothing yet. */
+export type Screen = "home" | "typing" | "summary" | "settings";
+
 export const useAppStore = defineStore("app", () => {
   const info = ref<AppInfo | null>(null);
   const error = ref<string | null>(null);
+  const screen = ref<Screen>("home");
 
   async function loadInfo(): Promise<void> {
     try {
@@ -22,5 +26,9 @@ export const useAppStore = defineStore("app", () => {
     }
   }
 
-  return { info, error, loadInfo };
+  function go(next: Screen): void {
+    screen.value = next;
+  }
+
+  return { info, error, screen, loadInfo, go };
 });

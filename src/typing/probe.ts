@@ -49,8 +49,8 @@ function createProbe(): LatencyProbe {
       data.queue.push(handlerStart - timeStamp);
       data.handler.push(handlerEnd - handlerStart);
       // The next frame callback runs just before the paint that shows this press.
-      requestAnimationFrame((frameTime) => {
-        data.frame.push(frameTime - timeStamp);
+      requestAnimationFrame(() => {
+        data.frame.push(performance.now() - timeStamp);
       });
     },
     reset(): void {
