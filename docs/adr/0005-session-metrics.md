@@ -28,14 +28,14 @@ Option 2. `stats::SessionStats` takes events one at a time, and the writer threa
 batches that reached the disk. A rough live WPM on the typing screen is computed separately in the UI
 twice a second and is never stored.
 
-| Metric     | Formula                                                                                       |
-| ---------- | --------------------------------------------------------------------------------------------- |
-| Duration   | From the first to the last counted press, minus pauses between them                           |
-| CPM        | Correct character presses per minute                                                          |
-| WPM        | CPM / 5                                                                                       |
-| Accuracy   | Correct / all character presses. Backspace is not counted, a corrected error stays in the sum |
-| Evenness   | `100 × (1 − min(1, CV))`, where CV is standard deviation / mean of the intervals              |
-| Zen        | Nothing is expected: CPM and WPM use all character presses, accuracy is absent                |
+| Metric   | Formula                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------- |
+| Duration | From the first to the last counted press, minus pauses between them                           |
+| CPM      | Correct character presses per minute                                                          |
+| WPM      | CPM / 5                                                                                       |
+| Accuracy | Correct / all character presses. Backspace is not counted, a corrected error stays in the sum |
+| Evenness | `100 × (1 − min(1, CV))`, where CV is standard deviation / mean of the intervals              |
+| Zen      | Nothing is expected: CPM and WPM use all character presses, accuracy is absent                |
 
 Rhythm intervals run between consecutive character presses. Gaps above 2 seconds, and any interval
 touching a Backspace or a pause, are left out. At least two intervals are required. Presses marked

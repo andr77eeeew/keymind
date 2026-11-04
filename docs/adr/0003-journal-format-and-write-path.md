@@ -39,7 +39,20 @@ from the first keystroke.
 The first option in each group. One event per line:
 
 ```json
-{"v":1,"type":"keystroke","sid":"…","seq":42,"t":1234.5,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":17,"mods":["ShiftLeft"]}
+{
+  "v": 1,
+  "type": "keystroke",
+  "sid": "…",
+  "seq": 42,
+  "t": 1234.5,
+  "kind": "char",
+  "code": "KeyA",
+  "key": "a",
+  "expected": "a",
+  "correct": true,
+  "pos": 17,
+  "mods": ["ShiftLeft"]
+}
 ```
 
 | Field      | Meaning                                                                   |
