@@ -53,6 +53,9 @@
   gap: var(--space-xs);
   cursor: pointer;
 }
+.library__pick input {
+  accent-color: var(--color-accent);
+}
 .library__a {
   text-align: right;
   padding-right: 0;

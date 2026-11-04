@@ -25,6 +25,11 @@ export default tseslint.config(
     // The type checker covers undefined names, and this rule does not know DOM types.
     rules: { "no-undef": "off" },
   },
+  // Node scripts: the same reason, for Node globals.
+  {
+    files: ["scripts/**/*.mjs"],
+    rules: { "no-undef": "off" },
+  },
   // Must stay last: turns off every style rule that Prettier owns.
   prettier,
 );

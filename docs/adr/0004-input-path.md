@@ -69,3 +69,34 @@ without one IPC call per key.
   the earlier layout in its first line only. Nobody sees this, as the text above the cursor scrolls.
 - The input path can be unit-tested in jsdom except for real line positions, which tests fake. Real
   behaviour is checked by the latency bench and the end-to-end run against WebView2.
+
+## Measurement
+
+`scripts/latency-bench.mjs` drives a release build in the real WebView2 through the DevTools
+Protocol. `Input.dispatchKeyEvent` goes through the normal input pipeline, and the journal is really
+written, to a temporary folder. The run is 5000 presses per text: 40 at 20 per second, then 20 at 60
+per second, with 2% wrong presses corrected by Backspace. Probes exist only in this build.
+
+Results of 2026-11-04, 60 Hz display, times in milliseconds:
+
+| Text, characters | Queue p50 / p99 / max | Handler p50 / p99 / max | To next frame p50 / p95 / max | To paint: over 16 ms, p95, max | Long tasks |
+| ---------------- | --------------------- | ----------------------- | ----------------------------- | ------------------------------ | ---------- |
+| 1,000            | 0.2 / 0.6 / 1.6       | 0.0 / 0.2 / 3.9         | 0.5 / 6.2 / 8.8               | 18%, 16, 32                    | 0          |
+| 100,000          | 0.2 / 0.5 / 2.4       | 0.0 / 0.2 / 0.3         | 0.5 / 6.3 / 8.6               | 20%, 16, 24                    | 0          |
+| 1,000,000        | 0.2 / 0.6 / 3.0       | 0.0 / 0.2 / 0.3         | 0.5 / 6.3 / 8.6               | 19%, 16, 24                    | 0          |
+
+All 15,004 presses reached the journal, and the DOM never held more than about 1,300 characters.
+
+The targets were a queue p99 of 4 ms at most, a handler p99 of 2 ms at most, 33 ms at most to the
+frame at p95, no long tasks, and no growth with length. All hold, and the figures do not depend on
+the length of the text.
+
+- **Queue** is `event.timeStamp` to the start of the handler. **Handler** is its own run time.
+- **To next frame** ends at the next `requestAnimationFrame` callback. It shows that nothing blocks
+  the frame, but a callback runs before the paint, so it understates what the eye sees.
+- **To paint** comes from the Event Timing API, which ends at the paint. It has 8 ms steps and only
+  reports events of 16 ms or more, which is why it gives a share over 16 ms rather than a median.
+
+This does not cover the keyboard, the path through Windows or the delay of the monitor, which add
+the same amount in any app. Synthetic input also skips the hardware message loop, so the feel on a
+long text still needs a check by hand.
