@@ -44,13 +44,15 @@ docs/                    SPEC.md, adr/
 
 ## Commands
 
-Fill in after stage 0 and keep up to date:
+Keep up to date:
 
-- Dev run: `TODO`
-- Rust tests: `TODO`
-- UI tests: `TODO`
-- Lint and format: `TODO`
-- Release build: `TODO`
+- Dev run: `npm run tauri dev`
+- Rust tests: `npm run rust:test`
+- UI tests: `npm test`
+- Lint and format: `npm run lint`, `npm run format:check`, `npm run rust:fmt`, `npm run rust:lint`
+  (apply formatting with `npm run format` and `cargo fmt --manifest-path src-tauri/Cargo.toml`)
+- Everything above plus type checks: `npm run check`
+- Release build: `npm run tauri build`
 
 ## Architecture rules (do not break)
 
@@ -60,7 +62,8 @@ Fill in after stage 0 and keep up to date:
    SQLite files never go into a sync folder.
 3. Each event has a schema version field. Old journals must keep loading after schema changes.
 4. Every keystroke stores `event.code`, the typed character, the expected character and a
-   `performance.now()` timestamp. Keystrokes reach the core in batches, never one IPC call per key.
+   timestamp from `event.timeStamp` (the `performance.now()` clock, taken when the browser received
+   the input). Keystrokes reach the core in batches, never one IPC call per key.
 5. The typing screen must never lag. No heavy work on the input path; the projector and the brain
    run in the background.
 6. Every feature and policy is user-toggleable and on by default. A new policy is also added to the

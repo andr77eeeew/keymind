@@ -22,6 +22,8 @@ tools/content/raw/
 # User data: journals, derived databases and local caches are never committed
 journal/
 journals/
+# The journal source module is code, not user data.
+!src-tauri/src/journal/
 *.jsonl.tmp
 *.sqlite
 *.sqlite3
