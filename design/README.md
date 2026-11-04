@@ -212,7 +212,7 @@ the same screen with `data-kbd="off"`, so it takes the keyboard back without ano
 - **The panel sits directly on the text,** with a hairline under it for progress. The hairline uses
   `transform` and is written by the timer that writes the figures, never by a press.
 - **Reward band.** The last row is never shorter than `--reward-band`, so a reward has room at every
-  window size. In a short window, rewards queue and show one at a time.
+  window size. XP sits on the left and quests on the right. In a short window, a second reward on the same side waits for the first.
 - **By time:** `00:41 left` in the code font, the hairline empties, the last ten seconds get a soft
   block with no change of size, and the slot says "The clock starts with your first key." until then.
 - **Policies in force:** a tag in the panel, such as "Backspace off", only when it differs from the
@@ -268,12 +268,15 @@ rhythm evenness and time in one row. There is no XP on it.
 
 ## Window sizes
 
-| Size      | What was checked                            | Result                                                                                                     |
-| --------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1920×1080 | Home, setup, typing, Zen, messages, summary | Fits, capped and centred                                                                                   |
-| 1366×768  | Same                                        | Fits                                                                                                       |
-| 1100×720  | Same, with every state, in both themes      | Fits with no scrolling except long lists                                                                   |
-| 720×480   | Same, with every state                      | Works. Setup rows stack, the page scrolls, Start stays in the sticky foot, and typing shows all four lines |
+Every state of the screens above was loaded from disk at each size and checked for content past the
+window edge and for a Start button out of view. The main states were also read by eye.
+
+| Size      | Themes      | Result                                                                                                 |
+| --------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| 1920×1080 | Light       | Fits, capped and centred                                                                               |
+| 1366×768  | Light       | Fits                                                                                                   |
+| 1100×720  | Light, dark | Fits, only long lists scroll                                                                           |
+| 720×480   | Light       | Works: setup rows stack, the page scrolls, Start stays in the sticky foot, typing shows all four lines |
 
 The window sizes in `tauri.conf.json` can stay for these screens. The keyboard does not fit a 720 wide
 window at its current size, so the minimum needs another look when it returns.
