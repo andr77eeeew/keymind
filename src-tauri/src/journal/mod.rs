@@ -2,12 +2,14 @@
 
 pub mod event;
 pub mod reader;
+pub mod service;
 pub mod writer;
 
 use std::path::PathBuf;
 
 pub use event::{Event, EventBody};
 pub use reader::{ReadReport, read_dir};
+pub use service::{JournalService, ServiceError};
 pub use writer::JournalWriter;
 
 #[derive(Debug, thiserror::Error)]

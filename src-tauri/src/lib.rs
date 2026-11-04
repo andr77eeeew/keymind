@@ -9,6 +9,7 @@ pub mod integrations;
 pub mod journal;
 pub mod projector;
 pub mod rules;
+pub mod stats;
 pub mod sync;
 
 pub use error::AppError;
