@@ -1,5 +1,5 @@
 // Onboarding and every typing-screen variant.
-import { ROWS, codeStream, fingerOf, hand, keyboard, LEFT, page, region, relief, RIGHT, textStream, typingScreen } from './lib.mjs';
+import { ROWS, codeStream, fingerOf, hand, keyboard, LEFT, page, region, relief, RIGHT, textStream, typedStage, typingScreen } from './lib.mjs';
 
 export function codeOf(ch) {
   for (const row of ROWS) for (const k of row) if (k.base === ch || k.shift === ch) return k.code;
@@ -46,8 +46,7 @@ const onboardingTest = page({
   body: typingScreen({
     title: 'Starting test',
     left: '<span class="bar__mode">Starting test</span><span>About one minute</span>',
-    stage: `<div class="window" style="--lines:3"><div class="stream">${textStream(testText, { cursor: 22, errs: { 11: 'y' }, targets: null })}</div></div>
-    <p class="source">Errors are fine, this only sets a baseline. <a class="link" href="onboarding-result.html">Skip the test</a></p>`,
+    stage: typedStage({ stream: textStream(testText, { cursor: 22, errs: { 11: 'y' }, targets: null }), source: 'Errors are fine, this only sets a baseline. <a class="link" href="onboarding-result.html">Skip the test</a>' }),
     next: testText[22],
     finger: fingerFor(testText[22]),
     targets: [],
@@ -104,7 +103,7 @@ const typingWords = page({
   body: typingScreen({
     title: 'Adaptive session',
     left: '<span class="bar__mode">Adaptive</span><span>Focus on <b class="gram">ea</b> <b class="gram">ss</b></span>',
-    stage: `<div class="window" style="--lines:3"><div class="stream">${textStream(wordsText, { cursor: 26, errs: { 16: 'w' }, fixed: [9] })}</div></div>`,
+    stage: typedStage({ stream: textStream(wordsText, { cursor: 26, errs: { 16: 'w' }, fixed: [9] }) }),
     next: wordsText[26],
     finger: fingerFor(wordsText[26]),
   }),
@@ -118,8 +117,7 @@ const typingText = page({
   body: typingScreen({
     title: 'Text session',
     left: '<span class="bar__mode">Text</span><span>Walden, passage 12 of 240</span>',
-    stage: `<div class="window" style="--lines:3"><div class="stream">${textStream(walden, { cursor: 41, errs: { 33: 'k' }, targets: null })}</div></div>
-    <p class="source">Henry David Thoreau, Walden, 1854. Public domain.</p>`,
+    stage: typedStage({ stream: textStream(walden, { cursor: 41, errs: { 33: 'k' }, targets: null }), source: 'Henry David Thoreau, Walden, 1854. Public domain.' }),
     next: walden[41],
     finger: fingerFor(walden[41]),
     targets: [],

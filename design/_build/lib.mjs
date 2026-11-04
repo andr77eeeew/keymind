@@ -183,7 +183,6 @@ export function codeStream(code, cursor, errs = {}) {
 }
 
 // ---- Page frame
-const FONT_LINK = 'https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
 const CVD = `<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs>
 <filter id="cvd-protan"><feColorMatrix values="0.152286 1.052583 -0.204868 0 0  0.114503 0.786281 0.099216 0 0  -0.003882 -0.048116 1.051998 0 0  0 0 0 1 0"/></filter>
 <filter id="cvd-deutan"><feColorMatrix values="0.367322 0.860646 -0.227968 0 0  0.280085 0.672501 0.047413 0 0  -0.011820 0.042940 0.968881 0 0  0 0 0 1 0"/></filter>
@@ -191,8 +190,9 @@ const CVD = `<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs
 <filter id="cvd-achroma"><feColorMatrix type="saturate" values="0"/></filter>
 </defs></svg>`;
 
-export function page({ title, description, body, typing = false, data = false, gam = false, note = '' }) {
+export function page({ title, description, body, typing = false, plain = false, variants = null, reloadVariants = false, data = false, gam = false, note = '' }) {
   const rows = [
+    variants ? `<div class="review__row"><label for="rv-variant">State</label><select id="rv-variant" data-set-variant${reloadVariants ? ' data-reload' : ''}>${variants.map(([id, label]) => `<option value="${id}">${esc(label)}</option>`).join('')}</select></div>` : '',
     '<div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>',
     data ? '<div class="review__row"><label for="rv-data">Data</label><select id="rv-data" data-set-data><option value="full">Full</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Error</option></select></div>' : '',
     gam ? '<div class="review__row"><span>Gamification</span><span class="review__seg"><button type="button" data-set-gam="on">On</button><button type="button" data-set-gam="off">Clean</button></span></div>' : '',
@@ -201,16 +201,13 @@ export function page({ title, description, body, typing = false, data = false, g
     '<div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>',
   ].join('\n    ');
   return `<!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light"${plain ? ' data-kbd="off"' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="${FONT_LINK}" rel="stylesheet">
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -234,15 +231,15 @@ ${body}
 
 // ---- App shell
 const NAV = [['home', 'home.html', 'Home'], ['stats', 'statistics.html', 'Statistics'], ['brain', 'brain.html', 'Brain'], ['progress', 'achievements.html', 'Progress'], ['settings', 'settings.html', 'Settings']];
-export function shell(active, content) {
+export function shell(active, content, { nav = NAV.map(([id]) => id), gam = true } = {}) {
   return `<div class="shell">
 <header class="top">
   <a class="wordmark" href="home.html" aria-label="Keymind home">Keymind</a>
-  <nav class="nav" aria-label="Main">${NAV.map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
-  <div class="top__right gam">
+  <nav class="nav" aria-label="Main">${NAV.filter(([id]) => nav.includes(id)).map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
+  ${gam ? `<div class="top__right gam">
     <a class="top__stat" href="achievements.html"><span>Level</span> <b><span data-show="full loading error">14</span><span data-show="empty">1</span></b></a>
     <a class="top__stat" href="quests.html"><span>Streak</span> <b><span data-show="full loading error">23</span><span data-show="empty">0</span></b></a>
-  </div>
+  </div>` : ''}
 </header>
 <main class="content">
 ${content}
@@ -259,8 +256,8 @@ export function region({ full, rows = 3, loading, empty, error }) {
   return `<div class="region">
 <div data-when="full">${full}</div>
 <div data-when="loading" aria-busy="true"><span class="visually-hidden">Loading</span>${loading || sk(rows)}</div>
-<div data-when="empty">${box('empty', empty)}</div>
-<div data-when="error">${box('error', error)}</div>
+<div data-when="empty">${typeof empty === 'string' ? empty : box('empty', empty)}</div>
+<div data-when="error">${typeof error === 'string' ? error : box('error', error)}</div>
 </div>`;
 }
 
@@ -268,8 +265,24 @@ export const sec = (title, inner, more = '', cls = '') => `<section class="sec $
 export const meter = ({ label, value, max, text, tick, cls = '', state = '' }) => `<div class="meter ${cls}${state ? ` is-${state}` : ''}"><div class="meter__head"><span>${label}</span><b>${text}</b></div><div class="meter__bar" role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}" aria-label="${esc(label)}"><i style="--v:${(value / max).toFixed(3)}"></i>${tick ? `<u style="--t:${(tick / max).toFixed(3)}"></u>` : ''}</div></div>`;
 export const gram = (g) => `<span class="gram">${esc(g)}</span>`;
 
+// ---- Variants: one mockup page holds several states, picked in the Mockup control or with ?variant=.
+// The first name in a page's list is the default, so it is the one that shows before the script runs.
+export const variantsOf = (list) => {
+  const first = list[0][0];
+  return (names, html, inline = false) => {
+    const tag = inline ? 'span' : 'div';
+    return `<${tag} class="v" data-v="${names}"${names.split(' ').includes(first) ? '' : ' hidden'}>${html}</${tag}>`;
+  };
+};
+
+// ---- Typed text on the stage: the session line, the text, and the slot that holds messages.
+// The slot keeps its height whether or not it says anything, so a message never moves the text.
+export const runBar = (v, label) => `<div class="run" role="progressbar" aria-label="${esc(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v * 100)}"><i style="--v:${v}"></i></div>`;
+export const typedStage = ({ stream, run = '', source = '', notice = '', level = '', cls = '', lines = 0 }) => `${run}<div class="window ${cls}"${lines ? ` style="--lines:${lines}"` : ''}><div class="stream">${stream}</div></div>
+    <div class="slot"><p class="notice" role="status" data-level="${level}">${notice}</p>${source ? `<p class="source">${source}</p>` : ''}</div>`;
+
 // ---- Typing screen: one frame for every mode, only the stage changes.
-export function typingScreen({ title, left, right = '', stage, next, finger = 'li', targets, deckCls = '', appCls = '', stats = true, time = '02:14', wpm = 58, acc = '97%' }) {
+export function typingScreen({ title, left, right = '', stage, next, finger = 'li', targets, deckCls = '', appCls = '', stats = true, time = '02:14', limit = null, wpm = 58, acc = '97%', restart = true, end = 'session-summary.html' }) {
   const label = fingerNames[finger];
   const leftHand = LEFT.includes(finger) ? finger : null;
   const rightHand = RIGHT.includes(finger) ? finger : null;
@@ -277,7 +290,7 @@ export function typingScreen({ title, left, right = '', stage, next, finger = 'l
   <h1 class="visually-hidden">${esc(title)}</h1>
   <header class="bar">
     <div class="bar__group">${left}</div>
-    <div class="bar__group">${right}${stats ? `<span class="stat"><b data-stat="time">${time}</b></span><span class="stat"><b data-stat="wpm">${wpm}</b> WPM</span><span class="stat"><b data-stat="acc">${acc}</b> accuracy</span>` : ''}<span>Esc to pause</span></div>
+    <div class="bar__group">${right}${stats ? `<span class="stat"><b data-stat="time"${limit ? ` data-limit="${limit}"` : ''}>${time}</b>${limit ? ' left' : ''}</span><span class="stat"><b data-stat="wpm">${wpm}</b> WPM</span><span class="stat"><b data-stat="acc">${acc}</b> accuracy</span>` : ''}<span>Esc to pause</span></div>
   </header>
   <section class="stage" aria-label="Text to type">${stage}</section>
   <section class="deck ${deckCls}" aria-label="On-screen keyboard">
@@ -290,11 +303,12 @@ export function typingScreen({ title, left, right = '', stage, next, finger = 'l
   </section>
   <dialog class="pause" aria-label="Paused">
     <h2>Paused</h2>
-    <p>The session clock is stopped. Nothing is lost.</p>
+    <p data-reason="esc">The session clock is stopped. Nothing is lost.</p>
+    <p data-reason="blur" hidden>Another window took the focus, so the clock stopped. Nothing is lost.</p>
     <div class="row">
       <button type="button" class="btn btn--primary" data-resume>Resume</button>
-      <a class="btn" href="typing-words.html">Restart</a>
-      <a class="btn" href="session-summary.html">End session</a>
+      ${restart ? '<a class="btn" href="" data-restart>Restart</a>' : ''}
+      <a class="btn btn--quiet" href="${end}">End session</a>
     </div>
   </dialog>
 </main>`;

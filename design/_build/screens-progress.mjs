@@ -172,7 +172,7 @@ const settings = page({
     setting('Gamification', 'Off is clean mode: no XP, levels, quests, events or achievements anywhere.', sw('s-gam')),
     setting('Streaks', '', sw('s-streak'), { dep: 's-gam' }),
     setting('Streak freeze', 'A freeze saves a missed day.', sw('s-freeze'), { dep: 's-gam' }),
-    setting('Reward animations', 'Shown in the keyboard band, never over the text.', sw('s-reward'), { dep: 's-gam' }),
+    setting('Reward animations', 'Shown away from the text and never over it.', sw('s-reward'), { dep: 's-gam' }),
     setting('Tips', 'Each tip shows the data behind it.', sw('s-tips')),
   ].join(''))}
     ${group('brain', 'Brain', [
@@ -188,7 +188,7 @@ const settings = page({
     ${group('app', 'App', [
     setting('Start with Windows', '', sw('s-auto')),
     setting('Keep in the tray', 'Closing the window keeps Keymind running.', sw('s-tray')),
-    setting('Theme', '', `<span class="seg" role="group" aria-label="Theme"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span>`),
+    setting('Theme', 'System follows the Windows setting, also while Keymind is open.', `<span class="seg" role="group" aria-label="Theme"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span>`),
     setting('Interface language', 'More languages come with their keyboard layouts.', `<select class="select" id="s-lang"><option selected>English</option><option disabled>Russian, planned</option><option disabled>Ukrainian, planned</option></select>`, { labelFor: 's-lang' }),
   ].join(''))}
     ${group('layouts', 'Layouts', [

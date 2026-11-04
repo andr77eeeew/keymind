@@ -20,12 +20,15 @@ const keyCell = (cls, label = 'E', attrs = '') => `<span class="kbd"><span class
 const questCell = (cls, m) => `<div class="quest ${cls}"><span class="quest__t">Three code sessions</span><span class="tag">Weekly</span>${meter(m)}</div>`;
 const achCell = (cls, tier = 2) => `<div class="ach ${cls}">${tierMark(tier)}<div><p class="ach__t">Bracket mender</p><p class="ach__d">Cut recovery after { by 100 ms.</p></div></div>`;
 const sessionRow = (cls, last = '58') => `<table class="tbl tbl--rows"><tbody><tr class="${cls}"><td>Adaptive</td><td class="n">${last}</td></tr></tbody></table>`;
+const quickCellHtml = (attrs = '', cls = '', dis = '') => `<div class="quick__r"${attrs}><b class="quick__m">Zen</b><span class="quick__s">No setup</span><button type="button" class="btn btn--sm ${cls}"${dis}>Start</button><span></span></div>`;
+const libCell = (attrs = '', cls = '') => `<div class="lib__r" style="grid-template-columns:minmax(0,1fr) auto"${attrs}><label class="lib__pick ${cls}"><input type="radio" name="cs-${cls || attrs.length}" checked><span class="lib__t">Walden</span></label><span class="lib__read"><b>36%</b> read</span></div>`;
 const heatCells = [0, 1, 2, 3, 4, 5].map((i) => `<i class="heatcell" data-h="${i}"></i>`).join('');
 
 const glyphs = [
   ['Upcoming', '<span class="c">a</span>'],
   ['Target', '<span class="c tgt">e</span><span class="c tgt">a</span>'],
   ['Current', '<span class="c cur">r</span>'],
+  ['Zen caret, no next character', 'wr<span class="zen__caret"></span>'],
   ['Done', '<span class="c done">d</span>'],
   ['Error, shows what was typed', '<span class="c err" data-typed="w">e</span>'],
   ['Fixed after an error', '<span class="c fixed">s</span>'],
@@ -61,6 +64,10 @@ export const componentsPage = page({
       ${row('Quest row', [questCell('', { label: 'Progress', value: 1, max: 3, text: '1 of 3' }), questCell('is-hover', { label: 'Progress', value: 1, max: 3, text: '1 of 3' }), questCell('is-focus', { label: 'Progress', value: 1, max: 3, text: '1 of 3' }), questCell('', { label: 'Progress', value: 1, max: 3, text: 'No data', state: 'error' }), questCell('is-disabled', { label: 'Progress', value: 1, max: 3, text: '1 of 3' })])}
       ${row('Achievement', [achCell('is-earned'), achCell('is-earned is-hover'), achCell('is-earned is-focus'), achCell('is-error'), achCell('is-locked is-disabled')])}
       ${row('Session row', [sessionRow(''), sessionRow('is-hover'), sessionRow('is-focus'), sessionRow('', 'No data'), `<div style="opacity:.55">${sessionRow('')}</div>`])}
+      ${row('Message in the slot', ['<p class="notice" data-level="act">Caps Lock is on.</p>', 'Not interactive', 'Never takes focus', '<p class="notice" data-level="wait">Saving is delayed.</p>', 'Empty keeps its height'])}
+      ${row('Mode on the rail', ['<a class="rail__i" href="#components">Words</a><a class="rail__i" href="#components" aria-current="page">Texts</a>', '<a class="rail__i is-hover" href="#components">Words</a>', '<a class="rail__i is-focus" href="#components">Words</a>', 'A rail item has no error of its own', '<a class="rail__i is-disabled" aria-disabled="true">Words</a>'])}
+      ${row('Quick session row', [quickCellHtml(), quickCellHtml(' style="background:var(--color-paper-3)"'), quickCellHtml('', 'is-focus'), '<div class="state state--error"><p class="state__h">Could not be read</p><p>The default setup is in place.</p></div>', quickCellHtml('', '', ' disabled')])}
+      ${row('Library row', [libCell(), libCell(' style="background:var(--color-paper-3)"'), libCell('', 'is-focus'), '<div class="state state--error lib__fail"><p class="state__h">This file could not be read</p><p>Nothing was added.</p></div>', libCell(' style="opacity:.55"')])}
       ${row('Reward', ['<div class="reward is-static"><b>+12 XP</b><span>Clean run on ea</span></div>', 'Not interactive', 'Never takes focus', 'Not shown on errors', 'Off in Settings or clean mode'])}
       ${row('Heat cell', [`<i class="heatcell" data-h="3"></i>`, `<i class="heatcell" data-h="3" style="outline:1px solid var(--color-ink)"></i><br><span class="tip-demo">ea: 212 ms, 6.1% errors</span>`, `<i class="heatcell is-focus" data-h="3"></i>`, `<i class="heatcell" style="box-shadow:inset 0 0 0 1px var(--color-rule)"></i> Too few samples`, `<i class="heatcell" data-h="3" style="opacity:.55"></i>`])}
     </tbody></table></div>
@@ -104,13 +111,19 @@ export const componentsPage = page({
 
 const GROUPS = [
   ['Start', [['onboarding-layout', 'Layout choice', 'First run'], ['onboarding-test', 'Starting test', 'First run'], ['onboarding-result', 'Your relief', 'First run, goal and reminder']]],
-  ['Home', [['home', 'Dashboard', 'Next session, level, goals, quests, event']]],
-  ['Typing', [['typing-words', 'Adaptive words', 'The main screen'], ['typing-text', 'Text', 'Public-domain passage'], ['typing-code', 'Code', 'Mono, indents, visible symbols'], ['typing-music', 'Music', 'Song lines, track progress'], ['typing-video-pause', 'Video, pause until typed', 'Player and subtitles'], ['typing-video-continuous', 'Video, continuous', 'Skipped characters are struck through']]],
-  ['After a session', [['session-summary', 'Session summary', 'Target gain first']]],
+  ['Home, as data arrives', [['home-now', 'Now', 'No statistics, no adaptive mode'], ['home-now?data=empty', 'Now, first launch', 'Nothing typed yet'], ['home-stats?data=empty', 'Statistics, no sessions', 'Flat ground, Statistics in the menu'], ['home-stats?variant=few', 'Statistics, three sessions', 'First hills, marked as early'], ['home-stats', 'Statistics, enough sessions', 'Relief and recent sessions'], ['home?gam=off', 'Adaptive', 'The brain picks the next session'], ['home', 'Adaptive with gamification', 'Level, goals, quests, event']]],
+  ['Set up a session', [['session-setup', 'Words, by count', 'The default'], ['session-setup?variant=words-time', 'Words, by time', 'Countdown length'], ['session-setup?variant=texts-passage', 'Texts, passages', 'Difficulty'], ['session-setup?variant=paste-filled', 'Texts, paste', 'Also empty, partial, nothing to type'], ['session-setup?variant=paste-none', 'Paste, nothing to type', 'Start stays off and says why'], ['session-setup?variant=zen', 'Zen', 'Nothing to set'], ['session-setup?variant=future', 'Later, all modes', 'Adaptive first, nine on the rail']]],
+  ['Your files', [['session-setup?variant=file-list', 'Library', 'Reading position per file'], ['session-setup?variant=file-empty', 'Empty', 'What to do next'], ['session-setup?variant=file-importing', 'Importing', 'Long books, the app stays usable'], ['session-setup?variant=file-unreadable', 'Not readable', 'What is safe, what to try'], ['session-setup?variant=file-drm', 'Protected by DRM', 'Why, and what works'], ['session-setup?variant=file-notext', 'Nothing to type', 'Text with no keys on the layout'], ['session-setup?variant=file-finished', 'Book finished', 'Start again is explicit'], ['session-setup?variant=file-long', 'Very long title', 'Two lines, full name on hover'], ['session-setup?variant=file-delete', 'Confirm delete', 'In the row, not a dialog']]],
+  ['Typing without a keyboard', [['plain-words', 'Words, by count', 'The main screen for now'], ['plain-time', 'Words, by time', 'Time left, line shortens'], ['plain-words?variant=short', 'Short text', 'The window fits the text'], ['plain-text', 'Text', 'Source in the message slot'], ['plain-text?variant=long', 'Very long title', 'Panel keeps its figures'], ['typing-zen', 'Zen', 'Own caret and panel'], ['typing-zen?variant=fresh', 'Zen, before the first key', 'One quiet line']]],
+  ['Messages while typing', [['typing-messages?variant=layout', 'Wrong layout', 'The press was not counted'], ['typing-messages?variant=caps', 'Caps Lock', 'Clears with the key'], ['typing-messages?variant=disk', 'Saving delayed', 'Waiting, no action'], ['typing-messages?variant=backspace', 'Backspace blocked', 'Answers a press'], ['typing-messages?variant=stop', 'Stop on error', 'Text waits for the key'], ['typing-messages?variant=pause-focus', 'Paused, lost focus', 'Same dialog, says why'], ['typing-messages?variant=pause-esc', 'Paused with Esc', 'The usual dialog']]],
+  ['Typing', [['typing-words', 'Adaptive words', 'With the keyboard'], ['typing-text', 'Text', 'Public-domain passage'], ['typing-code', 'Code', 'Mono, indents, visible symbols'], ['typing-music', 'Music', 'Song lines, track progress'], ['typing-video-pause', 'Video, pause until typed', 'Player and subtitles'], ['typing-video-continuous', 'Video, continuous', 'Skipped characters are struck through']]],
+  ['After a session', [['summary-plain', 'Words', 'Five figures, two leading'], ['summary-plain?variant=time', 'Words, by time', 'Time is the setup'], ['summary-plain?variant=text', 'Text, passage', 'Names the source'], ['summary-plain?variant=file', 'Text, from a file', 'Reading progress'], ['summary-plain?variant=zen', 'Zen', 'No accuracy'], ['summary-plain?variant=early-count', 'Ended early', 'Says where it stopped'], ['summary-plain?variant=short', 'Ended very early', 'Too few presses'], ['session-summary', 'Adaptive session', 'Target gain first']]],
   ['Understand', [['statistics', 'Statistics', 'Heatmap, bigram matrix, trends'], ['brain', 'Brain', 'Focus, why, ML against the heuristic']]],
   ['Progress', [['achievements', 'Achievements', 'Tiers and hidden'], ['quests', 'Quests', 'Goals, daily, weekly, personal'], ['events', 'Events', 'Symbol week'], ['challenges', 'Challenges', 'Special rules and ghost']]],
   ['System', [['settings', 'Settings', 'Every policy'], ['tray', 'Tray and reminder', 'Text for what Windows draws'], ['components', 'Components', 'All states']]],
 ];
+
+const fileOf = (href) => { const [name, query] = href.split('?'); return `${name}.html${query ? `?${query}` : ''}`; };
 
 export const galleryPage = page({
   title: 'Keymind screens',
@@ -121,7 +134,7 @@ export const galleryPage = page({
     <p class="gal__intro">Static mockups. Every screen has a Mockup control at the bottom right for theme, data states, clean mode and colour vision. The typing screens accept real keystrokes, and Esc pauses them.</p>
   </div>
   ${GROUPS.map(([title, items]) => `<section class="sec"><header class="sec__h"><h2>${title}</h2></header>
-    <div class="gal__grid">${items.map(([href, name, note]) => `<a class="thumb" href="${href}.html"><div class="thumb__f"><iframe data-src="${href}.html" title="${name}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div><b>${name}</b><span>${note}</span></a>`).join('')}</div>
+    <div class="gal__grid">${items.map(([href, name, note]) => `<a class="thumb" href="${fileOf(href)}"><div class="thumb__f"><iframe data-src="${fileOf(href)}" title="${name}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div><b>${name}</b><span>${note}</span></a>`).join('')}</div>
   </section>`).join('\n')}
 </main>`,
 });

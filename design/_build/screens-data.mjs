@@ -1,6 +1,7 @@
 // Home, session summary, statistics and the brain panel.
 import { esc, fingerAvg, fingerErrAvg, fingerNames, gram, keyboard, keyErr, keyMs, meter, msStep, errStep, page, region, relief, reseed, rnd, sec, shell } from './lib.mjs';
 import { mapPin } from './screens-typing.mjs';
+import { quickRows } from './screens-session.mjs';
 
 // ---- Line chart: one axis, 2px line, last point marked and labelled
 export function lineChart({ title, unit = '', series, labels, min, max, ticks, legend = false, w = 420, h = 170 }) {
@@ -67,8 +68,8 @@ const home = page({
     })}
     <div class="next__a">
       <a class="btn btn--primary" href="typing-words.html">Start session</a>
-      <nav class="modes" aria-label="Other modes"><a href="typing-words.html">Words</a><a href="typing-text.html">Texts</a><a href="typing-words.html">Zen</a><a href="challenges.html">Ghost</a><a href="typing-code.html">Code</a><a href="typing-code.html">Symbols</a><a href="typing-music.html">Music</a><a href="typing-video-pause.html">Video</a></nav>
     </div>
+    ${quickRows([['Words', '25 words from the 1,000 most common', 'plain-words.html', 'session-setup.html'], ['Texts', 'Walden, continues at 36%', 'plain-text.html', 'session-setup.html?variant=file-list'], ['Zen', 'No setup and no figures', 'typing-zen.html', '']])}
   </section>
   <aside class="s4 stack gam">
     <section class="sec"><header class="sec__h"><h2><span data-show="full loading error">Level 14</span><span data-show="empty">Level 1</span></h2><a class="link" href="achievements.html">Achievements</a></header>

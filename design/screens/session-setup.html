@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keymind: session setup</title>
+<meta name="description" content="Choose a mode and its options. Every mode remembers its own setup, and Home starts the last one directly.">
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<link rel="stylesheet" href="assets/screens.css">
+</head>
+<body>
+<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs>
+<filter id="cvd-protan"><feColorMatrix values="0.152286 1.052583 -0.204868 0 0  0.114503 0.786281 0.099216 0 0  -0.003882 -0.048116 1.051998 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-deutan"><feColorMatrix values="0.367322 0.860646 -0.227968 0 0  0.280085 0.672501 0.047413 0 0  -0.011820 0.042940 0.968881 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-tritan"><feColorMatrix values="1.255528 -0.076749 -0.178779 0 0  -0.078411 0.930809 0.147602 0 0  0.004733 0.691367 0.303900 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-achroma"><feColorMatrix type="saturate" values="0"/></filter>
+</defs></svg>
+<div class="page">
+<div class="shell">
+<header class="top">
+  <a class="wordmark" href="home.html" aria-label="Keymind home">Keymind</a>
+  <nav class="nav" aria-label="Main"><a class="nav__item" href="home.html" aria-current="page">Home</a><a class="nav__item" href="settings.html">Settings</a></nav>
+  
+</header>
+<main class="content">
+<div class="page-head page-head--setup"><h1>Set up a session</h1><a class="link" href="home-now.html">Back to home</a></div>
+<div class="v" data-v="words-count"><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count" aria-current="page">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Words</h2><p>Common English words in random order.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Length</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Length by"><button type="button" data-pick aria-pressed="true">By count</button><button type="button" data-go="words-time" aria-pressed="false">By time</button></span><span class="seg" role="group" aria-label="Number of words"><button type="button" data-pick aria-pressed="false">10</button><button type="button" data-pick aria-pressed="true">25</button><button type="button" data-pick aria-pressed="false">50</button><button type="button" data-pick aria-pressed="false">100</button></span></div></div><div class="setting"><div><p class="setting__t">Word set</p><p class="setting__d">Draws from the most common English words.</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Word pool"><button type="button" data-pick aria-pressed="false">200</button><button type="button" data-pick aria-pressed="true">1,000</button><button type="button" data-pick aria-pressed="false">5,000</button></span></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="25 words from the 1,000 most common">25 words from the 1,000 most common</p>
+    <a class="btn btn--primary" href="plain-words.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="words-time" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count" aria-current="page">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Words</h2><p>Common English words in random order.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Length</p><p class="setting__d">The clock starts with your first key.</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Length by"><button type="button" data-go="words-count" aria-pressed="false">By count</button><button type="button" data-pick aria-pressed="true">By time</button></span><span class="seg" role="group" aria-label="Time limit"><button type="button" data-pick aria-pressed="false">15 s</button><button type="button" data-pick aria-pressed="false">30 s</button><button type="button" data-pick aria-pressed="true">60 s</button><button type="button" data-pick aria-pressed="false">120 s</button></span></div></div><div class="setting"><div><p class="setting__t">Word set</p><p class="setting__d">Draws from the most common English words.</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Word pool"><button type="button" data-pick aria-pressed="false">200</button><button type="button" data-pick aria-pressed="true">1,000</button><button type="button" data-pick aria-pressed="false">5,000</button></span></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="60 seconds, words from the 1,000 most common">60 seconds, words from the 1,000 most common</p>
+    <a class="btn btn--primary" href="plain-time.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="texts-passage" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-pick aria-pressed="true">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="setting"><div><p class="setting__t">Difficulty</p><p class="setting__d">Passages from public-domain books.</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Difficulty"><button type="button" data-pick aria-pressed="true">Any</button><button type="button" data-pick aria-pressed="false">Easy</button><button type="button" data-pick aria-pressed="false">Medium</button><button type="button" data-pick aria-pressed="false">Hard</button></span></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="A passage of any difficulty">A passage of any difficulty</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="texts-paste" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-pick aria-pressed="true">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="field paste"><label for="pa-1">Your text</label><textarea id="pa-1" class="input paste__area" rows="5" spellcheck="false" placeholder="Paste or type a text here"></textarea><p class="field__help">It stays on this computer. Characters with no key on the layout are left out.</p></div></div><div class="setup__foot">
+    <p class="setup__sum" role="status" title="">Paste a text to start.</p>
+    <button type="button" class="btn btn--primary" disabled>Start session</button>
+  </div></section></div></div>
+<div class="v" data-v="paste-filled" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-pick aria-pressed="true">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="field paste"><label for="pa-2">Your text</label><textarea id="pa-2" class="input paste__area" rows="5" spellcheck="false" placeholder="Paste or type a text here">A short note written for this mockup, with a few plain sentences to type. It could be a letter, a page of notes or anything else worth practising on.</textarea><p class="field__help">It stays on this computer. Characters with no key on the layout are left out.</p></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Your text, 151 characters">Your text, 151 characters</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="paste-partial" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-pick aria-pressed="true">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="field paste"><label for="pa-3">Your text</label><textarea id="pa-3" class="input paste__area" rows="5" spellcheck="false" placeholder="Paste or type a text here">A short note written for this mockup, with a few plain sentences to type. It could be a letter, a page of notes or anything else worth practising on. Жили-были ✓</textarea><p class="field__help">12 characters have no key on the English layout and will be left out.</p></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Your text, 151 characters">Your text, 151 characters</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="paste-none" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-pick aria-pressed="true">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="field paste"><label for="pa-4">Your text</label><textarea id="pa-4" class="input paste__area" rows="5" spellcheck="false" aria-invalid="true" aria-describedby="pa-4-e" placeholder="Paste or type a text here">Жили-были дед да баба ✓ ✓ ✓</textarea><p class="field__error" id="pa-4-e">Nothing here can be typed on the English layout, the only one available for now.</p></div></div><div class="setup__foot">
+    <p class="setup__sum" role="status" title="">Add English text to start.</p>
+    <button type="button" class="btn btn--primary" disabled>Start session</button>
+  </div></section></div></div>
+<div class="v" data-v="file-list" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-a" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-a"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-a"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-empty" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><div class="state"><p class="state__h">No files yet</p><p>Add a TXT or EPUB file. A session continues where the last one stopped.</p></div><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" role="status" title="">Add a file to start.</p>
+    <button type="button" class="btn btn--primary" disabled>Start session</button>
+  </div></section></div></div>
+<div class="v" data-v="file-loading" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><div aria-busy="true"><span class="visually-hidden">Loading</span><div class="sk"><i style="--w:92%"></i><i style="--w:74%"></i><i style="--w:84%"></i></div></div></div></div><div class="setup__foot">
+    <p class="setup__sum" role="status" title="">Reading your library.</p>
+    <button type="button" class="btn btn--primary" disabled>Start session</button>
+  </div></section></div></div>
+<div class="v" data-v="file-error" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><div class="state state--error"><p class="state__h">Your library could not be read</p><p>Your files are still in the data folder. Passages and pasted text work as usual.</p><div class="state__a"><button class="btn" type="button" data-go="file-list">Try again</button></div></div></div></div><div class="setup__foot">
+    <p class="setup__sum" role="status" title="">Choose a file to start.</p>
+    <button type="button" class="btn btn--primary" disabled>Start session</button>
+  </div></section></div></div>
+<div class="v" data-v="file-importing" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-importing">
+    <span class="lib__t lib__t--wide" title="The Count of Monte Cristo.epub">The Count of Monte Cristo.epub</span>
+    <div class="lib__busy"><div class="busy" role="progressbar" aria-label="Importing The Count of Monte Cristo.epub"><i></i></div><p class="field__help" role="status">Reading the file. A long book takes a moment, and you can start a session meanwhile.</p></div>
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-b" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-b"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-b"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">Another file can wait for this one, or go first.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-imported" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-c" checked><span class="lib__t" title="The Count of Monte Cristo">The Count of Monte Cristo</span></label>
+    <span class="lib__c">2,640,000 characters</span>
+    <span class="lib__read"><b>0%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Count of Monte Cristo">Delete</button>
+    <p class="lib__note">Imported. 312 characters have no key on this layout and were left out.</p>
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-c"><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-c"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-c"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="The Count of Monte Cristo, from the beginning">The Count of Monte Cristo, from the beginning</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-unreadable" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-error">
+    <span class="lib__t lib__t--wide" title="The Odyssey, damaged copy.epub">The Odyssey, damaged copy.epub</span>
+    <div class="state state--error lib__fail"><p class="state__h">This file could not be read</p><p>Nothing was added, and your library is unchanged. If it opens elsewhere, try saving it as TXT.</p></div>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-list">Dismiss</button>
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-d" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-d"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-d"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-drm" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-error">
+    <span class="lib__t lib__t--wide" title="Bought in a store.epub">Bought in a store.epub</span>
+    <div class="state state--error lib__fail"><p class="state__h">This book is protected by DRM</p><p>Its text cannot be read, so nothing was added. A DRM-free or TXT copy will work.</p></div>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-list">Dismiss</button>
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-e" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-e"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-e"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-notext" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-error">
+    <span class="lib__t lib__t--wide" title="Война и мир.epub">Война и мир.epub</span>
+    <div class="state state--error lib__fail"><p class="state__h">Nothing here can be typed yet</p><p>The text has no characters on the English layout, the only one available for now. Nothing was added.</p></div>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-list">Dismiss</button>
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-f" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-f"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-f"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-finished" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-finished">
+    <label class="lib__pick"><input type="radio" name="lib-g" checked><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><span class="tag tag--strong">Finished</span></span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-g"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-g"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="You reached the end of Walden. It starts again from the beginning.">You reached the end of Walden. It starts again from the beginning.</p>
+    <a class="btn btn--primary" href="plain-text.html">Start again</a>
+  </div></section></div></div>
+<div class="v" data-v="file-long" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-h" checked><span class="lib__t" title="The Complete and Unabridged Illustrated Works of an Unusually Verbose Victorian Naturalist, Volume Seven, Including All Appendices, Corrections and Letters to the Editor (Second Edition, Revised).epub">The Complete and Unabridged Illustrated Works of an Unusually Verbose Victorian Naturalist, Volume Seven, Including All Appendices, Corrections and Letters to the Editor (Second Edition, Revised).epub</span></label>
+    <span class="lib__c">1,180,000 characters</span>
+    <span class="lib__read"><b>3%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Complete and Unabridged Illustrated Works of an Unusually Verbose Victorian Naturalist, Volume Seven, Including All Appendices, Corrections and Letters to the Editor (Second Edition, Revised).epub">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-h"><span class="lib__t" title="Walden">Walden</span></label>
+    <span class="lib__c">612,000 characters</span>
+    <span class="lib__read"><b>36%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Walden">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-h"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-h"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="The Complete and Unabridged Illustrated Works of an Unusually Verbose Victorian Naturalist, Volume Seven, Including All Appendices, Corrections and Letters to the Editor (Second Edition, Revised).epub, continues at 3%">The Complete and Unabridged Illustrated Works of an Unusually Verbose Victorian Naturalist, Volume Seven, Including All Appendices, Corrections and Letters to the Editor (Second Edition, Revised).epub, continues at 3%</p>
+    <a class="btn btn--primary" href="plain-text.html?variant=long">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="file-delete" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-go="texts-passage" aria-pressed="false">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-pick aria-pressed="true">File</button></span></div></div><div class="lib__wrap"><ul class="lib"><li class="lib__r is-confirm">
+      <span class="lib__t lib__t--wide" title="Walden">Walden</span>
+      <div class="lib__ask" role="group" aria-label="Confirm delete"><p>Delete this file and its reading position? Your typing history stays in the journal.</p><div class="row"><button type="button" class="btn btn--sm" data-go="file-list">Delete</button><button type="button" class="btn btn--quiet btn--sm" data-go="file-list">Keep</button></div></div>
+    </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-i"><span class="lib__t" title="The Odyssey, translated by Samuel Butler">The Odyssey, translated by Samuel Butler</span></label>
+    <span class="lib__c">640,000 characters</span>
+    <span class="lib__read"><b>8%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete The Odyssey, translated by Samuel Butler">Delete</button>
+    
+  </li><li class="lib__r">
+    <label class="lib__pick"><input type="radio" name="lib-i"><span class="lib__t" title="Notes from the garden.txt">Notes from the garden.txt</span></label>
+    <span class="lib__c">4,200 characters</span>
+    <span class="lib__read"><b>72%</b> read</span>
+    <button type="button" class="btn btn--quiet btn--sm" data-go="file-delete" aria-label="Delete Notes from the garden.txt">Delete</button>
+    
+  </li></ul><div class="lib__add"><button type="button" class="btn" data-go="file-importing">Add a file</button><p class="field__help">TXT or EPUB, up to 128 MB. It stays on this computer.</p></div></div></div><div class="setup__foot">
+    <p class="setup__sum" title="Walden, continues at 36%">Walden, continues at 36%</p>
+    <a class="btn btn--primary" href="plain-text.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="zen" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen" aria-current="page">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Zen</h2><p>Type anything. There is no text to follow, and no figures on the screen.</p></header><div class="setup__b"><p class="setup__none">Zen has nothing to set up. Backspace always works here.</p></div><div class="setup__foot">
+    <p class="setup__sum" title="Free typing, for as long as you like">Free typing, for as long as you like</p>
+    <a class="btn btn--primary" href="typing-zen.html">Start session</a>
+  </div></section></div></div>
+<div class="v" data-v="start-error" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage" aria-current="page">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a></nav><section class="setup__p"><header class="setup__h"><h2>Texts</h2><p>Books, your own words or your own files.</p></header><div class="setup__b"><div class="setting"><div><p class="setting__t">Text</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Text source"><button type="button" data-pick aria-pressed="true">Passages</button><button type="button" data-go="texts-paste" aria-pressed="false">Paste</button><button type="button" data-go="file-list" aria-pressed="false">File</button></span></div></div><div class="setting"><div><p class="setting__t">Difficulty</p><p class="setting__d">Passages from public-domain books.</p></div><div class="setting__c"><span class="seg" role="group" aria-label="Difficulty"><button type="button" data-pick aria-pressed="false">Any</button><button type="button" data-pick aria-pressed="false">Easy</button><button type="button" data-pick aria-pressed="false">Medium</button><button type="button" data-pick aria-pressed="true">Hard</button></span></div></div><p class="field__error" role="alert">The passage could not be prepared. Nothing was started. Try again or pick another mode.</p></div><div class="setup__foot">
+    <p class="setup__sum" title="A hard passage">A hard passage</p>
+    <a class="btn btn--primary" href="plain-text.html">Try again</a>
+  </div></section></div></div>
+<div class="v" data-v="future" hidden><div class="setup"><nav class="rail" aria-label="Modes"><a class="rail__i" href="?variant=future" data-go="future" aria-current="page">Adaptive</a><a class="rail__i" href="?variant=words-count" data-go="words-count">Words</a><a class="rail__i" href="?variant=texts-passage" data-go="texts-passage">Texts</a><a class="rail__i" href="?variant=zen" data-go="zen">Zen</a><a class="rail__i" href="?variant=future" data-go="future">Symbols</a><a class="rail__i" href="?variant=future" data-go="future">Code</a><a class="rail__i" href="?variant=future" data-go="future">Ghost</a><a class="rail__i" href="?variant=future" data-go="future">Music</a><a class="rail__i" href="?variant=future" data-go="future">Video</a></nav><section class="setup__p"><header class="setup__h"><h2>Adaptive</h2><p>Sessions built from your weak transitions. The brain picks everything, so there is nothing to set up.</p></header><div class="setup__b"><p class="setup__none">The next session works on <b class="gram">ea</b> and <b class="gram">ss</b>. Home starts it with one action, and this screen is only a second way in.</p></div><div class="setup__foot">
+    <p class="setup__sum" title="A session of about ten minutes">A session of about ten minutes</p>
+    <a class="btn btn--primary" href="typing-words.html">Start session</a>
+  </div></section></div></div>
+</main>
+</div>
+</div>
+<details class="review">
+  <summary>Mockup</summary>
+  <div class="review__body">
+    <div class="review__row"><label for="rv-variant">State</label><select id="rv-variant" data-set-variant><option value="words-count">Words, by count</option><option value="words-time">Words, by time</option><option value="texts-passage">Texts, passages</option><option value="texts-paste">Paste, empty</option><option value="paste-filled">Paste, with text</option><option value="paste-partial">Paste, some characters left out</option><option value="paste-none">Paste, nothing to type</option><option value="file-list">Library</option><option value="file-empty">Library, empty</option><option value="file-loading">Library, loading</option><option value="file-error">Library, could not be read</option><option value="file-importing">File importing</option><option value="file-imported">File imported, characters left out</option><option value="file-unreadable">File not readable</option><option value="file-drm">File protected by DRM</option><option value="file-notext">File with nothing to type</option><option value="file-finished">Book finished</option><option value="file-long">Very long title</option><option value="file-delete">Confirm delete</option><option value="zen">Zen</option><option value="start-error">Start failed</option><option value="future">Later: all modes on the rail</option></select></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    
+    
+    
+    <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>
+    <p>Controls that change the panel work. The rail holds nine modes without scrolling at 720 x 480. Figures are sample data.</p>
+    <a href="index.html">All screens</a>
+  </div>
+</details>
+<script src="assets/review.js"></script>
+</body>
+</html>
