@@ -1,0 +1,10 @@
+dist/
+coverage/
+package-lock.json
+src-tauri/target/
+src-tauri/gen/
+src-tauri/icons/
+content/
+# Hand-maintained documents keep their authored formatting.
+docs/SPEC.md
+CLAUDE.md

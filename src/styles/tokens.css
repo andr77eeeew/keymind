@@ -1,0 +1,28 @@
+/*
+ * Neutral placeholder tokens. The design session replaces these values;
+ * components must use the tokens rather than literal colors or fonts.
+ */
+:root {
+  color-scheme: light dark;
+
+  --color-bg: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-text: #1f1f1d;
+  --color-text-muted: #6b6b66;
+  --color-accent: #2f6f8f;
+  --color-error: #b3392f;
+
+  --font-ui: system-ui, "Segoe UI", sans-serif;
+  --font-typing: Consolas, "Cascadia Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1b1b1a;
+    --color-surface: #252523;
+    --color-text: #ecece8;
+    --color-text-muted: #a3a39c;
+    --color-accent: #7fb6d1;
+    --color-error: #ec8077;
+  }
+}
