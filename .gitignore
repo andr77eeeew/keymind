@@ -1,0 +1,59 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+src-tauri/target/
+src-tauri/gen/schemas/
+coverage/
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Raw downloads for the content pipeline are never committed
+tools/content/.cache/
+tools/content/raw/
+
+# User data: journals, derived databases and local caches are never committed
+journal/
+journals/
+*.jsonl.tmp
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.db
+imports/
+
+# Lyrics, subtitles and videos are never committed
+lyrics/
+*.lrc
+*.srt
+*.vtt
+*.ass
+*.mp4
+*.mkv
+*.webm
+
+# Research exports may hold personal journals
+research/data/
+research/exports/
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Secrets
+.env
+.env.*
+!.env.example

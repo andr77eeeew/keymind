@@ -1,0 +1,10 @@
+# Normalize line endings: golden journal files are byte-sensitive, and
+# rustfmt and Prettier expect LF on every platform.
+* text=auto eol=lf
+
+*.ico binary
+*.icns binary
+*.png binary
+*.jpg binary
+*.woff binary
+*.woff2 binary
