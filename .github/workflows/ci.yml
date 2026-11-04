@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui:
+    name: UI lint, tests and build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  rust:
+    name: Rust format, lint and tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Installs the version pinned in rust-toolchain.toml.
+      - run: rustup toolchain install
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      # tauri::generate_context! embeds the frontend, so `dist/` must exist to compile.
+      - run: New-Item -ItemType Directory -Force dist
+      - run: npm run rust:fmt
+      - run: npm run rust:lint
+      - run: npm run rust:test
+
+  app:
+    name: Release build of the app
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: rustup toolchain install
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      - run: npm ci
+      # No installer: this job only proves the app builds, and bundling is slow.
+      - run: npm run tauri -- build --no-bundle
