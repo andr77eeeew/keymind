@@ -15,8 +15,8 @@ export const scale = {
 };
 
 export const sizes = {
-  base: { 'typing-size': '30px', 'code-size': '21px', key: '50px', 'key-gap': '5px', 'key-font': '16px', 'bar-h': '56px', 'hand-w': '14px', 'hand-h': '76px', 'content-max': '1360px' },
-  large: { 'typing-size': '40px', 'code-size': '28px', key: '68px', 'key-font': '20px', 'bar-h': '64px', 'hand-w': '18px', 'hand-h': '108px', 'content-max': '1560px' },
+  base: { 'typing-size': '30px', 'code-size': '21px', key: '50px', 'key-gap': '5px', 'key-font': '16px', 'bar-h': '56px', 'hand-w': '14px', 'hand-h': '76px', 'content-max': '1360px', 'typing-column': '930px', 'reward-band': '88px' },
+  large: { 'typing-size': '40px', 'code-size': '28px', key: '68px', 'key-font': '20px', 'bar-h': '64px', 'hand-w': '18px', 'hand-h': '108px', 'content-max': '1560px', 'typing-column': '1240px' },
 };
 
 export const themes = {
@@ -77,7 +77,7 @@ const lum = (str) => { const { lin: [r, g, b] } = oklchToRgb(str); return 0.2126
 export const contrast = (x, y) => { const a = lum(x); const b = lum(y); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
 
 export const contrastPairs = [
-  ['ink', 'paper', 7], ['ink', 'paper-2', 7], ['ink', 'paper-3', 7], ['muted', 'paper', 4.5], ['muted', 'paper-2', 4.5], ['muted', 'paper-3', 4.5],
+  ['ink', 'paper', 7], ['ink', 'paper-2', 7], ['ink', 'paper-3', 7], ['ink-2', 'paper', 7], ['ink', 'accent-soft', 7], ['muted', 'paper', 4.5], ['muted', 'paper-2', 4.5], ['muted', 'paper-3', 4.5],
   ['upcoming', 'paper', 4.5], ['done', 'paper', 7], ['caret-ink', 'caret-bg', 4.5], ['caret-bg', 'paper', 3], ['error-ink', 'error-bg', 7],
   ['signal-ink', 'signal', 7], ['accent-ink', 'accent', 4.5], ['focus', 'paper', 3], ['focus', 'paper-2', 3], ['field-edge', 'paper-2', 3],
   ['key-ink', 'paper-2', 4.5], ['key-quiet', 'paper-2', 4.5], ['key-next-ink', 'key-next-bg', 4.5], ['key-wrong-ink', 'key-wrong-bg', 7], ['target', 'paper', 3],
@@ -102,7 +102,7 @@ export function tokensCss() {
   ${vars('ease', scale.ease)}
   ${vars('dur', scale.dur)}
   ${vars('z', scale.z)}
-  --typing-weight: 400; --typing-spacing: 0.01em; --tracking-display: -0.02em;
+  --typing-weight: 400; --typing-spacing: 0.01em; --typing-lines: 4; --tracking-display: -0.02em;
   ${Object.entries(sizes.base).map(([k, v]) => `--${k}: ${v};`).join(' ')}
   --shadow-key: inset 0 1px 0 var(--color-key-lit), 0 1px 0 var(--color-key-edge), 0 2px 3px -1px var(--color-key-shade);
   --shadow-lift: 0 1px 2px var(--color-key-shade), 0 12px 24px -14px var(--color-key-shade);
