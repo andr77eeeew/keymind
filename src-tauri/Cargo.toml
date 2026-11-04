@@ -23,6 +23,14 @@ thiserror = "2"
 serde_json = "1"
 uuid = { version = "1", features = ["v4"] }
 time = { version = "0.3", features = ["formatting", "macros"] }
+# A seeded generator whose output is fixed by its specification, so journal seeds stay valid.
+rand_chacha = "0.10"
+# EPUB is a ZIP file. Only deflate is needed, which keeps the dependency tree small.
+zip = { version = "9", default-features = false, features = ["deflate"] }
+# EPUB metadata and chapters are XML. The `epub` crate is GPL-3.0, so it cannot be used here.
+quick-xml = "0.42"
+# Splits accented letters from their marks, so imported text can be typed on the layout.
+unicode-normalization = "0.1"
 
 [lints.clippy]
 # Project rule: no unwrap or expect outside tests (allowed there by clippy.toml).
