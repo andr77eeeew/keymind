@@ -1,16 +1,19 @@
-<script lang="ts">
-import { contours } from "../relief/contours";
-
-// Not data: it has no keys and no hills, so it cannot be read as a result. Drawn once per run.
-const ground = contours({ seed: 31, density: 5 });
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, useTemplateRef } from "vue";
 import AppShell from "../components/AppShell.vue";
+import RecentSessions from "../components/RecentSessions.vue";
+import ReliefMap from "../components/ReliefMap.vue";
+import { FEW_SESSIONS, reliefHills, weakestPins } from "../stats/relief";
+import { useAppStore } from "../stores/app";
 import { useSessionStore } from "../stores/session";
+import { useStatsStore } from "../stores/stats";
 
+/** Home stays one screen. Statistics has the longer list. */
+const RECENT_ROWS = 4;
+
+const app = useAppStore();
 const session = useSessionStore();
+const stats = useStatsStore();
 const primaryButton = useTemplateRef<HTMLButtonElement>("primary");
 
 const primary = computed(() => session.home.primary);
@@ -35,24 +38,89 @@ const loading = computed(
   () => session.setupsState === "loading" || session.libraryState === "loading",
 );
 
+const overview = computed(() => stats.homeData);
+const noSessions = computed(() => overview.value?.recent.length === 0);
+const sessionCount = computed(() =>
+  (overview.value?.days ?? []).reduce((sum, day) => sum + day.sessions, 0),
+);
+const hills = computed(() =>
+  reliefHills(overview.value?.keys ?? [], sessionCount.value),
+);
+const pins = computed(() =>
+  // Below ten sessions the map says it is still changing, so it does not point at a key yet.
+  sessionCount.value < FEW_SESSIONS
+    ? []
+    : weakestPins(overview.value?.keys ?? []),
+);
+const mapNote = computed(() => {
+  if (noSessions.value) {
+    return "The ground is flat for now. Your first session raises the first hills.";
+  }
+  if (sessionCount.value >= FEW_SESSIONS) {
+    return undefined;
+  }
+  const count = sessionCount.value;
+  return `Drawn from ${count} ${count === 1 ? "session" : "sessions"}, so it will shift as you type more.`;
+});
+const recent = computed(() =>
+  (overview.value?.recent ?? []).slice(0, RECENT_ROWS),
+);
+
 onMounted(() => {
   // Enter starts. The button is the same element in every state, so the focus survives the data.
   primaryButton.value?.focus();
   void session.refreshImports();
+  stats.showHome();
 });
 </script>
 
 <template>
   <AppShell>
-    <section class="sheet start">
-      <div class="start__copy">
+    <section class="sheet next">
+      <div class="next__h">
         <h1 :class="{ 'clamp-2': stuck }" :title="stuck ? heading : undefined">
           {{ heading }}
         </h1>
-        <p class="start__setup">
+        <p class="start__setup start__setup--inline">
           <b>{{ primary.name }}</b>
           <span>{{ primary.line }}</span>
         </p>
+      </div>
+
+      <div v-if="stats.homeState === 'error'" class="state state--error">
+        <p class="state__h">The statistics could not be read</p>
+        <p>
+          Your journal is safe. Rebuild the statistics from it and the map comes
+          back.
+        </p>
+        <div class="state__a">
+          <button
+            type="button"
+            class="btn"
+            :disabled="stats.rebuilding"
+            @click="stats.rebuild()"
+          >
+            Rebuild from the journal
+          </button>
+        </div>
+      </div>
+      <div
+        v-else-if="stats.homeState === 'loading' || overview === null"
+        class="sk"
+        aria-busy="true"
+      >
+        <span class="visually-hidden">Loading</span>
+        <i style="--w: 100%; height: 190px" />
+      </div>
+      <ReliefMap
+        v-else
+        :hills="hills"
+        :pins="pins"
+        :note="mapNote"
+        :flat="noSessions"
+      />
+
+      <div class="next__a">
         <div class="start__a">
           <button
             ref="primary"
@@ -72,16 +140,9 @@ onMounted(() => {
             Change setup
           </button>
         </div>
-      </div>
-      <div class="start__ground" aria-hidden="true">
-        <svg
-          class="relief"
-          :viewBox="ground.viewBox"
-          preserveAspectRatio="xMidYMid slice"
+        <a class="link" href="#" @click.prevent="app.go('statistics')"
+          >Open statistics</a
         >
-          <path class="relief__thin" :d="ground.thin" />
-          <path class="relief__bold" :d="ground.bold" />
-        </svg>
       </div>
     </section>
 
@@ -93,57 +154,83 @@ onMounted(() => {
       </p>
     </div>
 
-    <section class="sec quickwrap">
-      <header class="sec__h">
-        <h2>Other sessions</h2>
-        <a
-          class="link"
-          href="#"
-          @click.prevent="session.openSetup(primary.used)"
-          >All modes</a
-        >
-      </header>
-      <div v-if="loading" class="sk" aria-busy="true">
-        <span class="visually-hidden">Loading</span>
-        <i style="--w: 92%" />
-        <i style="--w: 74%" />
-      </div>
-      <ul v-else class="quick">
-        <li
-          v-for="row in session.home.others"
-          :key="row.used.mode"
-          class="quick__r"
-        >
-          <b class="quick__m">{{ row.name }}</b>
-          <span
-            class="quick__s"
-            :title="row.noRepeat ? row.noRepeat.rowText : row.line"
-            >{{ row.noRepeat ? row.noRepeat.rowText : row.line }}</span
-          >
-          <button
-            type="button"
-            class="btn btn--sm"
-            :disabled="session.starting"
-            :aria-label="
-              row.noRepeat
-                ? `${row.noRepeat.rowAction} for ${row.name}`
-                : `Start ${row.name}`
-            "
-            @click="session.startChoice(row)"
-          >
-            {{ row.noRepeat ? row.noRepeat.rowAction : "Start" }}
-          </button>
+    <div class="twocol">
+      <section class="sec quickwrap">
+        <header class="sec__h">
+          <h2>Other sessions</h2>
           <a
-            v-if="!row.noRepeat && row.used.mode !== 'zen'"
             class="link"
             href="#"
-            :aria-label="`Change the ${row.name} setup`"
-            @click.prevent="session.openSetup(row.used)"
-            >Change</a
+            @click.prevent="session.openSetup(primary.used)"
+            >All modes</a
           >
-          <span v-else />
-        </li>
-      </ul>
-    </section>
+        </header>
+        <div v-if="loading" class="sk" aria-busy="true">
+          <span class="visually-hidden">Loading</span>
+          <i style="--w: 92%" />
+          <i style="--w: 74%" />
+        </div>
+        <ul v-else class="quick">
+          <li
+            v-for="row in session.home.others"
+            :key="row.used.mode"
+            class="quick__r"
+          >
+            <b class="quick__m">{{ row.name }}</b>
+            <span
+              class="quick__s"
+              :title="row.noRepeat ? row.noRepeat.rowText : row.line"
+              >{{ row.noRepeat ? row.noRepeat.rowText : row.line }}</span
+            >
+            <button
+              type="button"
+              class="btn btn--sm"
+              :disabled="session.starting"
+              :aria-label="
+                row.noRepeat
+                  ? `${row.noRepeat.rowAction} for ${row.name}`
+                  : `Start ${row.name}`
+              "
+              @click="session.startChoice(row)"
+            >
+              {{ row.noRepeat ? row.noRepeat.rowAction : "Start" }}
+            </button>
+            <a
+              v-if="!row.noRepeat && row.used.mode !== 'zen'"
+              class="link"
+              href="#"
+              :aria-label="`Change the ${row.name} setup`"
+              @click.prevent="session.openSetup(row.used)"
+              >Change</a
+            >
+            <span v-else />
+          </li>
+        </ul>
+      </section>
+
+      <section class="sec">
+        <header class="sec__h"><h2>Recent sessions</h2></header>
+        <div v-if="stats.homeState === 'error'" class="state state--error">
+          <p class="state__h">Sessions could not be loaded</p>
+          <p>Your journal is safe. Rebuild the statistics from it.</p>
+        </div>
+        <div
+          v-else-if="stats.homeState === 'loading' || overview === null"
+          class="sk"
+          aria-busy="true"
+        >
+          <span class="visually-hidden">Loading</span>
+          <i style="--w: 92%" />
+          <i style="--w: 74%" />
+          <i style="--w: 84%" />
+          <i style="--w: 66%" />
+        </div>
+        <div v-else-if="noSessions" class="state state--empty">
+          <p class="state__h">No sessions yet</p>
+          <p>Your first session shows up here.</p>
+        </div>
+        <RecentSessions v-else :rows="recent" from="home" />
+      </section>
+    </div>
   </AppShell>
 </template>
