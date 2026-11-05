@@ -17,6 +17,7 @@ function bound<K extends keyof Settings>(key: K) {
 const backspace = bound("backspace");
 const onError = bound("on_error");
 const theme = bound("theme");
+const liveFigures = bound("live_figures");
 
 const backspaceOptions = [
   { value: "allowed", label: "Allowed" },
@@ -68,6 +69,25 @@ const themeOptions = [
               label="On error"
               :options="onErrorOptions"
             />
+          </div>
+        </div>
+        <div class="setting">
+          <div>
+            <p class="setting__t">Live figures</p>
+            <p class="setting__d">
+              WPM, accuracy and elapsed time while you type. A time limit always
+              shows, and the summary keeps every figure.
+            </p>
+          </div>
+          <div class="setting__c">
+            <label class="switch">
+              <input v-model="liveFigures" type="checkbox" role="switch" />
+              <span class="switch__t" />
+              <span class="switch__state">{{
+                liveFigures ? "On" : "Off"
+              }}</span>
+              <span class="visually-hidden">Live figures</span>
+            </label>
           </div>
         </div>
       </section>

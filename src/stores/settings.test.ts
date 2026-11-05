@@ -10,6 +10,7 @@ describe("settings store", () => {
     setActivePinia(createPinia());
     vi.mocked(invoke).mockReset();
     delete document.documentElement.dataset.theme;
+    delete document.documentElement.dataset.figures;
   });
 
   it("applies the theme it loads", async () => {
@@ -60,8 +61,58 @@ describe("settings store", () => {
     vi.mocked(invoke).mockRejectedValue("no core");
     const store = useSettingsStore();
     await store.load();
-    expect(store.settings.theme).toBe("light");
+    expect(store.settings.theme).toBe("system");
+    expect(store.settings.live_figures).toBe(true);
     expect(store.error).toContain("no core");
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(document.documentElement.dataset.figures).toBe("on");
+  });
+
+  it("marks the page when live figures are off", async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      on_error: "continue",
+      backspace: "allowed",
+      theme: "light",
+      live_figures: false,
+    });
+    const store = useSettingsStore();
+    await store.load();
+    expect(document.documentElement.dataset.figures).toBe("off");
+  });
+
+  it("shows a tried theme at once and saves it only on request", async () => {
+    const store = useSettingsStore();
+    store.tryTheme("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(invoke).not.toHaveBeenCalled();
+    expect(store.settings.theme).toBe("system");
+  });
+
+  it("saves the choice and the flag, in that order", async () => {
+    vi.mocked(invoke).mockImplementation((_, args) => {
+      const { key, value } = args as { key: string; value: unknown };
+      return Promise.resolve({
+        theme: "dark",
+        theme_chosen: key === "theme_chosen" && value,
+      });
+    });
+    const store = useSettingsStore();
+    expect(await store.chooseTheme("dark")).toBe(true);
+    expect(vi.mocked(invoke).mock.calls.map((call) => call[1])).toEqual([
+      { key: "theme", value: "dark" },
+      { key: "theme_chosen", value: true },
+    ]);
+    expect(store.settings.theme_chosen).toBe(true);
+    expect(document.documentElement.dataset.theme).toBe("dark");
+  });
+
+  it("keeps a choice for this launch when it cannot be saved", async () => {
+    vi.mocked(invoke).mockRejectedValue("disk");
+    const store = useSettingsStore();
+    expect(await store.chooseTheme("dark")).toBe(false);
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(store.settings.theme_chosen).toBe(false);
+    expect(store.error).toContain("disk");
   });
 
   it("takes the new value from the core, not from the request", async () => {

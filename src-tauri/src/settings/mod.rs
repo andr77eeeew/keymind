@@ -2,6 +2,7 @@
 //! only a cache of the result that can be rebuilt from them at any time.
 
 use std::fs;
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -32,20 +33,37 @@ pub enum BackspacePolicy {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Theme {
-    #[default]
     Light,
     Dark,
     /// Follows Windows. The UI resolves it, since the webview is what knows the current scheme.
+    #[default]
     System,
 }
 
 /// Missing keys take their default, so old caches and journals keep working.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
     pub on_error: OnError,
     pub backspace: BackspacePolicy,
     pub theme: Theme,
+    /// WPM, accuracy and elapsed time on the typing screen. A time limit always shows.
+    pub live_figures: bool,
+    /// The first-launch step is done. It needs its own flag, because choosing the value that is
+    /// already set writes no event, so the theme alone cannot tell.
+    pub theme_chosen: bool,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            on_error: OnError::default(),
+            backspace: BackspacePolicy::default(),
+            theme: Theme::default(),
+            live_figures: true,
+            theme_chosen: false,
+        }
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -115,6 +133,44 @@ pub fn change_event(
     Ok(Some((next, event)))
 }
 
+/// Whether to ask for a theme on this launch: not once it was answered, and not for someone who
+/// already has sessions here or from another computer. If the journal cannot be read the answer is
+/// no, because a look is no reason to stand in the way.
+pub fn asks_for_theme(settings: &Settings, journal_root: &Path) -> bool {
+    !settings.theme_chosen && matches!(any_session(journal_root), Ok(false))
+}
+
+/// Stops at the first session, and a journal without sessions holds only a few settings events, so
+/// this stays short at any journal size.
+fn any_session(journal_root: &Path) -> std::io::Result<bool> {
+    let devices = match fs::read_dir(journal_root) {
+        Ok(devices) => devices,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => return Err(error),
+    };
+    for device in devices {
+        let device = device?.path();
+        if !device.is_dir() {
+            continue;
+        }
+        for file in fs::read_dir(&device)? {
+            let file = file?.path();
+            if file.extension().is_some_and(|ext| ext == "jsonl") {
+                for line in BufReader::new(fs::File::open(&file)?).split(b'\n') {
+                    if contains(&line?, b"\"session_started\"") {
+                        return Ok(true);
+                    }
+                }
+            }
+        }
+    }
+    Ok(false)
+}
+
+fn contains(line: &[u8], needle: &[u8]) -> bool {
+    line.windows(needle.len()).any(|part| part == needle)
+}
+
 /// Reads the cache, and rebuilds it from the journal when it is missing or damaged.
 pub fn load(cache: &Path, journal_dir: &Path) -> Result<Settings, SettingsError> {
     if let Some(settings) = fs::read(cache)
@@ -165,7 +221,9 @@ mod tests {
         let settings = Settings::default();
         assert_eq!(settings.on_error, OnError::Continue);
         assert_eq!(settings.backspace, BackspacePolicy::Allowed);
-        assert_eq!(settings.theme, Theme::Light);
+        assert_eq!(settings.theme, Theme::System);
+        assert!(settings.live_figures);
+        assert!(!settings.theme_chosen);
     }
 
     #[test]
@@ -217,12 +275,12 @@ mod tests {
         let EventBody::SettingsChanged(body) = event.body else {
             panic!("wrong event type");
         };
-        assert_eq!(body.old, json!("light"));
+        assert_eq!(body.old, json!("system"));
         assert_eq!(body.new, json!("dark"));
         assert_eq!(body.ts, "2026-11-04T12:00:00Z");
 
         assert!(
-            change_event(&Settings::default(), "theme", &json!("light"), now)
+            change_event(&Settings::default(), "theme", &json!("system"), now)
                 .unwrap()
                 .is_none()
         );
@@ -249,6 +307,38 @@ mod tests {
         // A damaged cache takes the same way back.
         fs::write(&cache, b"{broken").unwrap();
         assert_eq!(load(&cache, &journal).unwrap().on_error, OnError::Stop);
+    }
+
+    #[test]
+    fn the_theme_is_asked_for_until_answered_and_only_without_sessions() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("journal");
+        let settings = Settings::default();
+        assert!(asks_for_theme(&settings, &root), "no journal yet");
+
+        let device = root.join("device-a");
+        fs::create_dir_all(&device).unwrap();
+        fs::write(
+            device.join("2026-11-05.jsonl"),
+            "{\"type\":\"settings_changed\"}\n",
+        )
+        .unwrap();
+        assert!(asks_for_theme(&settings, &root), "only settings so far");
+
+        let answered = Settings {
+            theme_chosen: true,
+            ..settings
+        };
+        assert!(!asks_for_theme(&answered, &root));
+
+        let other = root.join("device-b");
+        fs::create_dir_all(&other).unwrap();
+        fs::write(
+            other.join("2026-11-05.jsonl"),
+            "{\"type\":\"session_started\"}\n",
+        )
+        .unwrap();
+        assert!(!asks_for_theme(&settings, &root), "another computer counts");
     }
 
     #[test]
