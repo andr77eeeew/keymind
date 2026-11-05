@@ -7,6 +7,7 @@ import {
   shortDate,
   trendOf,
   trendRange,
+  trendTicks,
 } from "./trends";
 
 function day(date: string, wpm: number | null): DayRow {
@@ -106,5 +107,16 @@ describe("trendRange", () => {
 
   it("has a range with no data", () => {
     expect(trendRange(trendWith([null]), 100)).toEqual({ min: 0, max: 100 });
+  });
+});
+
+describe("trendTicks", () => {
+  it("puts a round number between the ends", () => {
+    expect(trendTicks({ min: 60, max: 85 })).toEqual([60, 75, 85]);
+    expect(trendTicks({ min: 0, max: 100 })).toEqual([0, 50, 100]);
+  });
+
+  it("stays between the ends on a narrow range", () => {
+    expect(trendTicks({ min: 95, max: 100 })).toEqual([95, 98, 100]);
   });
 });

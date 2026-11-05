@@ -12,6 +12,7 @@ import {
 import {
   shortDate,
   trendRange,
+  trendTicks,
   type Trend,
   type TrendRange,
 } from "../stats/trends";
@@ -173,7 +174,9 @@ function build(element: HTMLElement): uPlot {
         {
           stroke: () => palette.muted,
           font: `11px ${palette.font}`,
-          size: 26,
+          // Enough air that the first date stays clear of the lowest value on the other axis.
+          size: 32,
+          gap: 11,
           grid: { show: false },
           ticks: { show: false },
           splits: () => [0, props.trend.dates.length - 1],
@@ -186,11 +189,7 @@ function build(element: HTMLElement): uPlot {
           size: 32,
           grid: { stroke: () => palette.grid, width: 1 },
           ticks: { show: false },
-          splits: () => [
-            range.min,
-            Math.round((range.min + range.max) / 2),
-            range.max,
-          ],
+          splits: () => trendTicks(range),
           values: (_, splits) => splits.map(String),
         },
       ],

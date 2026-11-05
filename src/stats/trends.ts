@@ -98,3 +98,9 @@ export function trendRange(trend: Trend, ceiling?: number): TrendRange {
   }
   return { min, max: max > min ? max : min + 5 };
 }
+
+/** The range's ends and one round number between them, for the axis labels. */
+export function trendTicks({ min, max }: TrendRange): number[] {
+  const step = max - min >= 10 ? 5 : 1;
+  return [min, Math.round((min + max) / 2 / step) * step, max];
+}

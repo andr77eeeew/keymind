@@ -1021,20 +1021,6 @@ html[data-kbd="off"] .app:not(.app--video) .stage > .window {
   color: var(--color-muted);
 }
 /* ---- Home ---- */
-.start {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 38%);
-  padding: 0;
-  overflow: clip;
-}
-.start__copy {
-  display: grid;
-  gap: var(--space-md);
-  padding: var(--space-lg);
-  align-content: center;
-  min-height: 240px;
-}
 .clamp-2 {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -1070,33 +1056,6 @@ html[data-kbd="off"] .app:not(.app--video) .stage > .window {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
-}
-.start__ground {
-  position: relative;
-  background: var(--color-paper-3);
-  border-left: 1px solid var(--color-rule);
-}
-@media (max-width: 52rem) {
-  .start {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .start__ground {
-    display: none;
-  }
-  .start__copy {
-    min-height: 0;
-  }
-}
-@media (max-height: 34rem) {
-  .start__copy {
-    min-height: 0;
-    padding: var(--space-md);
-    gap: var(--space-sm);
-  }
-  .start__copy .clamp-2 {
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
 }
 .quick__r {
   display: grid;
@@ -1865,6 +1824,10 @@ details.tv summary {
 .kbd--heat .key::before {
   display: none;
 }
+/* Below the figure, which the usual place would cross out. */
+.kbd--heat .key--home::after {
+  bottom: 3px;
+}
 .kbd--heat .key__l {
   font-size: 0.9em;
 }
@@ -1915,9 +1878,11 @@ details.tv summary {
   color: var(--color-heat-ink-5);
 }
 .heat {
-  --key: 46px;
+  /* Fifteen key widths across, so the whole keyboard fits the section it stands in. */
+  --key: clamp(34px, calc((100cqw - 14 * var(--key-gap)) / 15), 56px);
   --key-gap: 3px;
   --key-font: 14px;
+  container-type: inline-size;
   overflow-x: auto;
 }
 .legend {
@@ -2007,7 +1972,7 @@ details.tv summary {
 }
 .fingers__hands {
   display: grid;
-  grid-template-columns: 4fr 5fr;
+  grid-template-columns: 4fr 5.3fr;
   gap: var(--space-3xs);
   margin-top: var(--space-2xs);
   padding-top: var(--space-2xs);
@@ -2018,7 +1983,10 @@ details.tv summary {
 }
 .fingers {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  /* "Thumb" is the one long name, and it needs the room at the narrowest width. */
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr)) minmax(0, 1.3fr)
+    repeat(4, minmax(0, 1fr));
   gap: var(--space-3xs);
   align-items: end;
   height: 150px;
