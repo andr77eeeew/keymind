@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keymind setup: theme</title>
+<meta name="description" content="First launch: choose how Keymind looks. The choice applies at once, and System is already selected.">
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
+<link rel="stylesheet" href="assets/screens.css">
+</head>
+<body>
+<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs>
+<filter id="cvd-protan"><feColorMatrix values="0.152286 1.052583 -0.204868 0 0  0.114503 0.786281 0.099216 0 0  -0.003882 -0.048116 1.051998 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-deutan"><feColorMatrix values="0.367322 0.860646 -0.227968 0 0  0.280085 0.672501 0.047413 0 0  -0.011820 0.042940 0.968881 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-tritan"><feColorMatrix values="1.255528 -0.076749 -0.178779 0 0  -0.078411 0.930809 0.147602 0 0  0.004733 0.691367 0.303900 0 0  0 0 0 1 0"/></filter>
+<filter id="cvd-achroma"><feColorMatrix type="saturate" values="0"/></filter>
+</defs></svg>
+<div class="page">
+<div class="ob"><header class="top"><span class="wordmark">Keymind</span></header>
+<main class="ob__body ob__body--narrow">
+  <form class="ob__form" action="home-now.html" method="get">
+    <input type="hidden" name="data" value="empty">
+    <div class="stack">
+      <h1>How should Keymind look?</h1>
+      <p class="muted">You can change this at any time in Settings.</p>
+    </div>
+    <fieldset class="pick pick--theme">
+      <legend class="visually-hidden">Theme</legend>
+      <label><input type="radio" name="theme" value="light" data-theme-choice><i class="themepic" data-theme="light" aria-hidden="true"><i class="themepic__t"><i class="c done">the qu</i><i class="c cur">i</i><i class="c">et path up</i></i></i><b>Light</b><span>Dark text on a light page</span></label>
+      <label><input type="radio" name="theme" value="dark" data-theme-choice><i class="themepic" data-theme="dark" aria-hidden="true"><i class="themepic__t"><i class="c done">the qu</i><i class="c cur">i</i><i class="c">et path up</i></i></i><b>Dark</b><span>Light text on a dark page</span></label>
+      <label><input type="radio" name="theme" value="system" data-theme-choice checked><i class="themepic themepic--split" aria-hidden="true"><i data-theme="light"><i class="themepic__t"><i class="c done">the qu</i><i class="c cur">i</i><i class="c">et path up</i></i></i><i data-theme="dark"><i class="themepic__t"><i class="c done">the qu</i><i class="c cur">i</i><i class="c">et path up</i></i></i></i><b>System</b><span>Like Windows, now <span data-scheme-now>light</span></span></label>
+    </fieldset>
+    <div class="v" data-v="save-error" hidden><div class="state state--error" role="status"><p class="state__h">Your choice could not be saved</p><p>Keymind keeps it for now and asks again at the next launch.</p></div></div>
+    <div class="ob__foot"><button type="submit" class="btn btn--primary">Continue</button></div>
+  </form>
+</main></div>
+</div>
+<details class="review">
+  <summary>Mockup</summary>
+  <div class="review__body">
+    <div class="review__row"><label for="rv-variant">State</label><select id="rv-variant" data-set-variant><option value="choose">Choosing</option><option value="save-error">Choice could not be saved</option></select></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>
+    
+    
+    
+    
+    <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>
+    <p>The whole page repaints when a choice changes, as it does in the app. Continue goes to the first Home. Figures are sample data.</p>
+    <a href="index.html">All screens</a>
+  </div>
+</details>
+<script src="assets/review.js"></script>
+</body>
+</html>

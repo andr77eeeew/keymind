@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Keymind: components</title>
 <meta name="description" content="Every shared component in normal, hover, focus, error and disabled states.">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -102,9 +102,10 @@
   <summary>Mockup</summary>
   <div class="review__body">
     
-    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>
     <div class="review__row"><label for="rv-data">Data</label><select id="rv-data" data-set-data><option value="full">Full</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Error</option></select></div>
     <div class="review__row"><span>Gamification</span><span class="review__seg"><button type="button" data-set-gam="on">On</button><button type="button" data-set-gam="off">Clean</button></span></div>
+    
     
     <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>
     <p>Figures are sample data.</p>

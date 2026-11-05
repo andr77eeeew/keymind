@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Typing: video, continuous</title>
 <meta name="description" content="The typing screen under a video player with subtitles, playing without stopping.">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -20,7 +20,7 @@
   <h1 class="visually-hidden">Video session</h1>
   <header class="bar">
     <div class="bar__group"><span class="bar__mode">Video</span><span>sample.mp4 with sample.srt</span></div>
-    <div class="bar__group"><span class="seg"><a href="typing-video-pause.html">Pause until typed</a><a href="typing-video-continuous.html" aria-current="true">Continuous</a></span><span class="stat"><b data-stat="time">02:14</b></span><span class="stat"><b data-stat="wpm">58</b> WPM</span><span class="stat"><b data-stat="acc">97%</b> accuracy</span><span>Esc to pause</span></div>
+    <div class="bar__group"><span class="seg"><a href="typing-video-pause.html">Pause until typed</a><a href="typing-video-continuous.html" aria-current="true">Continuous</a></span><span class="stat stat--live"><b data-stat="time">02:14</b></span><span class="stat stat--live"><b data-stat="wpm">58</b> WPM</span><span class="stat stat--live"><b data-stat="acc">97%</b> accuracy</span><span>Esc to pause</span></div>
   </header>
   <section class="stage" aria-label="Text to type"><div class="region">
 <div data-when="full"><div class="vid">
@@ -65,9 +65,10 @@
   <summary>Mockup</summary>
   <div class="review__body">
     
-    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>
     <div class="review__row"><label for="rv-data">Data</label><select id="rv-data" data-set-data><option value="full">Full</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Error</option></select></div>
     
+    <div class="review__row"><span>Live figures</span><span class="review__seg"><button type="button" data-set-figures="on">On</button><button type="button" data-set-figures="off">Off</button></span></div>
     <div class="review__row"><label for="rv-kbd">Keyboard</label><select id="rv-kbd" data-set-kbd><option value="on">On, finger hint</option><option value="error">Only on error</option><option value="off">Off</option></select></div>
     <div class="review__row"><span>Reward</span><span class="review__seg"><button type="button" data-reward="xp">XP</button><button type="button" data-reward="quest">Quest</button><button type="button" data-reward="level">Level</button></span></div>
     <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>

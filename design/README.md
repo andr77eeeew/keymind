@@ -50,9 +50,10 @@ replaces that setup.
 ## Using the mockups
 
 Each screen has a Mockup control at the bottom right: theme, data state, clean mode, colour vision
-simulation, on typing screens the keyboard mode and reward demos, and on pages with several states a
-State list. The same options work as URL parameters: `?theme=dark`, `?data=loading|empty|error`,
-`?gam=off`, `?kbd=error|off`, `?vision=...`, `?variant=...`.
+simulation, on typing screens the live figures, keyboard mode and reward demos, and on pages with
+several states a State list. Theme offers Light, Dark and System, and starts on System, as the app does.
+The same options work as URL parameters: `?theme=dark|light|system`, `?data=loading|empty|error`,
+`?gam=off`, `?figures=off`, `?kbd=error|off`, `?vision=...`, `?variant=...`.
 
 Typing screens accept real keystrokes: errors, Backspace, Enter with auto-indent on the code screen,
 Esc to pause. This is a demo in `review.js`, not a design for the input path. All figures are samples,
@@ -90,12 +91,12 @@ and a number stays on each key, so the map never relies on colour alone.
 `screens/components.html` draws every component below in the states normal, hover, focus, error and
 disabled, in both themes.
 
-| Group      | Components                                                                   |
-| ---------- | ---------------------------------------------------------------------------- |
-| Controls   | Button (primary, secondary, quiet), input, select, switch, segmented control |
-| Navigation | Top bar item, tab, link                                                      |
-| Product    | Key, quest row, achievement row, session row, meter, heat cell, reward       |
-| Sessions   | Message in the slot, mode on the rail, quick session row, library row        |
+| Group      | Components                                                                           |
+| ---------- | ------------------------------------------------------------------------------------ |
+| Controls   | Button (primary, secondary, quiet), input, select, switch, segmented control         |
+| Navigation | Top bar item, tab, link                                                              |
+| Product    | Key, quest row, achievement row, session row, meter, heat cell, reward               |
+| Sessions   | Message in the slot, mode on the rail, quick session row, library row, theme picture |
 
 Rules shared by all states:
 
@@ -162,6 +163,8 @@ This is how it stays one action as modes are added:
 
 - **Home has one primary, and it starts at once.** It repeats the last setup: Words, 25 words, top
   1,000 on first launch, and Adaptive once that mode exists. It takes focus on arrival, so Enter starts.
+  When that setup cannot start again, the primary opens the setup instead. See "When the last setup
+  cannot repeat".
 - **Other sessions** on Home: at most three recently used modes, each with its remembered setup, a
   secondary Start and a Change link. All modes opens the setup screen.
 - **Setup screen:** a rail of modes on the left and one panel. The rail holds nine modes at 720×480
@@ -198,6 +201,60 @@ the delay would leave the file either way without the person knowing which.
 
 The ground on `home-now` is not data: it has no keys and no hills, so it cannot be read as a result.
 
+## When the last setup cannot repeat
+
+`home-now?variant=...` draws each case. The rule comes from ADR-0007: Home never starts a session it
+cannot start, and opens the setup of that mode instead.
+
+- **The same place, one primary.** The sheet keeps its shape. The heading says the situation, one line
+  says why, and the primary names what happens next instead of "Start session". It still takes focus,
+  so Enter goes to the setup.
+- **One action to type stays.** Other sessions keep the modes that can start at once, and Words always
+  can.
+- **Change setup goes away,** because the primary now does that job.
+
+| Variant        | Heading                          | Why                                                            | Primary       | Opens           |
+| -------------- | -------------------------------- | -------------------------------------------------------------- | ------------- | --------------- |
+| `paste`        | Paste a new text                 | A pasted text is not kept, so the last one cannot start again. | Paste a text  | `texts-paste`   |
+| `deleted`      | Choose a new text                | The file from your last session was deleted.                   | Choose a text | `file-list`     |
+| `device`       | Your file is on another computer | Files stay on the computer they were added to.                 | Choose a text | `file-list`     |
+| `device-empty` | Your file is on another computer | The same, and this computer has no files yet.                  | Add a file    | `file-empty`    |
+| `finished`     | You finished Walden              | Choose what to read next, or read it again.                    | Choose a text | `file-finished` |
+
+A row in Other sessions can hit the same case, shown in `row`. It keeps its place, says why in its text,
+and offers the setup where Start was: `Paste` beside "A pasted text is not kept", or `Choose` beside
+"The file is not on this computer". `home-stats?variant=paste` shows the same words over the map.
+
+What the wording rests on:
+
+- **A deleted file has no name.** `session_started` keeps the file's id, a random UUID, and the title
+  lives only in the local library. So a deleted file or one on another computer cannot be named, and a
+  finished one can. Keeping titles in the journal would send them through sync, so the copy goes without.
+- **Deleted and elsewhere are told apart by the journal folder.** If the last session is in another
+  device's folder and its id is not in the library here, the file is on another computer. If it is in
+  this device's folder, it was deleted.
+- **In the setup the most recently read file is selected,** so the next Enter there starts reading.
+- **Loading, empty and error** show the default setup, as Home already does in those states. Only a
+  readable setup can be one that cannot repeat.
+
+Adaptive always can repeat, because the brain picks the text, so `home` only needs the row case.
+
+## First launch
+
+`onboarding-theme` is the only step until stage 3. SPEC, "Первый запуск", lists the steps to come.
+
+- **Three cards in the order of Settings:** Light, Dark, System. System is selected and has the focus,
+  so Enter accepts it, and the arrow keys move between the cards.
+- **A choice applies at once** to the whole window, and is saved by Continue. Closing the window before
+  that keeps the default and asks again next time.
+- **Each picture shows the theme it names,** whatever the window is showing, through its own
+  `data-theme`. System shows both, and its line says what Windows is set to now.
+- **No step counter** while there is one step. When the test arrives, this step comes first in the list.
+- **If the choice cannot be saved** (`?variant=save-error`), the theme stays for this launch, the step
+  comes back next time, and Continue still works, because a look is no reason to stop anyone.
+
+The step loads no data, so it has no loading, empty or error state of its own beyond that one.
+
 ## Typing without the keyboard
 
 Until the keyboard arrives this is the main screen: `plain-words`, `plain-time`, `plain-text`. It is
@@ -215,8 +272,13 @@ the same screen with `data-kbd="off"`, so it takes the keyboard back without ano
   window size. XP sits on the left and quests on the right. In a short window, a second reward on the same side waits for the first.
 - **By time:** `00:41 left` in the code font, the hairline empties, the last ten seconds get a soft
   block with no change of size, and the slot says "The clock starts with your first key." until then.
-- **Policies in force:** a tag in the panel, such as "Backspace off", only when it differs from the
-  default.
+- **Policies in force:** a tag in the panel, such as "Backspace off", only when the policy changes what
+  a key does. Live figures gets no tag, because an empty panel explains itself.
+- **Live figures off** (`?figures=off`, and the Live figures row in Settings). The panel keeps the mode,
+  its detail and "Esc to pause". WPM, accuracy, elapsed time and the Code recovery figure go, and their
+  timer does not start. The hairline stays as a still rule, because the same timer writes it, so nothing
+  moves. **By time** keeps `00:41 left`, the emptying hairline and the soft last ten seconds, because a
+  limit is not a metric. The summary keeps every figure, and the text does not shift between on and off.
 
 ### Zen
 
@@ -277,6 +339,9 @@ window edge and for a Start button out of view. The main states were also read b
 | 1366×768  | Light       | Fits                                                                                                   |
 | 1100×720  | Light, dark | Fits, only long lists scroll                                                                           |
 | 720×480   | Light       | Works: setup rows stack, the page scrolls, Start stays in the sticky foot, typing shows all four lines |
+
+The first-launch step, every case of the last setup that cannot repeat and live figures off were checked
+at all four sizes in both themes. At 720×480 the long title on Home takes one line instead of two.
 
 The window sizes in `tauri.conf.json` can stay for these screens. The keyboard does not fit a 720 wide
 window at its current size, so the minimum needs another look when it returns.

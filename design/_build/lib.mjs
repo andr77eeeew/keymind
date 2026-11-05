@@ -190,12 +190,13 @@ const CVD = `<svg width="0" height="0" class="cvd-defs" aria-hidden="true"><defs
 <filter id="cvd-achroma"><feColorMatrix type="saturate" values="0"/></filter>
 </defs></svg>`;
 
-export function page({ title, description, body, typing = false, plain = false, variants = null, reloadVariants = false, data = false, gam = false, note = '' }) {
+export function page({ title, description, body, typing = false, plain = false, variants = null, reloadVariants = false, data = false, gam = false, figures = true, note = '' }) {
   const rows = [
     variants ? `<div class="review__row"><label for="rv-variant">State</label><select id="rv-variant" data-set-variant${reloadVariants ? ' data-reload' : ''}>${variants.map(([id, label]) => `<option value="${id}">${esc(label)}</option>`).join('')}</select></div>` : '',
-    '<div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>',
+    '<div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>',
     data ? '<div class="review__row"><label for="rv-data">Data</label><select id="rv-data" data-set-data><option value="full">Full</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Error</option></select></div>' : '',
     gam ? '<div class="review__row"><span>Gamification</span><span class="review__seg"><button type="button" data-set-gam="on">On</button><button type="button" data-set-gam="off">Clean</button></span></div>' : '',
+    typing && figures ? '<div class="review__row"><span>Live figures</span><span class="review__seg"><button type="button" data-set-figures="on">On</button><button type="button" data-set-figures="off">Off</button></span></div>' : '',
     typing ? `<div class="review__row"><label for="rv-kbd">Keyboard</label><select id="rv-kbd" data-set-kbd><option value="on">On, finger hint</option><option value="error">Only on error</option><option value="off">Off</option></select></div>
     <div class="review__row"><span>Reward</span><span class="review__seg"><button type="button" data-reward="xp">XP</button><button type="button" data-reward="quest">Quest</button><button type="button" data-reward="level">Level</button></span></div>` : '',
     '<div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>',
@@ -207,7 +208,7 @@ export function page({ title, description, body, typing = false, plain = false, 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -277,7 +278,7 @@ export const variantsOf = (list) => {
 
 // ---- Typed text on the stage: the session line, the text, and the slot that holds messages.
 // The slot keeps its height whether or not it says anything, so a message never moves the text.
-export const runBar = (v, label) => `<div class="run" role="progressbar" aria-label="${esc(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v * 100)}"><i style="--v:${v}"></i></div>`;
+export const runBar = (v, label, cls = '') => `<div class="run ${cls}" role="progressbar" aria-label="${esc(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v * 100)}"><i style="--v:${v}"></i></div>`;
 export const typedStage = ({ stream, run = '', source = '', notice = '', level = '', cls = '', lines = 0 }) => `${run}<div class="window ${cls}"${lines ? ` style="--lines:${lines}"` : ''}><div class="stream">${stream}</div></div>
     <div class="slot"><p class="notice" role="status" data-level="${level}">${notice}</p>${source ? `<p class="source">${source}</p>` : ''}</div>`;
 
@@ -290,7 +291,7 @@ export function typingScreen({ title, left, right = '', stage, next, finger = 'l
   <h1 class="visually-hidden">${esc(title)}</h1>
   <header class="bar">
     <div class="bar__group">${left}</div>
-    <div class="bar__group">${right}${stats ? `<span class="stat"><b data-stat="time"${limit ? ` data-limit="${limit}"` : ''}>${time}</b>${limit ? ' left' : ''}</span><span class="stat"><b data-stat="wpm">${wpm}</b> WPM</span><span class="stat"><b data-stat="acc">${acc}</b> accuracy</span>` : ''}<span>Esc to pause</span></div>
+    <div class="bar__group">${right}${stats ? `<span class="stat${limit ? '' : ' stat--live'}"><b data-stat="time"${limit ? ` data-limit="${limit}"` : ''}>${time}</b>${limit ? ' left' : ''}</span><span class="stat stat--live"><b data-stat="wpm">${wpm}</b> WPM</span><span class="stat stat--live"><b data-stat="acc">${acc}</b> accuracy</span>` : ''}<span>Esc to pause</span></div>
   </header>
   <section class="stage" aria-label="Text to type">${stage}</section>
   <section class="deck ${deckCls}" aria-label="On-screen keyboard">
