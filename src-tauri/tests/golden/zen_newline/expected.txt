@@ -16,6 +16,10 @@ date | layout | code | presses | samples | sum_us | sum_sq_us | errors
 date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
 2026-11-05 | en-qwerty | \n | b | 1 | 1 | 150000 | 22500000000 | 0
 2026-11-05 | en-qwerty | a | \n | 1 | 1 | 100000 | 10000000000 | 0
+# model_state
+layout | gram | half_life | last_date | samples | sum_ms | sum_sq_ms | presses | errors | mastered | total_samples
+en-qwerty | a | 2.0 | 2026-11-05 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 0 | 0
+en-qwerty | b | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 1.0 | 0.0 | 0 | 1
 # daily_stats
 date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
 2026-11-05 | 1 | 250.0 | 0 | 0 | 0 | 0 | 0 | 0

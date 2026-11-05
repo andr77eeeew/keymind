@@ -13,7 +13,7 @@ use rusqlite::{Connection, OpenFlags};
 
 use super::ProjectorError;
 
-pub const SCHEMA_VERSION: i64 = 1;
+pub const SCHEMA_VERSION: i64 = 2;
 
 const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -83,6 +83,23 @@ CREATE TABLE bigram_stats (
     sum_sq_us INTEGER NOT NULL,
     errors    INTEGER NOT NULL,
     PRIMARY KEY (date, layout, first, second)
+) WITHOUT ROWID;
+
+-- The student model, folded from the two tables above (ADR-0010). A gram is a letter or two.
+-- Sums are decayed to last_date, so the table does not depend on when it was computed.
+CREATE TABLE model_state (
+    layout        TEXT NOT NULL,
+    gram          TEXT NOT NULL,
+    half_life     REAL NOT NULL,
+    last_date     TEXT NOT NULL,
+    samples       REAL NOT NULL,
+    sum_ms        REAL NOT NULL,
+    sum_sq_ms     REAL NOT NULL,
+    presses       REAL NOT NULL,
+    errors        REAL NOT NULL,
+    mastered      INTEGER NOT NULL,
+    total_samples INTEGER NOT NULL,
+    PRIMARY KEY (layout, gram)
 ) WITHOUT ROWID;
 
 -- Views, because a second stored copy of the same numbers could drift from the first.

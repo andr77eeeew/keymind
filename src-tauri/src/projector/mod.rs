@@ -6,6 +6,7 @@
 
 mod apply;
 pub mod layout;
+pub mod model;
 pub mod queries;
 pub mod schema;
 pub mod service;
@@ -224,6 +225,13 @@ impl Projector {
                     total: total.max(done),
                 });
             }
+        }
+        if done > 0 {
+            let transaction = self
+                .connection
+                .transaction_with_behavior(TransactionBehavior::Immediate)?;
+            model::refresh(&transaction)?;
+            transaction.commit()?;
         }
         Ok(())
     }

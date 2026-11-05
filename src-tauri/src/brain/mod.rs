@@ -6,7 +6,8 @@ pub mod heuristic;
 pub mod model;
 pub mod unlock;
 
-/// The bar for "this key is learned": 35 WPM, five characters a word.
+/// The bar for "this key is learned": 35 WPM, five characters a word. `model_state` is folded
+/// with the bar, so a change here must raise the projector's `SCHEMA_VERSION`.
 pub const BAR_MS: f64 = 60_000.0 / (35.0 * 5.0);
 /// At most 5% of presses wrong.
 pub const BAR_ERRORS: f64 = 0.05;

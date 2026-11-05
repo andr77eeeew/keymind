@@ -1,0 +1,53 @@
+# projected_files
+device | file | bytes | events | bad_lines | unknown | duplicates | orphans
+dev-a | 2026-11-05.jsonl | 4136 | 29 | 0 | 0 | 0 | 0
+dev-a | 2026-11-07.jsonl | 4146 | 29 | 0 | 0 | 0 | 0
+# session_state
+sid | last_seq | state
+a1 | 29 | NULL
+a2 | 29 | NULL
+# sessions
+sid | device | ts | started_ms | date | mode | layout | source | reason | duration_ms | chars | correct | judged | judged_correct | backspaces | cpm | wpm | accuracy | rhythm
+a1 | dev-a | 2026-11-05T10:00:00+02:00 | 1793865600000 | 2026-11-05 | adaptive | en-qwerty | {"kind":"adaptive","seed":5,"recipe":{"v":1,"brain":"heuristic","letters":"etaoin","focus":"e","words":7,"before":{"e":600.0}}} | completed | 5200.0 | 27 | 27 | 27 | 27 | 0 | 311.53846153846155 | 62.30769230769231 | 100.0 | 100.0
+a2 | dev-a | 2026-11-07T10:00:00+02:00 | 1794038400000 | 2026-11-07 | adaptive | en-qwerty | {"kind":"adaptive","seed":5,"recipe":{"v":1,"brain":"heuristic","letters":"etaoins","focus":"a","words":7,"before":{"a":600.0}}} | completed | 11700.0 | 27 | 26 | 27 | 26 | 0 | 133.33333333333334 | 26.666666666666668 | 96.29629629629629 | 100.0
+# key_stats
+date | layout | code | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | KeyA | 7 | 7 | 1400000 | 280000000000 | 0
+2026-11-05 | en-qwerty | KeyE | 7 | 7 | 1400000 | 280000000000 | 0
+2026-11-05 | en-qwerty | KeyT | 7 | 6 | 1200000 | 240000000000 | 0
+2026-11-05 | en-qwerty | Space | 6 | 6 | 1200000 | 240000000000 | 0
+2026-11-07 | en-qwerty | KeyA | 7 | 6 | 2700000 | 1215000000000 | 1
+2026-11-07 | en-qwerty | KeyE | 7 | 7 | 3150000 | 1417500000000 | 0
+2026-11-07 | en-qwerty | KeyT | 7 | 5 | 2250000 | 1012500000000 | 0
+2026-11-07 | en-qwerty | Space | 6 | 6 | 2700000 | 1215000000000 | 0
+# bigram_stats
+date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty |   | e | 3 | 3 | 600000 | 120000000000 | 0
+2026-11-05 | en-qwerty |   | t | 3 | 3 | 600000 | 120000000000 | 0
+2026-11-05 | en-qwerty | a |   | 3 | 3 | 600000 | 120000000000 | 0
+2026-11-05 | en-qwerty | a | t | 3 | 3 | 600000 | 120000000000 | 0
+2026-11-05 | en-qwerty | e | a | 7 | 7 | 1400000 | 280000000000 | 0
+2026-11-05 | en-qwerty | t |   | 3 | 3 | 600000 | 120000000000 | 0
+2026-11-05 | en-qwerty | t | e | 4 | 4 | 800000 | 160000000000 | 0
+2026-11-07 | en-qwerty |   | e | 3 | 3 | 1350000 | 607500000000 | 0
+2026-11-07 | en-qwerty |   | t | 3 | 3 | 1350000 | 607500000000 | 0
+2026-11-07 | en-qwerty | a |   | 3 | 3 | 1350000 | 607500000000 | 0
+2026-11-07 | en-qwerty | a | t | 2 | 2 | 900000 | 405000000000 | 0
+2026-11-07 | en-qwerty | e | a | 7 | 6 | 2700000 | 1215000000000 | 1
+2026-11-07 | en-qwerty | t |   | 3 | 3 | 1350000 | 607500000000 | 0
+2026-11-07 | en-qwerty | t | e | 4 | 4 | 1800000 | 810000000000 | 0
+# model_state
+layout | gram | half_life | last_date | samples | sum_ms | sum_sq_ms | presses | errors | mastered | total_samples
+en-qwerty | a | 1.0 | 2026-11-07 | 9.5 | 3400.0 | 1355000.0 | 10.5 | 1.0 | 1 | 13
+en-qwerty | at | 2.0 | 2026-11-07 | 3.5 | 1200.0 | 465000.0 | 3.5 | 0.0 | 0 | 5
+en-qwerty | e | 1.0 | 2026-11-07 | 10.5 | 3850.0 | 1557500.0 | 10.5 | 0.0 | 1 | 14
+en-qwerty | ea | 1.0 | 2026-11-07 | 9.5 | 3400.0 | 1355000.0 | 10.5 | 1.0 | 1 | 13
+en-qwerty | t | 1.0 | 2026-11-07 | 8.0 | 2850.0 | 1132500.0 | 10.5 | 0.0 | 1 | 11
+en-qwerty | te | 2.0 | 2026-11-07 | 6.0 | 2200.0 | 890000.0 | 6.0 | 0.0 | 0 | 8
+# daily_stats
+date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
+2026-11-05 | 1 | 5200.0 | 5200.0 | 27 | 27 | 27 | 2700.0 | 27
+2026-11-07 | 1 | 11700.0 | 11700.0 | 26 | 27 | 26 | 2700.0 | 27
+# last_setups
+mode | sid | device | ts | source
+adaptive | a2 | dev-a | 2026-11-07T10:00:00+02:00 | {"kind":"adaptive","seed":5,"recipe":{"v":1,"brain":"heuristic","letters":"etaoins","focus":"a","words":7,"before":{"a":600.0}}}
