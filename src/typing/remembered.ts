@@ -30,15 +30,31 @@ export interface Choice {
   noRepeat: NoRepeat | null;
 }
 
-export const MODES: readonly Mode[] = ["words", "texts", "zen"];
+/** The modes Home offers. Adaptive comes first, so it is the primary on first launch. */
+export const MODES: readonly Mode[] = ["adaptive", "words", "texts", "zen"];
 
 const NAMES: Record<Mode, string> = {
+  adaptive: "Adaptive",
   words: "Words",
   texts: "Texts",
   zen: "Zen",
+  test: "Starting test",
 };
 
 const DEFAULTS: Record<Mode, TextSource> = {
+  adaptive: {
+    kind: "adaptive",
+    seed: 0,
+    recipe: {
+      v: 1,
+      brain: "heuristic",
+      letters: "",
+      focus: "",
+      words: 0,
+      before: {},
+    },
+  },
+  test: { kind: "test", passages: [], seconds: 60 },
   // The seed is a placeholder, because a repeat always draws a new one.
   words: { kind: "words", seed: 0, pool: 1000, count: 25 },
   texts: { kind: "passage", id: "" },
@@ -184,6 +200,10 @@ export function describe(used: Used, imports: readonly ImportedText[]): Choice {
     }
     case "zen":
       return plain("No setup and no figures");
+    case "adaptive":
+      return plain("The brain picks the session");
+    case "test":
+      return plain("One minute of natural text");
   }
 }
 

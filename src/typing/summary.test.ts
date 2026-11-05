@@ -109,6 +109,31 @@ describe("summaryContent", () => {
     );
   });
 
+  it("names the focus of an adaptive session", () => {
+    const adaptive: SessionPlan = {
+      ...WORDS,
+      mode: "adaptive",
+      source: {
+        kind: "adaptive",
+        seed: 3,
+        recipe: {
+          v: 1,
+          brain: "heuristic",
+          letters: "etaoin",
+          focus: "e",
+          words: 4,
+          before: { e: 512.3 },
+        },
+      },
+    };
+    expect(summaryContent(adaptive, SUMMARY, 18).sub).toBe(
+      "Adaptive, focus on e",
+    );
+    expect(summaryContent(adaptive, EARLY, 9).sub).toBe(
+      "Adaptive, stopped at 3 of 4 words",
+    );
+  });
+
   it("shows a dash when there are too few presses to measure", () => {
     const content = summaryContent(
       WORDS,

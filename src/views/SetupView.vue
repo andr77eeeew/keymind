@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import { localDate } from "../stats/trends";
+import { brainNext } from "../typing/api";
 import AppShell from "../components/AppShell.vue";
 import SegControl from "../components/SegControl.vue";
 import { useAppStore } from "../stores/app";
@@ -17,6 +19,7 @@ const app = useAppStore();
 const session = useSessionStore();
 
 const rail: { mode: Mode; label: string }[] = [
+  { mode: "adaptive", label: "Adaptive" },
   { mode: "words", label: "Words" },
   { mode: "texts", label: "Texts" },
   { mode: "zen", label: "Zen" },
@@ -49,6 +52,14 @@ const difficulties = [
   { value: 3, label: "Hard" },
 ];
 const PANELS: Record<Mode, { title: string; text: string }> = {
+  adaptive: {
+    title: "Adaptive",
+    text: "Sessions built from your weak keys. The brain picks everything, so there is nothing to set up.",
+  },
+  test: {
+    title: "Starting test",
+    text: "One minute of natural text that draws your first map.",
+  },
   words: {
     title: "Words",
     text: "Common English words in random order.",
@@ -68,6 +79,8 @@ const keep = useTemplateRef<HTMLButtonElement[]>("keep");
 const confirming = ref<string | null>(null);
 
 const panel = computed(() => PANELS[session.mode]);
+/** The key the next adaptive session works on, or null while unknown. */
+const nextFocus = ref<string | null>(null);
 
 /** What the foot says, and whether Start can run. A reason takes the place of the summary. */
 const foot = computed<{ sum: string; why?: string; label?: string }>(() => {
@@ -81,6 +94,10 @@ const foot = computed<{ sum: string; why?: string; label?: string }>(() => {
       };
     case "zen":
       return { sum: "Free typing, for as long as you like" };
+    case "adaptive":
+      return { sum: "A session of about three minutes" };
+    case "test":
+      return { sum: "", why: "The starting test opens from Home." };
     case "texts":
       break;
   }
@@ -151,6 +168,14 @@ watch(
 );
 
 onMounted(() => {
+  // Only a sentence depends on it, so a failure simply leaves the sentence out.
+  brainNext(localDate(new Date()))
+    .then((choice) => {
+      nextFocus.value = choice.focus;
+    })
+    .catch(() => {
+      nextFocus.value = null;
+    });
   void session.refreshImports();
   void session.checkPaste();
   // Arriving to paste puts the cursor in the field. Otherwise Enter starts, as on Home.
@@ -204,6 +229,14 @@ function confirmDelete(id: string): void {
           <p>{{ panel.text }}</p>
         </header>
         <div class="setup__b">
+          <p v-if="session.mode === 'adaptive'" class="setup__none">
+            <template v-if="nextFocus"
+              >The next session works on
+              <b class="gram">{{ nextFocus }}</b>.
+            </template>
+            Home starts it with one action, and this screen is only a second way
+            in.
+          </p>
           <template v-if="session.mode === 'words'">
             <div class="setting">
               <div>

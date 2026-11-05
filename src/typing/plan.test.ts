@@ -74,6 +74,39 @@ describe("buildPlan", () => {
     expect(plan.importOffset).toBe(0);
   });
 
+  it("takes the adaptive text, its recipe and its focus from the brain", async () => {
+    const source = {
+      kind: "adaptive",
+      seed: 5,
+      recipe: {
+        v: 1,
+        brain: "heuristic",
+        letters: "etaoin",
+        focus: "e",
+        words: 4,
+        before: { e: 512.3 },
+      },
+    };
+    vi.mocked(invoke).mockResolvedValue({
+      text: "ten eat note tea",
+      source,
+      choice: { focus: "e" },
+      informed: true,
+    });
+    const plan = await buildPlan({ mode: "adaptive" }, 5);
+    expect(invoke).toHaveBeenCalledWith("next_adaptive", {
+      seed: 5,
+      today: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
+    expect(plan).toMatchObject({
+      mode: "adaptive",
+      text: "ten eat note tea",
+      source,
+      detail: "Focus on e",
+      focus: ["e"],
+    });
+  });
+
   it("needs no text for Zen", async () => {
     const plan = await buildPlan({ mode: "zen" });
     expect(plan).toMatchObject({

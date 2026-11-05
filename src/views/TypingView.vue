@@ -34,7 +34,14 @@ const plan = store.plan as SessionPlan;
 const isZen = plan.mode === "zen";
 const isTimed = plan.seconds !== undefined;
 
-const modeName = isZen ? "Zen" : plan.mode === "words" ? "Words" : "Text";
+const MODE_NAMES: Record<SessionPlan["mode"], string> = {
+  adaptive: "Adaptive",
+  words: "Words",
+  texts: "Text",
+  zen: "Zen",
+  test: "Starting test",
+};
+const modeName = MODE_NAMES[plan.mode];
 const title = isTimed ? "Timed words session" : `${modeName} session`;
 const tags = isZen
   ? []
@@ -250,9 +257,18 @@ onBeforeUnmount(() => {
     <header class="bar">
       <div class="bar__group">
         <span class="bar__mode">{{ modeName }}</span>
-        <span v-if="plan.detail" class="bar__detail" :title="plan.detail">{{
-          plan.detail
-        }}</span>
+        <span v-if="plan.focus" class="bar__detail"
+          >Focus on
+          <b v-for="gram in plan.focus" :key="gram" class="gram">{{
+            gram
+          }}</b></span
+        >
+        <span
+          v-else-if="plan.detail"
+          class="bar__detail"
+          :title="plan.detail"
+          >{{ plan.detail }}</span
+        >
         <span v-for="tag in tags" :key="tag" class="tag">{{ tag }}</span>
       </div>
       <div class="bar__group">

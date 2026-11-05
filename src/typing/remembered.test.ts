@@ -189,10 +189,10 @@ describe("what a setup can do", () => {
 describe("homeChoices", () => {
   it("offers the defaults before the first session", () => {
     const { primary, others } = homeChoices([], []);
-    expect(primary.name).toBe("Words");
-    expect(primary.line).toBe("25 words from the 1,000 most common");
-    expect(others.map((row) => row.name)).toEqual(["Texts", "Zen"]);
-    expect(others[0].line).toBe("A passage from a public-domain book");
+    expect(primary.name).toBe("Adaptive");
+    expect(primary.line).toBe("The brain picks the session");
+    expect(others.map((row) => row.name)).toEqual(["Words", "Texts", "Zen"]);
+    expect(others[0].line).toBe("25 words from the 1,000 most common");
   });
 
   it("keeps a mode that starts at once when the primary cannot", () => {
@@ -210,7 +210,11 @@ describe("homeChoices", () => {
       [],
     );
     expect(primary.name).toBe("Zen");
-    expect(others.map((row) => row.name)).toEqual(["Words", "Texts"]);
+    expect(others.map((row) => row.name)).toEqual([
+      "Words",
+      "Adaptive",
+      "Texts",
+    ]);
   });
 });
 
