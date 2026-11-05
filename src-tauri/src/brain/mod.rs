@@ -4,6 +4,7 @@
 
 pub mod heuristic;
 pub mod model;
+pub mod session;
 pub mod unlock;
 
 /// The bar for "this key is learned": 35 WPM, five characters a word. `model_state` is folded

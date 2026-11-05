@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn a_word_with_other_characters_is_not_learned() {
         let chain = chain();
-        assert!(!chain.next.contains_key(&[b'x', b'-']));
+        assert!(!chain.next.contains_key(b"x-"));
     }
 
     #[test]

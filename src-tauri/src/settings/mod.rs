@@ -40,6 +40,17 @@ pub enum Theme {
     System,
 }
 
+/// How letters open in the adaptive mode (ADR-0010).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LetterPolicy {
+    /// By frequency, as the open ones are learned.
+    #[default]
+    Gradual,
+    /// Every letter from the start.
+    All,
+}
+
 /// Missing keys take their default, so old caches and journals keep working.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
@@ -52,6 +63,7 @@ pub struct Settings {
     /// The first-launch step is done. It needs its own flag, because choosing the value that is
     /// already set writes no event, so the theme alone cannot tell.
     pub theme_chosen: bool,
+    pub letters: LetterPolicy,
 }
 
 impl Default for Settings {
@@ -62,6 +74,7 @@ impl Default for Settings {
             theme: Theme::default(),
             live_figures: true,
             theme_chosen: false,
+            letters: LetterPolicy::default(),
         }
     }
 }
@@ -224,6 +237,7 @@ mod tests {
         assert_eq!(settings.theme, Theme::System);
         assert!(settings.live_figures);
         assert!(!settings.theme_chosen);
+        assert_eq!(settings.letters, LetterPolicy::Gradual);
     }
 
     #[test]

@@ -10,12 +10,15 @@ use tauri::State;
 use tauri::ipc::{InvokeBody, Request};
 use time::OffsetDateTime;
 
+use crate::brain::heuristic::{Choice, Knowledge, choose};
+use crate::brain::model::day_number;
+use crate::brain::session::{AdaptiveSession, next_session};
 use crate::generator::{self, ContentError, ContentStore, Passage};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
 use crate::journal::{Event, EventBody, JournalService, ServiceError};
 use crate::projector::queries::{self, LastSetup, SessionRow, StatsOverview};
 use crate::projector::{ProjectorError, ProjectorService, ProjectorStatus};
-use crate::settings::{self, Settings, SettingsError};
+use crate::settings::{self, LetterPolicy, Settings, SettingsError};
 use crate::stats::SessionSummary;
 use crate::storage::AppPaths;
 
@@ -45,6 +48,8 @@ pub enum CommandError {
     NoPassage,
     #[error("the settings are unavailable because an earlier change failed")]
     SettingsLocked,
+    #[error("not a local date: {0}")]
+    BadDate(String),
     #[error("the file could not be read: {0}")]
     BadRequest(&'static str),
     #[error("a background task failed: {0}")]
@@ -189,6 +194,68 @@ pub async fn generate_words(
         ))
     })
     .await
+}
+
+/// What the brain knows, or nothing while the statistics are not readable. Typing must never
+/// wait for them, and letters never close, because every recipe adds its letters back.
+fn knowledge_or_nothing(projector: &ProjectorService) -> (Knowledge, bool) {
+    match projector
+        .read(|connection| crate::projector::model::knowledge(connection, crate::brain::LAYOUT))
+    {
+        Ok(knowledge) => (knowledge, true),
+        Err(_) => (Knowledge::default(), false),
+    }
+}
+
+/// The next adaptive session, with its recipe for the journal.
+#[derive(Serialize)]
+pub struct AdaptivePlan {
+    #[serde(flatten)]
+    pub session: AdaptiveSession,
+    /// False when the statistics could not be read and the brain started from nothing.
+    pub informed: bool,
+}
+
+/// `today` is the local `YYYY-MM-DD`, which the UI knows.
+#[tauri::command]
+pub async fn next_adaptive(
+    state: State<'_, AppState>,
+    seed: u32,
+    today: String,
+) -> Result<AdaptivePlan, CommandError> {
+    let day = day_number(&today).ok_or(CommandError::BadDate(today))?;
+    let gradual = letters_gradual(&state)?;
+    let content = state.content.clone();
+    let projector = state.projector.clone();
+    blocking(move || {
+        let (knowledge, informed) = knowledge_or_nothing(&projector);
+        let (order, words, chain) = (content.letter_order()?, content.words()?, content.chain()?);
+        let session = next_session(&order, &knowledge, day, gradual, &words, &chain, seed);
+        Ok(AdaptivePlan { session, informed })
+    })
+    .await
+}
+
+/// What the next adaptive session would work on, without its text.
+#[tauri::command]
+pub async fn brain_next(state: State<'_, AppState>, today: String) -> Result<Choice, CommandError> {
+    let day = day_number(&today).ok_or(CommandError::BadDate(today))?;
+    let gradual = letters_gradual(&state)?;
+    let content = state.content.clone();
+    let projector = state.projector.clone();
+    blocking(move || {
+        let (knowledge, _) = knowledge_or_nothing(&projector);
+        Ok(choose(&content.letter_order()?, &knowledge, day, gradual))
+    })
+    .await
+}
+
+fn letters_gradual(state: &State<'_, AppState>) -> Result<bool, CommandError> {
+    let settings = *state
+        .settings
+        .lock()
+        .map_err(|_| CommandError::SettingsLocked)?;
+    Ok(settings.letters == LetterPolicy::Gradual)
 }
 
 #[tauri::command]
