@@ -1,0 +1,4 @@
+{"v":1,"type":"session_started","sid":"b1","seq":1,"ts":"2026-11-05T08:30:00+01:00","mode":"words","layout":"en-qwerty","source":{"kind":"words","seed":7,"pool":1000,"count":2},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"b1","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0}
+{"v":1,"type":"keystroke","sid":"b1","seq":3,"t":200.0,"kind":"char","code":"KeyB","key":"b","expected":"b","correct":true,"pos":1}
+{"v":1,"type":"session_ended","sid":"b1","seq":4,"t":200.0,"reason":"completed","duration":200.0}

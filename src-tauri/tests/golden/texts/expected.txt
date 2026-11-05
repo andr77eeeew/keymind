@@ -1,0 +1,24 @@
+# projected_files
+device | file | bytes | events | bad_lines | unknown | duplicates | orphans
+dev-a | 2026-11-05.jsonl | 891 | 6 | 0 | 0 | 0 | 0
+# session_state
+sid | last_seq | state
+t1 | 6 | NULL
+# sessions
+sid | device | ts | started_ms | date | mode | layout | source | reason | duration_ms | chars | correct | judged | judged_correct | backspaces | cpm | wpm | accuracy | rhythm
+t1 | dev-a | 2026-11-05T11:00:00+02:00 | 1793869200000 | 2026-11-05 | texts | en-qwerty | {"kind":"passage","id":"austen-pride-0001"} | completed | 300.0 | 3 | 3 | 3 | 3 | 0 | 600.0 | 120.0 | 100.0 | 80.0
+# key_stats
+date | layout | code | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | KeyH | 1 | 1 | 120000 | 14400000000 | 0
+2026-11-05 | en-qwerty | KeyI | 1 | 1 | 180000 | 32400000000 | 0
+2026-11-05 | en-qwerty | KeyT | 1 | 0 | 0 | 0 | 0
+# bigram_stats
+date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | T | h | 1 | 1 | 120000 | 14400000000 | 0
+2026-11-05 | en-qwerty | h | I | 1 | 1 | 180000 | 32400000000 | 0
+# daily_stats
+date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
+2026-11-05 | 1 | 300.0 | 300.0 | 3 | 3 | 3 | 240.0 | 3
+# last_setups
+mode | sid | device | ts | source
+texts | t1 | dev-a | 2026-11-05T11:00:00+02:00 | {"kind":"passage","id":"austen-pride-0001"}

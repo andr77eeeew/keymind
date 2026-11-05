@@ -1,0 +1,31 @@
+# projected_files
+device | file | bytes | events | bad_lines | unknown | duplicates | orphans
+dev-a | 2026-11-05.jsonl | 1889 | 15 | 0 | 0 | 0 | 0
+# session_state
+sid | last_seq | state
+b1 | 15 | NULL
+# sessions
+sid | device | ts | started_ms | date | mode | layout | source | reason | duration_ms | chars | correct | judged | judged_correct | backspaces | cpm | wpm | accuracy | rhythm
+b1 | dev-a | 2026-11-05T13:00:00+02:00 | 1793876400000 | 2026-11-05 | words | en-qwerty | {"kind":"words","seed":7,"pool":1000,"count":2} | completed | 3000.0 | 8 | 7 | 8 | 7 | 1 | 140.0 | 28.0 | 87.5 | 100.0
+# key_stats
+date | layout | code | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | KeyA | 1 | 0 | 0 | 0 | 0
+2026-11-05 | en-qwerty | KeyB | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | KeyC | 1 | 0 | 0 | 0 | 0
+2026-11-05 | en-qwerty | KeyD | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | KeyE | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | KeyF | 2 | 0 | 0 | 0 | 1
+2026-11-05 | en-qwerty | KeyG | 1 | 0 | 0 | 0 | 0
+# bigram_stats
+date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | a | b | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | c | d | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | d | e | 1 | 1 | 100000 | 10000000000 | 0
+2026-11-05 | en-qwerty | e | f | 1 | 0 | 0 | 0 | 1
+2026-11-05 | en-qwerty | f | g | 1 | 0 | 0 | 0 | 0
+# daily_stats
+date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
+2026-11-05 | 1 | 3000.0 | 3000.0 | 7 | 8 | 7 | 800.0 | 8
+# last_setups
+mode | sid | device | ts | source
+words | b1 | dev-a | 2026-11-05T13:00:00+02:00 | {"kind":"words","seed":7,"pool":1000,"count":2}

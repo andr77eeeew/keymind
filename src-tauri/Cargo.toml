@@ -20,9 +20,13 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
-serde_json = "1"
+# `float_roundtrip`: a projector checkpoint read back must equal what was written, bit for bit.
+serde_json = { version = "1", features = ["float_roundtrip"] }
 uuid = { version = "1", features = ["v4"] }
-time = { version = "0.3", features = ["formatting", "macros"] }
+# `parsing`: the projector turns `session_started.ts` into a date and an instant.
+time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
+# Derived tables. `bundled` compiles SQLite into the binary, so nothing depends on the system.
+rusqlite = { version = "0.41", features = ["bundled"] }
 # A seeded generator whose output is fixed by its specification, so journal seeds stay valid.
 rand_chacha = "0.10"
 # EPUB is a ZIP file. Only deflate is needed, which keeps the dependency tree small.

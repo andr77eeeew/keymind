@@ -1,0 +1,15 @@
+{"v":1,"type":"session_started","sid":"b1","seq":1,"ts":"2026-11-05T13:00:00+02:00","mode":"words","layout":"en-qwerty","source":{"kind":"words","seed":7,"pool":1000,"count":2},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"b1","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0}
+{"v":1,"type":"keystroke","sid":"b1","seq":3,"t":100.0,"kind":"char","code":"KeyB","key":"b","expected":"b","correct":true,"pos":1}
+{"v":1,"type":"session_paused","sid":"b1","seq":4,"t":150.0}
+{"v":1,"type":"session_resumed","sid":"b1","seq":5,"t":5150.0}
+{"v":1,"type":"keystroke","sid":"b1","seq":6,"t":5200.0,"kind":"char","code":"KeyC","key":"c","expected":"c","correct":true,"pos":2}
+{"v":1,"type":"keystroke","sid":"b1","seq":7,"t":5300.0,"kind":"char","code":"KeyD","key":"d","expected":"d","correct":true,"pos":3}
+{"v":1,"type":"keystroke","sid":"b1","seq":8,"t":5350.0,"kind":"char","code":"KeyF","key":"ж","ignored":"layout"}
+{"v":1,"type":"keystroke","sid":"b1","seq":9,"t":5400.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":4}
+{"v":1,"type":"keystroke","sid":"b1","seq":10,"t":5500.0,"kind":"char","code":"KeyG","key":"g","expected":"f","correct":false,"pos":5}
+{"v":1,"type":"keystroke","sid":"b1","seq":11,"t":5600.0,"kind":"backspace","code":"Backspace","pos":5}
+{"v":1,"type":"keystroke","sid":"b1","seq":12,"t":5700.0,"kind":"char","code":"KeyF","key":"f","expected":"f","correct":true,"pos":5}
+{"v":1,"type":"keystroke","sid":"b1","seq":13,"t":5750.0,"kind":"backspace","code":"Backspace","ignored":"policy"}
+{"v":1,"type":"keystroke","sid":"b1","seq":14,"t":8000.0,"kind":"char","code":"KeyG","key":"g","expected":"g","correct":true,"pos":6}
+{"v":1,"type":"session_ended","sid":"b1","seq":15,"t":8000.0,"reason":"completed","duration":3000.0}
