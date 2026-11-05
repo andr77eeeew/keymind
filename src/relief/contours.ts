@@ -1,3 +1,6 @@
+/** A hill on top of the noise: x, y and height. */
+export type Hill = readonly [number, number, number];
+
 /** A smooth random field drawn as contour lines, which is the signature of the Relief design. */
 export interface ContourOptions {
   seed: number;
@@ -6,8 +9,7 @@ export interface ContourOptions {
   /** Width and height of the ground, in key pitches. */
   width?: number;
   height?: number;
-  /** Hills on top of the noise: x, y and height. */
-  hills?: readonly (readonly [number, number, number])[];
+  hills?: readonly Hill[];
 }
 
 export interface Contours {

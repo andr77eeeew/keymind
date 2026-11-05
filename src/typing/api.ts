@@ -44,6 +44,73 @@ export type StatsStatus =
   | { state: "idle" }
   | { state: "failed"; message: string };
 
+/** Mirrors `queries::KeyRow`. */
+export interface KeyRow {
+  layout: string;
+  code: string;
+  presses: number;
+  samples: number;
+  mean_ms: number | null;
+  errors: number;
+}
+
+/** Mirrors `queries::BigramRow`. */
+export interface BigramRow {
+  layout: string;
+  first: string;
+  second: string;
+  presses: number;
+  samples: number;
+  mean_ms: number | null;
+  errors: number;
+  last_date: string;
+}
+
+/** Mirrors `queries::DayRow`. */
+export interface DayRow {
+  date: string;
+  sessions: number;
+  duration_ms: number;
+  wpm: number | null;
+  accuracy: number | null;
+  rhythm: number | null;
+}
+
+export interface StatsRecord {
+  value: number;
+  sid: string;
+  date: string;
+}
+
+export interface Records {
+  best_wpm: StatsRecord | null;
+  best_accuracy: StatsRecord | null;
+}
+
+/** Mirrors `queries::SessionRow`. It has every field of a `SessionSummary`. */
+export interface SessionRow extends SessionSummary {
+  ts: string;
+  mode: string;
+  source: TextSource | null;
+}
+
+export interface Skipped {
+  bad_lines: number;
+  unknown: number;
+  duplicates: number;
+  orphans: number;
+}
+
+/** Mirrors `queries::StatsOverview`. Records and recent sessions ignore the period. */
+export interface StatsOverview {
+  keys: KeyRow[];
+  bigrams: BigramRow[];
+  days: DayRow[];
+  records: Records;
+  recent: SessionRow[];
+  skipped: Skipped;
+}
+
 export function appendEvents(events: JournalEvent[]): Promise<void> {
   return invoke("append_events", { events });
 }
@@ -101,6 +168,20 @@ export function lastSetups(): Promise<LastSetupRow[]> {
 
 export function statsStatus(): Promise<StatsStatus> {
   return invoke("stats_status");
+}
+
+/** `fromDate` is the local `YYYY-MM-DD` a period starts on, or `null` for all time. */
+export function statsOverview(fromDate: string | null): Promise<StatsOverview> {
+  return invoke("stats_overview", { fromDate });
+}
+
+export function statsSession(sid: string): Promise<SessionRow | null> {
+  return invoke("stats_session", { sid });
+}
+
+/** Returns at once. The status events follow the work. */
+export function rebuildStats(): Promise<void> {
+  return invoke("rebuild_stats");
 }
 
 /** The projector reports here while it works. Returns a function that stops listening. */
