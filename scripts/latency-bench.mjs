@@ -67,11 +67,15 @@ function describe(values) {
   };
 }
 
-async function typeSession(app, text, budget) {
-  await app.evaluate(`window.__keymindStart(${JSON.stringify(text)})`);
+async function typeSession(app, text, budget, zen) {
+  await app.evaluate(
+    zen
+      ? `window.__keymindStart("", "zen")`
+      : `window.__keymindStart(${JSON.stringify(text)})`,
+  );
   await app.evaluate(
     `new Promise((resolve) => {
-       const check = () => document.querySelector(".stream .cur") ? resolve(true) : setTimeout(check, 20);
+       const check = () => document.querySelector(".stream .cur, .stream .zen__caret") ? resolve(true) : setTimeout(check, 20);
        check();
      })`,
   );
@@ -117,13 +121,14 @@ async function checkPageState(app) {
   );
 }
 
-async function benchLength(app, length) {
+/** Zen has no text to follow, so it types the shortest text and appends all of it. */
+async function benchLength(app, length, zen = false) {
   const text = buildText(length);
   await app.evaluate("window.__keymindProbe.reset()");
   let sent = 0;
   let maxSpans = 0;
   while (sent < PRESSES) {
-    sent += await typeSession(app, text, PRESSES - sent);
+    sent += await typeSession(app, text, PRESSES - sent, zen);
     const state = await checkPageState(app);
     maxSpans = Math.max(maxSpans, state.stray);
     if (!state.visible || state.paused) {
@@ -147,7 +152,7 @@ async function benchLength(app, length) {
       );
       await app.evaluate(
         `new Promise((resolve) => {
-           const check = () => document.querySelector(".figures .figure") ? resolve(true) : setTimeout(check, 20);
+           const check = () => document.querySelector(".figure") ? resolve(true) : setTimeout(check, 20);
            check();
          })`,
       );
@@ -161,12 +166,12 @@ async function benchLength(app, length) {
   );
   await app.evaluate(
     `new Promise((resolve) => {
-       const check = () => document.querySelector(".figures .figure") ? resolve(true) : setTimeout(check, 20);
+       const check = () => document.querySelector(".figure") ? resolve(true) : setTimeout(check, 20);
        check();
      })`,
   );
   return {
-    length,
+    length: zen ? "Zen" : length.toLocaleString("en"),
     sent,
     maxSpans,
     queue: describe(data.queue),
@@ -198,7 +203,7 @@ function report(results) {
   ];
   for (const r of results) {
     rows.push(
-      `| ${r.length.toLocaleString("en")} | ${r.sent} | ${f(r.queue.p50)} / ${f(r.queue.p99)} / ${f(r.queue.max)} | ${f(r.handler.p50)} / ${f(r.handler.p99)} / ${f(r.handler.max)} | ${f(r.frame.p50)} / ${f(r.frame.p95)} / ${f(r.frame.max)} | ${paint(r)} | ${r.longTasks.length} | ${r.maxSpans} |`,
+      `| ${r.length} | ${r.sent} | ${f(r.queue.p50)} / ${f(r.queue.p99)} / ${f(r.queue.max)} | ${f(r.handler.p50)} / ${f(r.handler.p99)} / ${f(r.handler.max)} | ${f(r.frame.p50)} / ${f(r.frame.p95)} / ${f(r.frame.max)} | ${paint(r)} | ${r.longTasks.length} | ${r.maxSpans} |`,
     );
   }
   console.log(rows.join("\n"));
@@ -273,6 +278,8 @@ try {
     console.error(`Typing into a text of ${length} characters...`);
     results.push(await benchLength(app, length));
   }
+  console.error("Typing in Zen...");
+  results.push(await benchLength(app, 100_000, true));
   load?.stop();
   report(results);
   if (load) {
