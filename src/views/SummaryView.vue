@@ -8,6 +8,11 @@ import { readingProgress, summaryContent } from "../typing/summary";
 
 /** The press that ended a session may still be held, and must not start the next one. */
 const FOCUS_DELAY_MS = 400;
+/**
+ * A timed session ends in the middle of a word, so the next few presses are still typing. For
+ * this long Space and Enter do nothing, even on a button that Tab reached.
+ */
+const TIMED_GUARD_MS = 1000;
 
 const app = useAppStore();
 const session = useSessionStore();
@@ -34,12 +39,30 @@ const nextLabel = computed(() => {
 
 const unsaved = computed(() => session.endedSession?.saved === false);
 
-const focusTimer = setTimeout(() => primary.value?.focus(), FOCUS_DELAY_MS);
+const timed = session.endedSession?.plan.seconds !== undefined;
+const guardMs = timed ? TIMED_GUARD_MS : FOCUS_DELAY_MS;
+const guardUntil = performance.now() + guardMs;
+
+function swallowEarlyKeys(event: KeyboardEvent): void {
+  if (
+    (event.code === "Space" || event.key === "Enter") &&
+    event.timeStamp < guardUntil
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
+const focusTimer = setTimeout(() => primary.value?.focus(), guardMs);
 onMounted(() => {
   // Keeps the keys away from whatever had the focus before.
   (document.activeElement as HTMLElement | null)?.blur?.();
+  window.addEventListener("keydown", swallowEarlyKeys, true);
 });
-onBeforeUnmount(() => clearTimeout(focusTimer));
+onBeforeUnmount(() => {
+  clearTimeout(focusTimer);
+  window.removeEventListener("keydown", swallowEarlyKeys, true);
+});
 </script>
 
 <template>

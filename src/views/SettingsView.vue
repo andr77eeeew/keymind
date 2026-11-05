@@ -20,6 +20,7 @@ const backspace = bound("backspace");
 const onError = bound("on_error");
 const theme = bound("theme");
 const liveFigures = bound("live_figures");
+const letters = bound("letters");
 
 /** Damage is reported instead of hidden. The other skipped lines are normal. */
 const damaged = computed(() => stats.homeData?.skipped.bad_lines ?? 0);
@@ -29,6 +30,10 @@ onMounted(() => stats.showHome());
 const backspaceOptions = [
   { value: "allowed", label: "Allowed" },
   { value: "blocked", label: "Blocked" },
+] as const;
+const lettersOptions = [
+  { value: "gradual", label: "By frequency" },
+  { value: "all", label: "All at once" },
 ] as const;
 const onErrorOptions = [
   { value: "continue", label: "Keep going" },
@@ -53,8 +58,8 @@ const themeOptions = [
           <div>
             <p class="setting__t">Backspace</p>
             <p class="setting__d">
-              When blocked, a correction does nothing in Words and Texts. Zen
-              always allows it. The original error is always counted.
+              When blocked, a correction does nothing in Adaptive. Words, Texts
+              and Zen always allow it. The original error is always counted.
             </p>
           </div>
           <div class="setting__c">
@@ -75,6 +80,23 @@ const themeOptions = [
               v-model="onError"
               label="On error"
               :options="onErrorOptions"
+            />
+          </div>
+        </div>
+        <div class="setting">
+          <div>
+            <p class="setting__t">Letters</p>
+            <p class="setting__d">
+              Adaptive starts with six common letters and opens the next one
+              when all of them are learned. Any letter you already type well
+              opens at once.
+            </p>
+          </div>
+          <div class="setting__c">
+            <SegControl
+              v-model="letters"
+              label="Letters"
+              :options="lettersOptions"
             />
           </div>
         </div>
