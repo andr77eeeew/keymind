@@ -10,12 +10,21 @@ export interface AppInfo {
 
 /** A handful of screens with no deep links, so a router would add nothing yet. */
 export type Screen =
-  "onboarding" | "home" | "setup" | "typing" | "summary" | "settings";
+  | "onboarding"
+  | "home"
+  | "setup"
+  | "typing"
+  | "summary"
+  | "statistics"
+  | "past"
+  | "settings";
 
 export const useAppStore = defineStore("app", () => {
   const info = ref<AppInfo | null>(null);
   const error = ref<string | null>(null);
   const screen = ref<Screen>("home");
+  /** Where a saved summary goes back to, which is also what the menu marks while it is open. */
+  const pastFrom = ref<Screen>("home");
 
   async function loadInfo(): Promise<void> {
     try {
@@ -31,5 +40,5 @@ export const useAppStore = defineStore("app", () => {
     screen.value = next;
   }
 
-  return { info, error, screen, loadInfo, go };
+  return { info, error, screen, pastFrom, loadInfo, go };
 });

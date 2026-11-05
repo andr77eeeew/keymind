@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import AppShell from "../components/AppShell.vue";
+import SummaryFigures from "../components/SummaryFigures.vue";
 import { useAppStore } from "../stores/app";
 import { useSessionStore } from "../stores/session";
 import { readingProgress, summaryContent } from "../typing/summary";
@@ -78,29 +79,7 @@ onBeforeUnmount(() => clearTimeout(focusTimer));
       <i style="--w: 84%" />
     </div>
     <template v-else>
-      <div class="result">
-        <div class="result__lead">
-          <div
-            v-for="figure in content.lead"
-            :key="figure.label"
-            class="figure figure--lead"
-          >
-            <b>{{ figure.value }}</b>
-            <span>{{ figure.label }}</span>
-          </div>
-        </div>
-        <div class="result__rest">
-          <div
-            v-for="figure in content.rest"
-            :key="figure.label"
-            class="figure"
-          >
-            <b>{{ figure.value }}</b>
-            <span>{{ figure.label }}</span>
-          </div>
-        </div>
-        <p class="result__note">{{ content.note }}</p>
-      </div>
+      <SummaryFigures :content="content" />
       <div v-if="reading" class="result__extra">
         <div class="meter">
           <div class="meter__head">
