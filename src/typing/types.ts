@@ -11,6 +11,8 @@ export interface Settings {
   on_error: OnError;
   backspace: BackspacePolicy;
   theme: Theme;
+  live_figures: boolean;
+  theme_chosen: boolean;
 }
 
 export type TextSource =
@@ -21,7 +23,7 @@ export type TextSource =
       count?: number;
       seconds?: number;
     }
-  | { kind: "passage"; id: string }
+  | { kind: "passage"; id: string; difficulty?: number }
   | { kind: "paste"; chars: number }
   | { kind: "import"; id: string; offset: number }
   | { kind: "zen" };
@@ -95,10 +97,14 @@ export interface SessionPlan {
   source: TextSource;
   /** A time limit for timed Words. */
   seconds?: number;
-  /** Shown beside the mode, such as "Common 1000 · 25 words". */
+  /** Shown beside the mode, such as "25 words, top 1,000". Empty in Zen. */
   detail: string;
   /** Shown under the text, such as the author of a passage. */
   caption?: string;
+  /** Author, title and year of a passage. */
+  passageSource?: string;
   /** Where the text starts inside an imported file, to save progress. */
   importOffset?: number;
+  /** The length of the whole imported file. */
+  importChars?: number;
 }

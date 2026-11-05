@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildPlan, PlanError } from "./plan";
+import { bookOf, buildPlan, PlanError } from "./plan";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
@@ -82,5 +82,79 @@ describe("buildPlan", () => {
       source: { kind: "zen" },
     });
     expect(invoke).not.toHaveBeenCalled();
+  });
+});
+
+describe("bookOf", () => {
+  it("reads the author and the title of a passage", () => {
+    expect(bookOf("Jane Austen, Pride and Prejudice (1813)")).toEqual({
+      author: "Jane Austen",
+      title: "Pride and Prejudice",
+    });
+  });
+
+  it("keeps a comma inside a title", () => {
+    expect(
+      bookOf("Mary Shelley, Frankenstein, or The Prometheus (1818)"),
+    ).toEqual({
+      author: "Mary Shelley",
+      title: "Frankenstein, or The Prometheus",
+    });
+  });
+
+  it("gives nothing for another form", () => {
+    expect(bookOf("Anonymous")).toBeNull();
+  });
+});
+
+describe("buildPlan for the screens", () => {
+  beforeEach(() => {
+    vi.mocked(invoke).mockReset();
+  });
+
+  it("names the setup in the panel", async () => {
+    vi.mocked(invoke).mockResolvedValue("words");
+    const counted = await buildPlan({
+      mode: "words",
+      by: "count",
+      count: 25,
+      pool: 1000,
+    });
+    expect(counted.detail).toBe("25 words, top 1,000");
+    const timed = await buildPlan({
+      mode: "words",
+      by: "time",
+      seconds: 60,
+      pool: 1000,
+    });
+    expect(timed.detail).toBe("60 seconds, top 1,000");
+  });
+
+  it("names a passage and journals the difficulty it asked for", async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      id: "p1",
+      text: "abc",
+      source: "Jane Austen, Pride and Prejudice (1813)",
+      difficulty: 2,
+    });
+    const asked = await buildPlan({ mode: "passage", difficulty: 2 });
+    expect(asked.detail).toBe("Pride and Prejudice");
+    expect(asked.caption).toBe(
+      "Jane Austen, Pride and Prejudice (1813). Public domain.",
+    );
+    expect(asked.source).toEqual({ kind: "passage", id: "p1", difficulty: 2 });
+
+    const any = await buildPlan({ mode: "passage", difficulty: null });
+    expect(any.source).toEqual({ kind: "passage", id: "p1" });
+  });
+
+  it("knows how long a file is, for the reading progress", async () => {
+    vi.mocked(invoke).mockResolvedValue("abcdef");
+    const plan = await buildPlan({
+      mode: "import",
+      item: { id: "x", title: "Book", chars: 6, removed: 0, offset: 2 },
+    });
+    expect(plan.importChars).toBe(6);
+    expect(plan.detail).toBe("Book");
   });
 });

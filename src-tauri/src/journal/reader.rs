@@ -45,6 +45,10 @@ impl Deduper {
 }
 
 /// What one line of a journal turned out to be.
+///
+/// A `Line` is unpacked right where it is read and never stored, so its size costs nothing, while a
+/// `Box` would add an allocation per line to a rebuild.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Line {
     Blank,
