@@ -13,7 +13,7 @@ use time::OffsetDateTime;
 use crate::generator::{self, ContentError, ContentStore, Passage};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
 use crate::journal::{Event, EventBody, JournalService, ServiceError};
-use crate::projector::queries::{self, LastSetup, StatsOverview};
+use crate::projector::queries::{self, LastSetup, SessionRow, StatsOverview};
 use crate::projector::{ProjectorError, ProjectorService, ProjectorStatus};
 use crate::settings::{self, Settings, SettingsError};
 use crate::stats::SessionSummary;
@@ -134,6 +134,16 @@ pub async fn stats_overview(
         Ok(projector.read(|connection| queries::overview(connection, from_date.as_deref()))?)
     })
     .await
+}
+
+/// One saved session, which the tables open as a summary.
+#[tauri::command]
+pub async fn stats_session(
+    state: State<'_, AppState>,
+    sid: String,
+) -> Result<Option<SessionRow>, CommandError> {
+    let projector = state.projector.clone();
+    blocking(move || Ok(projector.read(|connection| queries::session(connection, &sid))?)).await
 }
 
 #[tauri::command]

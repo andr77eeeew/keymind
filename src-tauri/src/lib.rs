@@ -74,6 +74,7 @@ pub fn run() -> Result<(), AppError> {
             commands::session_summary,
             commands::stats_status,
             commands::stats_overview,
+            commands::stats_session,
             commands::last_setups,
             commands::rebuild_stats,
             commands::generate_words,

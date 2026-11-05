@@ -91,14 +91,12 @@ function accuracyText(accuracy: number | null): string {
   return accuracy === 100 ? "100%" : `${accuracy.toFixed(1)}%`;
 }
 
-/** Everything the summary says, so its wording can be tested without a screen. */
-export function summaryContent(
-  plan: SessionPlan,
+/** The figures and their note, which a fresh and a saved summary share. */
+export function summaryFigures(
+  zen: boolean,
+  early: boolean,
   summary: SessionSummary,
-  cursor: number,
-): SummaryContent {
-  const zen = plan.mode === "zen";
-  const early = summary.reason === "aborted";
+): Pick<SummaryContent, "heading" | "lead" | "rest" | "note"> {
   const few = summary.chars < FEW_CHARS;
   const wpm = few ? DASH : String(Math.round(summary.wpm));
   const cpm = few ? DASH : String(Math.round(summary.cpm));
@@ -120,7 +118,6 @@ export function summaryContent(
 
   return {
     heading: early ? "Session ended early" : "Session complete",
-    sub: subLine(plan, early, cursor, summary.duration_ms),
     lead: zen
       ? [{ value: wpm, label: "WPM" }, time]
       : [
@@ -131,6 +128,19 @@ export function summaryContent(
       ? [{ value: cpm, label: "CPM" }, rhythm]
       : [{ value: cpm, label: "CPM" }, rhythm, time],
     note,
+  };
+}
+
+/** Everything the summary says, so its wording can be tested without a screen. */
+export function summaryContent(
+  plan: SessionPlan,
+  summary: SessionSummary,
+  cursor: number,
+): SummaryContent {
+  const early = summary.reason === "aborted";
+  return {
+    ...summaryFigures(plan.mode === "zen", early, summary),
+    sub: subLine(plan, early, cursor, summary.duration_ms),
   };
 }
 

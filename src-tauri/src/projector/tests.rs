@@ -352,6 +352,14 @@ fn an_interrupted_session_stays_without_a_reason() {
 }
 
 #[test]
+fn a_saved_session_reads_back_with_its_source() {
+    let stats = golden_overview("aborted");
+    let row = stats.recent.iter().find(|row| row.sid == "k2").unwrap();
+    assert!(row.source.get("kind").is_some());
+    assert!(stats.bigrams.iter().all(|row| row.last_date.len() == 10));
+}
+
+#[test]
 fn what_this_version_cannot_use_changes_no_number() {
     let stats = golden_overview("unknown_lines");
     assert_eq!(stats.skipped.unknown, 1);

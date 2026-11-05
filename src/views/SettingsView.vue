@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import AppShell from "../components/AppShell.vue";
 import SegControl from "../components/SegControl.vue";
 import { useSettingsStore } from "../stores/settings";
+import { useStatsStore } from "../stores/stats";
 import type { Settings } from "../typing/types";
 
 const store = useSettingsStore();
+const stats = useStatsStore();
 
 function bound<K extends keyof Settings>(key: K) {
   return computed<Settings[K]>({
@@ -18,6 +20,11 @@ const backspace = bound("backspace");
 const onError = bound("on_error");
 const theme = bound("theme");
 const liveFigures = bound("live_figures");
+
+/** Damage is reported instead of hidden. The other skipped lines are normal. */
+const damaged = computed(() => stats.homeData?.skipped.bad_lines ?? 0);
+
+onMounted(() => stats.showHome());
 
 const backspaceOptions = [
   { value: "allowed", label: "Allowed" },
@@ -97,6 +104,42 @@ const themeOptions = [
           <div><p class="setting__t">Theme</p></div>
           <div class="setting__c">
             <SegControl v-model="theme" label="Theme" :options="themeOptions" />
+          </div>
+        </div>
+      </section>
+      <section class="sec">
+        <header class="sec__h"><h2>Data</h2></header>
+        <div class="setting">
+          <div>
+            <p class="setting__t">Statistics</p>
+            <p class="setting__d">
+              Worked out from your journal. Rebuilding reads the journal again
+              and does not change it.
+            </p>
+            <p v-if="damaged > 0" class="setting__d">
+              {{ damaged.toLocaleString("en") }}
+              {{ damaged === 1 ? "line" : "lines" }} of the journal could not be
+              read and {{ damaged === 1 ? "was" : "were" }} left out.
+            </p>
+            <p v-if="stats.rebuilding" class="setting__d" role="status">
+              Rebuilding. You can keep typing.
+            </p>
+            <p v-else-if="stats.rebuilt" class="setting__d" role="status">
+              The statistics were rebuilt.
+            </p>
+            <p v-if="stats.rebuildError" class="field__error" role="alert">
+              The statistics could not be rebuilt: {{ stats.rebuildError }}
+            </p>
+          </div>
+          <div class="setting__c">
+            <button
+              type="button"
+              class="btn"
+              :disabled="stats.rebuilding"
+              @click="stats.rebuild()"
+            >
+              Rebuild from the journal
+            </button>
           </div>
         </div>
       </section>

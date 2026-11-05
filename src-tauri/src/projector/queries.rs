@@ -29,6 +29,8 @@ pub struct BigramRow {
     pub samples: i64,
     pub mean_ms: Option<f64>,
     pub errors: i64,
+    /// The last local date this transition was typed on.
+    pub last_date: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -72,6 +74,8 @@ pub struct SessionRow {
     pub wpm: f64,
     pub accuracy: Option<f64>,
     pub rhythm: Option<f64>,
+    /// What the session typed, so a saved summary can say so.
+    pub source: Value,
 }
 
 /// Lines the projector could not use, so damage is reported instead of hidden.
@@ -153,7 +157,8 @@ fn bigrams(
     from_date: Option<&str>,
 ) -> Result<Vec<BigramRow>, ProjectorError> {
     let mut statement = connection.prepare_cached(
-        "SELECT layout, first, second, SUM(presses), SUM(samples), SUM(sum_us), SUM(errors)
+        "SELECT layout, first, second, SUM(presses), SUM(samples), SUM(sum_us), SUM(errors),
+             MAX(date)
          FROM bigram_stats
          WHERE ?1 IS NULL OR date >= ?1
          GROUP BY layout, first, second
@@ -169,6 +174,7 @@ fn bigrams(
             samples,
             mean_ms: mean_ms(row.get(5)?, samples),
             errors: row.get(6)?,
+            last_date: row.get(7)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -223,6 +229,7 @@ fn record(connection: &Connection, column: &str) -> Result<Option<Record>, Proje
 }
 
 fn session_row(row: &Row<'_>) -> rusqlite::Result<SessionRow> {
+    let source: String = row.get(12)?;
     Ok(SessionRow {
         sid: row.get(0)?,
         ts: row.get(1)?,
@@ -236,18 +243,33 @@ fn session_row(row: &Row<'_>) -> rusqlite::Result<SessionRow> {
         wpm: row.get(9)?,
         accuracy: row.get(10)?,
         rhythm: row.get(11)?,
+        // Written by the projector, so this only fails on a damaged database.
+        source: serde_json::from_str(&source).unwrap_or(Value::Null),
     })
 }
 
+const SESSION_COLUMNS: &str = "sid, ts, mode, reason, duration_ms, chars, correct, backspaces, cpm,
+     wpm, accuracy, rhythm, source";
+
+/// One saved session, for opening its summary from a table.
+pub fn session(connection: &Connection, sid: &str) -> Result<Option<SessionRow>, ProjectorError> {
+    let found = connection
+        .prepare_cached(&format!(
+            "SELECT {SESSION_COLUMNS} FROM sessions WHERE sid = ?1"
+        ))?
+        .query_row([sid], session_row)
+        .optional()?;
+    Ok(found)
+}
+
 fn recent(connection: &Connection) -> Result<Vec<SessionRow>, ProjectorError> {
-    let mut statement = connection.prepare_cached(
-        "SELECT sid, ts, mode, reason, duration_ms, chars, correct, backspaces, cpm, wpm, accuracy,
-             rhythm
+    let mut statement = connection.prepare_cached(&format!(
+        "SELECT {SESSION_COLUMNS}
          FROM sessions
          WHERE chars > 0
          ORDER BY started_ms DESC, sid DESC
-         LIMIT ?1",
-    )?;
+         LIMIT ?1"
+    ))?;
     let rows = statement.query_map([RECENT_SESSIONS], session_row)?;
     Ok(rows.collect::<Result<_, _>>()?)
 }

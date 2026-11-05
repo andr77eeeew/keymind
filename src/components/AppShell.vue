@@ -3,13 +3,17 @@ import { useAppStore, type Screen } from "../stores/app";
 
 const app = useAppStore();
 
-// Later stages add Statistics, Brain and Progress here, as the mockups show.
+// Later stages add Brain and Progress here, as the mockups show.
 const items: { screen: Screen; label: string }[] = [
   { screen: "home", label: "Home" },
+  { screen: "statistics", label: "Statistics" },
   { screen: "settings", label: "Settings" },
 ];
 
 function isCurrent(screen: Screen): boolean {
+  if (app.screen === "past") {
+    return screen === app.pastFrom;
+  }
   return (
     app.screen === screen || (screen === "home" && app.screen === "summary")
   );
