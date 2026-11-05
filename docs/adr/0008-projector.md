@@ -109,7 +109,7 @@ sync target. `trigram_stats`, `model_state` and `progress` arrive with the stage
   away the worst outliers, so what remains is a known and small distortion.
 - **Stability.** The sum of squares is stored now for stage 3 and is not shown yet.
 
-Records and thresholds for too little data belong to the statistics screen and are defined with it.
+Records and thresholds for too little data belong to the statistics screen and are defined in ADR-0009.
 
 ## Consequences
 
