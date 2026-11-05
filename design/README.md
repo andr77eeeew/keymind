@@ -267,7 +267,8 @@ the same screen with `data-kbd="off"`, so it takes the keyboard back without ano
   shorter text gets a shorter window, set once.
 - **Empty space stays empty.** Nothing decorative fills it, so the text keeps the attention.
 - **The panel sits directly on the text,** with a hairline under it for progress. The hairline uses
-  `transform` and is written by the timer that writes the figures, never by a press.
+  `transform` and is written by the timer that writes the figures, never by a press. It moves in
+  steps with no transition: a glide kept frames busy for the whole session (ADR-0004).
 - **Reward band.** The last row is never shorter than `--reward-band`, so a reward has room at every
   window size. XP sits on the left and quests on the right. In a short window, a second reward on the same side waits for the first.
 - **By time:** `00:41 left` in the code font, the hairline empties, the last ten seconds get a soft

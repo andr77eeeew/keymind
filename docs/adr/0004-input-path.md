@@ -105,3 +105,23 @@ With 33 ms as the target, the margin should cover that, but only a run on such a
 This does not cover the keyboard, the path through Windows or the delay of the monitor, which add
 the same amount in any app. Synthetic input also skips the hardware message loop, so the feel on a
 long text still needs a check by hand.
+
+## After the design port
+
+Results of 2026-11-05 with the screens from `design/`, on the same display and with the same targets,
+now with Zen measured too. Times in milliseconds:
+
+| Text, characters | Queue p50 / p99 / max | Handler p50 / p99 / max | To next frame p50 / p95 / max | To paint: over 16 ms, p95, max | Long tasks |
+| ---------------- | --------------------- | ----------------------- | ----------------------------- | ------------------------------ | ---------- |
+| 1,000            | 0.2 / 0.7 / 1.6       | 0.0 / 0.2 / 4.6         | 0.5 / 6.3 / 9.0               | 18%, 16, 24                    | 0          |
+| 100,000          | 0.2 / 0.7 / 1.4       | 0.0 / 0.2 / 0.2         | 0.5 / 6.3 / 8.9               | 19%, 16, 24                    | 0          |
+| 1,000,000        | 0.2 / 0.6 / 1.8       | 0.0 / 0.2 / 0.2         | 0.5 / 6.2 / 9.3               | 19%, 16, 24                    | 0          |
+| Zen              | 0.2 / 0.4 / 3.2       | 0.3 / 0.6 / 0.9         | 0.7 / 6.1 / 8.7               | 15%, 16, 24                    | 0          |
+
+The port first made paints later, though no target failed. With the mockup's 500 ms glide on the
+progress hairline, 59% of paints on a text of 1,000 characters took over 16 ms, at a p95 of 24 ms and
+a maximum of 48 ms. The share fell as the text grew, because the hairline moved less on a longer text.
+Queue and handler did not change, so only a full run of the bench showed it. Turning the glide off
+alone brought the old figures back, so the hairline now moves in steps with the timer that writes it.
+The cost is a small visible step every half second. Anything that animates on the typing screen for
+the whole session has to pass this bench first.
