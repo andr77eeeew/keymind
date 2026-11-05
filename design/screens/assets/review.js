@@ -10,13 +10,17 @@
   // The tokens know light and dark, so "system" resolves to one of them, as it does in the app.
   const scheme = matchMedia('(prefers-color-scheme: dark)');
   let themeChoice = null;
-  const paintTheme = () => { root.dataset.theme = themeChoice === 'system' ? (scheme.matches ? 'dark' : 'light') : themeChoice; };
-  scheme.addEventListener('change', () => { if (themeChoice === 'system') paintTheme(); });
+  const paintTheme = () => {
+    root.dataset.theme = themeChoice === 'system' ? (scheme.matches ? 'dark' : 'light') : themeChoice;
+    document.querySelectorAll('[data-scheme-now]').forEach((el) => { el.textContent = scheme.matches ? 'dark' : 'light'; });
+  };
+  scheme.addEventListener('change', () => { if (themeChoice === 'system') { paintTheme(); syncFrames(root.dataset.theme); } });
   const setTheme = (t) => {
     themeChoice = t;
     paintTheme();
     try { localStorage.setItem('keymind-mock-theme', t); } catch (e) { /* preference only */ }
     document.querySelectorAll('[data-set-theme]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === t)));
+    document.querySelectorAll('[data-theme-choice]').forEach((r) => { r.checked = r.value === t; });
     syncFrames(root.dataset.theme);
   };
   function syncFrames(t) {
@@ -25,6 +29,14 @@
   let storedTheme = null;
   try { storedTheme = localStorage.getItem('keymind-mock-theme'); } catch (e) { /* preference only */ }
   document.querySelectorAll('[data-set-theme]').forEach((b) => b.addEventListener('click', () => { setTheme(b.dataset.setTheme); b.blur(); }));
+  // The first-launch step: a choice applies at once, without taking the focus off the radio.
+  document.querySelectorAll('[data-theme-choice]').forEach((r) => r.addEventListener('change', () => setTheme(r.value)));
+  const setFigures = (v) => {
+    root.dataset.figures = v;
+    document.querySelectorAll('[data-set-figures]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setFigures === v)));
+  };
+  document.querySelectorAll('[data-set-figures]').forEach((b) => b.addEventListener('click', () => { setFigures(b.dataset.setFigures); b.blur(); }));
+  if (document.querySelector('[data-set-figures]')) setFigures(root.dataset.figures || 'on');
   const setGam = (v) => {
     root.dataset.gam = v;
     document.querySelectorAll('[data-set-gam]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setGam === v)));
@@ -33,7 +45,7 @@
   const dataSel = document.querySelector('[data-set-data]');
   if (dataSel) {
     if (root.dataset.data) dataSel.value = root.dataset.data;
-    dataSel.addEventListener('change', () => { root.dataset.data = dataSel.value; dataSel.blur(); });
+    dataSel.addEventListener('change', () => { root.dataset.data = dataSel.value; dataSel.blur(); focusPrimary(); });
   }
   const visionSel = document.querySelector('[data-set-vision]');
   const setVision = (v) => { if (page) page.style.filter = v === 'none' ? '' : `url(#cvd-${v})`; };
@@ -44,7 +56,13 @@
     if (root.dataset.kbd) kbdSel.value = root.dataset.kbd;
     kbdSel.addEventListener('change', () => { root.dataset.kbd = kbdSel.value; kbdSel.blur(); });
   }
-  setTheme(params.get('theme') || storedTheme || root.dataset.theme || 'light');
+  setTheme(params.get('theme') || storedTheme || 'system');
+
+  // Several primaries can sit in the page, one for each state, and only the visible one takes focus.
+  function focusPrimary() {
+    if (root.dataset.embed !== undefined) return;
+    [...document.querySelectorAll('[autofocus], [data-theme-choice]:checked')].find((el) => el.offsetParent)?.focus();
+  }
 
   // ---- Variants: one page, several states. Typing pages reload, so the demo starts clean.
   const variantSel = document.querySelector('[data-set-variant]');
@@ -53,6 +71,7 @@
     document.querySelectorAll('.v[data-v]').forEach((el) => { el.hidden = !el.dataset.v.split(' ').includes(name); });
     if (variantSel) variantSel.value = name;
     scrollTo(0, 0);
+    focusPrimary();
   };
   if (variantSel) {
     showVariant(params.get('variant') || variantSel.value);
@@ -64,7 +83,7 @@
       const go = e.target.closest?.('[data-go]');
       if (go) { e.preventDefault(); showVariant(go.dataset.go); }
     });
-  }
+  } else focusPrimary();
   document.addEventListener('click', (e) => {
     const pick = e.target.closest?.('button[data-pick]');
     if (pick) pick.closest('.seg').querySelectorAll('button[data-pick]').forEach((x) => x.setAttribute('aria-pressed', String(x === pick)));
@@ -277,7 +296,7 @@
     setTimeout(() => keyEl.classList.remove(cls), 140);
   };
   function stats() {
-    if (!started) return;
+    if (!started || root.dataset.figures === 'off') return;
     const mins = (performance.now() - started) / 60000;
     if (statWpm && mins > 0.03) statWpm.textContent = String(Math.round(good / 5 / mins));
     if (statAcc && good + bad) statAcc.textContent = `${Math.round((good / (good + bad)) * 100)}%`;

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Typing: Zen</title>
 <meta name="description" content="Free typing with no sample text and no figures. Text grows at the bottom and older lines rise and fade.">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -54,7 +54,8 @@ When the thought runs out, a new line is one key away</span><span class="zen__ca
   <summary>Mockup</summary>
   <div class="review__body">
     <div class="review__row"><label for="rv-variant">State</label><select id="rv-variant" data-set-variant data-reload><option value="writing">While writing</option><option value="fresh">Before the first key</option></select></div>
-    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>
+    
     
     
     <div class="review__row"><label for="rv-kbd">Keyboard</label><select id="rv-kbd" data-set-kbd><option value="on">On, finger hint</option><option value="error">Only on error</option><option value="off">Off</option></select></div>

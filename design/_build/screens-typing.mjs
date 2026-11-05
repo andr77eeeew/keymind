@@ -1,5 +1,5 @@
 // Onboarding and every typing-screen variant.
-import { ROWS, codeStream, fingerOf, hand, keyboard, LEFT, page, region, relief, RIGHT, textStream, typedStage, typingScreen } from './lib.mjs';
+import { ROWS, codeStream, fingerOf, hand, keyboard, LEFT, page, region, relief, RIGHT, textStream, typedStage, typingScreen, variantsOf } from './lib.mjs';
 
 export function codeOf(ch) {
   for (const row of ROWS) for (const k of row) if (k.base === ch || k.shift === ch) return k.code;
@@ -10,6 +10,39 @@ const steps = (now) => `<ol class="steps" aria-label="Setup steps">${['Layout', 
 const obTop = (now) => `<header class="top"><span class="wordmark">Keymind</span>${steps(now)}</header>`;
 const mapPin = (x, y, text) => `<span class="pin" style="left:calc(50% + ${(x - 7.5).toFixed(2)} * (var(--key) + var(--key-gap)));top:calc(50% + ${(y - 3.5).toFixed(2)} * (var(--key) + var(--key-gap)))">${text}</span>`;
 export { mapPin };
+
+// ---- First launch: the one step the app has until stage 3. It has one choice and one button.
+// Each picture carries its own data-theme, so it stays true whatever the page is showing.
+const THEME_STEP = [['choose', 'Choosing'], ['save-error', 'Choice could not be saved']];
+const vth = variantsOf(THEME_STEP);
+const themeLine = '<i class="c done">the qu</i><i class="c cur">i</i><i class="c">et path up</i>';
+const themePic = (t) => `<i class="themepic" data-theme="${t}" aria-hidden="true"><i class="themepic__t">${themeLine}</i></i>`;
+const themeSplit = `<i class="themepic themepic--split" aria-hidden="true"><i data-theme="light"><i class="themepic__t">${themeLine}</i></i><i data-theme="dark"><i class="themepic__t">${themeLine}</i></i></i>`;
+const themeCard = (value, name, text, pic) => `<label><input type="radio" name="theme" value="${value}" data-theme-choice${value === 'system' ? ' checked' : ''}>${pic}<b>${name}</b><span>${text}</span></label>`;
+const onboardingTheme = page({
+  title: 'Keymind setup: theme',
+  description: 'First launch: choose how Keymind looks. The choice applies at once, and System is already selected.',
+  variants: THEME_STEP,
+  note: 'The whole page repaints when a choice changes, as it does in the app. Continue goes to the first Home.',
+  body: `<div class="ob"><header class="top"><span class="wordmark">Keymind</span></header>
+<main class="ob__body ob__body--narrow">
+  <form class="ob__form" action="home-now.html" method="get">
+    <input type="hidden" name="data" value="empty">
+    <div class="stack">
+      <h1>How should Keymind look?</h1>
+      <p class="muted">You can change this at any time in Settings.</p>
+    </div>
+    <fieldset class="pick pick--theme">
+      <legend class="visually-hidden">Theme</legend>
+      ${themeCard('light', 'Light', 'Dark text on a light page', themePic('light'))}
+      ${themeCard('dark', 'Dark', 'Light text on a dark page', themePic('dark'))}
+      ${themeCard('system', 'System', 'Like Windows, now <span data-scheme-now>light</span>', themeSplit)}
+    </fieldset>
+    ${vth('save-error', '<div class="state state--error" role="status"><p class="state__h">Your choice could not be saved</p><p>Keymind keeps it for now and asks again at the next launch.</p></div>')}
+    <div class="ob__foot"><button type="submit" class="btn btn--primary">Continue</button></div>
+  </form>
+</main></div>`,
+});
 
 const onboardingLayout = page({
   title: 'Keymind setup: layout',
@@ -142,7 +175,7 @@ const typingCode = page({
   body: typingScreen({
     title: 'Code session',
     left: '<span class="bar__mode">Code</span><span>Rust, built-in snippet</span>',
-    right: '<span>Auto-indent, 4 spaces</span><span class="stat"><b>410 ms</b> recovery after {</span>',
+    right: '<span>Auto-indent, 4 spaces</span><span class="stat stat--live"><b>410 ms</b> recovery after {</span>',
     stage: `<div class="window window--code" style="--lines:10"><div class="stream">${codeStream(rust, codeCursor, { 58: ':' })}</div></div>`,
     next: rust[codeCursor],
     finger: fingerFor(rust[codeCursor]),
@@ -226,6 +259,7 @@ const videoScreen = (mode) => {
 };
 
 export const typingPages = {
+  'onboarding-theme': onboardingTheme,
   'onboarding-layout': onboardingLayout,
   'onboarding-test': onboardingTest,
   'onboarding-result': onboardingResult,

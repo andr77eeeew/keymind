@@ -11,42 +11,68 @@ const ZEN_TEXT = 'Nothing on this screen is keeping score, so the sentence can w
 
 // ---- Home: the remembered setups. A row starts its session at once; Change opens that mode's setup.
 export const quickRows = (rows, more = true) => `<section class="sec quickwrap"><header class="sec__h"><h2>Other sessions</h2>${more ? '<a class="link" href="session-setup.html">All modes</a>' : ''}</header>
-  <ul class="quick">${rows.map(([mode, setup, start, change]) => `<li class="quick__r"><b class="quick__m">${mode}</b><span class="quick__s">${setup}</span><a class="btn btn--sm" href="${start}" aria-label="Start ${mode}">Start</a>${change ? `<a class="link" href="${change}" aria-label="Change the ${mode} setup">Change</a>` : '<span></span>'}</li>`).join('')}</ul>
+  <ul class="quick">${rows.map(([mode, setup, start, change, choose]) => `<li class="quick__r"><b class="quick__m">${mode}</b><span class="quick__s" title="${esc(setup)}">${setup}</span>${start ? `<a class="btn btn--sm" href="${start}" aria-label="Start ${mode}">Start</a>${change ? `<a class="link" href="${change}" aria-label="Change the ${mode} setup">Change</a>` : '<span></span>'}` : `<a class="btn btn--sm" href="${change}" aria-label="${choose} for ${mode}">${choose}</a><span></span>`}</li>`).join('')}</ul>
 </section>`;
 
-const startSheet = ({ mode, setup, href, change, head }) => `<section class="sheet start">
+const startSheet = ({ mode, setup, href, change, head, label = 'Start session' }) => `<section class="sheet start">
   <div class="start__copy">
     ${head}
     <p class="start__setup"><b>${mode}</b><span>${setup}</span></p>
-    <div class="start__a"><a class="btn btn--primary" href="${href}" autofocus>Start session</a>${change ? `<a class="btn btn--quiet" href="${change}">Change setup</a>` : ''}</div>
+    <div class="start__a"><a class="btn btn--primary" href="${href}" autofocus>${label}</a>${change ? `<a class="btn btn--quiet" href="${change}">Change setup</a>` : ''}</div>
   </div>
   <div class="start__ground" aria-hidden="true">${relief({ weak: [], seedValue: 31, density: 5 })}</div>
 </section>`;
 
+// What Home does when the last setup cannot start again (ADR-0007). The primary opens the setup of
+// that mode, and Other sessions still hold a session that starts at once. The journal keeps a file's
+// id and no title, so a deleted file or one on another computer cannot be named.
+const LAST = [['repeat', 'Last setup can start'], ['paste', 'Last text was pasted'], ['deleted', 'File was deleted'], ['device', 'File on another computer'], ['device-empty', 'Another computer, empty library'], ['finished', 'Book finished'], ['finished-long', 'Book finished, very long title'], ['row', 'Another mode cannot repeat']];
+const vh = variantsOf(LAST);
+const CHOOSE_FILE = 'session-setup.html?variant=file-list';
+const finishedHead = (title) => `<h1 class="clamp-2" title="${esc(title)}">You finished ${esc(title)}</h1>`;
+const AWAY = 'Your file is on another computer';
+const NO_REPEAT = {
+  paste: { head: '<h1>Paste a new text</h1>', setup: 'A pasted text is not kept, so the last one cannot start again.', label: 'Paste a text', href: 'session-setup.html?variant=texts-paste' },
+  deleted: { head: '<h1>Choose a new text</h1>', setup: 'The file from your last session was deleted.', label: 'Choose a text', href: CHOOSE_FILE },
+  device: { head: `<h1>${AWAY}</h1>`, setup: 'Files stay on the computer they were added to.', label: 'Choose a text', href: CHOOSE_FILE },
+  'device-empty': { head: `<h1>${AWAY}</h1>`, setup: 'Files stay on the computer they were added to, and this one has none yet.', label: 'Add a file', href: 'session-setup.html?variant=file-empty' },
+  finished: { head: finishedHead('Walden'), setup: 'Choose what to read next, or read it again.', label: 'Choose a text', href: 'session-setup.html?variant=file-finished' },
+  'finished-long': { head: finishedHead(LONG_TITLE), setup: 'Choose what to read next, or read it again.', label: 'Choose a text', href: 'session-setup.html?variant=file-finished' },
+};
+const WORDS_SHEET = startSheet({
+  mode: 'Words',
+  setup: '25 words from the 1,000 most common',
+  href: 'plain-words.html',
+  change: 'session-setup.html',
+  head: '<h1><span data-show="full loading">Start where you left off</span><span data-show="empty">Your first session</span><span data-show="error">Start a session</span></h1>',
+});
+const ROW_WORDS = ['Words', '25 words from the 1,000 most common', 'plain-words.html', 'session-setup.html'];
+const ROW_ZEN = ['Zen', 'No setup and no figures', 'typing-zen.html', ''];
+const ROW_TEXTS_DEFAULT = ['Texts', 'A passage from a public-domain book', 'plain-text.html', 'session-setup.html?variant=texts-passage'];
+const ROW_WALDEN = ['Texts', 'Walden, continues at 36%', 'plain-text.html', CHOOSE_FILE];
+const ROW_NO_REPEAT = ['Texts', 'A pasted text is not kept', null, 'session-setup.html?variant=texts-paste', 'Paste'];
+
 // Stage 1, now: no statistics and no adaptive mode. Only what the app really knows is on the screen.
+// While the setup loads, or if it cannot be read, Home has the default setup, so nothing is in the way.
 const homeNow = page({
   title: 'Keymind: home now',
-  description: 'Home while there are no statistics yet: the last setup one action away, and the other modes.',
+  description: 'Home while there are no statistics yet: the last setup one action away, what it does when that setup cannot repeat, and the other modes.',
   data: true,
+  variants: LAST,
   note: 'This is what the app can show today. The ground is not data: it has no keys and no hills.',
-  body: shell('home', `${startSheet({
-    mode: 'Words',
-    setup: '25 words from the 1,000 most common',
-    href: 'plain-words.html',
-    change: 'session-setup.html',
-    head: '<h1><span data-show="full loading">Start where you left off</span><span data-show="empty">Your first session</span><span data-show="error">Start a session</span></h1>',
-  })}
+  body: shell('home', `${vh('repeat row', WORDS_SHEET)}
+  ${Object.entries(NO_REPEAT).map(([id, sheet]) => vh(id, `<div data-show="full">${startSheet({ mode: 'Texts', ...sheet })}</div><div data-show="loading empty error">${WORDS_SHEET}</div>`)).join('\n  ')}
   <div data-show="error"><div class="state state--error"><p class="state__h">Your last setup could not be read</p><p>The default setup is in place. Your journal is safe, and nothing else changes.</p></div></div>
   ${region({
-    full: quickRows([['Texts', 'Walden, continues at 36%', 'plain-text.html', 'session-setup.html?variant=file-list'], ['Zen', 'No setup and no figures', 'typing-zen.html', '']]),
+    full: `${vh('repeat', quickRows([ROW_WALDEN, ROW_ZEN]))}${vh('paste deleted device device-empty finished finished-long', quickRows([ROW_WORDS, ROW_ZEN]))}${vh('row', quickRows([ROW_NO_REPEAT, ROW_ZEN]))}`,
     rows: 3,
-    empty: quickRows([['Texts', 'A passage from a public-domain book', 'plain-text.html', 'session-setup.html?variant=texts-passage'], ['Zen', 'No setup and no figures', 'typing-zen.html', '']]),
-    error: quickRows([['Texts', 'A passage from a public-domain book', 'plain-text.html', 'session-setup.html?variant=texts-passage'], ['Zen', 'No setup and no figures', 'typing-zen.html', '']]),
+    empty: quickRows([ROW_TEXTS_DEFAULT, ROW_ZEN]),
+    error: quickRows([ROW_TEXTS_DEFAULT, ROW_ZEN]),
   })}`, { nav: ['home', 'settings'], gam: false }),
 });
 
 // Stage 2 onward: Statistics joins the menu, and the sheet gains the map. The start stays first.
-const STAGE2 = [['many', 'Enough sessions'], ['few', 'Three sessions']];
+const STAGE2 = [['many', 'Enough sessions'], ['few', 'Three sessions'], ['paste', 'Last setup cannot repeat']];
 const v2 = variantsOf(STAGE2);
 const flatMap = (caption) => `<div class="map map--flat">${relief({ weak: [], seedValue: 7 })}${keyboard({ targets: [], cls: 'kbd--map' })}<p class="map__note">${caption}</p></div>`;
 const RECENT = [['Today, 12:04', 'Words', '00:27', 58, '97%'], ['Today, 11:58', 'Texts', '00:46', 52, '98%'], ['Yesterday, 18:40', 'Words', '01:00', 61, '96%'], ['Yesterday, 18:20', 'Zen', '04:12', 49, 'None']];
@@ -59,20 +85,20 @@ const homeStats = page({
   variants: STAGE2,
   note: 'Empty is the state before the first session. There is no adaptive mode yet.',
   body: shell('home', `<section class="sheet next">
-    <div class="next__h"><h1><span data-show="full loading error">Start where you left off</span><span data-show="empty">Your first session</span></h1><p class="start__setup start__setup--inline"><b>Words</b><span>25 words from the 1,000 most common</span></p></div>
+    <div class="next__h"><h1>${v2('many few', '<span data-show="full loading error">Start where you left off</span><span data-show="empty">Your first session</span>', true)}${v2('paste', '<span data-show="full">Paste a new text</span><span data-show="loading error">Start where you left off</span><span data-show="empty">Your first session</span>', true)}</h1><p class="start__setup start__setup--inline">${v2('many few', '<b>Words</b><span>25 words from the 1,000 most common</span>', true)}${v2('paste', '<b data-show="full">Texts</b><span data-show="full">A pasted text is not kept, so the last one cannot start again.</span><b data-show="loading empty error">Words</b><span data-show="loading empty error">25 words from the 1,000 most common</span>', true)}</p></div>
     ${region({
-      full: `${v2('many', `<div class="map">${relief({ seedValue: 7 })}${keyboard({ targets: ['KeyE', 'KeyS'], cls: 'kbd--map' })}${pin(3.5, 1.5, '<b>E</b> 212 ms')}${pin(2.25, 2.5, '<b>S</b> 188 ms')}</div>`)}
+      full: `${v2('many paste', `<div class="map">${relief({ seedValue: 7 })}${keyboard({ targets: ['KeyE', 'KeyS'], cls: 'kbd--map' })}${pin(3.5, 1.5, '<b>E</b> 212 ms')}${pin(2.25, 2.5, '<b>S</b> 188 ms')}</div>`)}
         ${v2('few', `<div class="map">${relief({ weak: [['KeyE', 0.5], ['KeyP', 0.35]], seedValue: 7 })}${keyboard({ targets: [], cls: 'kbd--map' })}<p class="map__note">Drawn from 3 sessions, so it will shift as you type more.</p></div>`)}`,
       loading: '<div class="sk"><i style="--w:100%;height:190px"></i></div>',
       empty: flatMap('The ground is flat for now. Your first session raises the first hills.'),
       error: ['The statistics could not be read', 'Your journal is safe. Rebuild the statistics from it and the map comes back.', '<button class="btn" type="button">Rebuild from the journal</button>'],
     })}
-    <div class="next__a"><div class="start__a"><a class="btn btn--primary" href="plain-words.html" autofocus>Start session</a><a class="btn btn--quiet" href="session-setup.html">Change setup</a></div><a class="link" href="statistics.html">Open statistics</a></div>
+    <div class="next__a"><div class="start__a">${v2('many few', '<a class="btn btn--primary" href="plain-words.html" autofocus>Start session</a><a class="btn btn--quiet" href="session-setup.html">Change setup</a>', true)}${v2('paste', '<span data-show="full"><a class="btn btn--primary" href="session-setup.html?variant=texts-paste" autofocus>Paste a text</a></span><span data-show="loading empty error"><span class="start__a"><a class="btn btn--primary" href="plain-words.html" autofocus>Start session</a><a class="btn btn--quiet" href="session-setup.html">Change setup</a></span></span>', true)}</div><a class="link" href="statistics.html">Open statistics</a></div>
   </section>
   <div class="twocol">
-    ${quickRows([['Texts', 'Walden, continues at 36%', 'plain-text.html', 'session-setup.html?variant=file-list'], ['Zen', 'No setup and no figures', 'typing-zen.html', '']])}
+    ${v2('many few', quickRows([ROW_WALDEN, ROW_ZEN]))}${v2('paste', quickRows([ROW_WORDS, ROW_ZEN]))}
     ${sec('Recent sessions', region({
-      full: `${v2('many', recentTable(RECENT))}${v2('few', recentTable(RECENT.slice(0, 3)))}`,
+      full: `${v2('many paste', recentTable(RECENT))}${v2('few', recentTable(RECENT.slice(0, 3)))}`,
       rows: 4,
       empty: ['No sessions yet', 'Your first session shows up here.', ''],
       error: ['Sessions could not be loaded', 'Your journal is safe. Rebuild the statistics from it.', ''],
@@ -198,7 +224,7 @@ const plainTime = page({
   body: typingScreen({
     title: 'Timed words session',
     left: '<span class="bar__mode">Words</span><span class="bar__detail">60 seconds, top 1,000</span>',
-    stage: typedStage({ stream: textStream(WORDS, { cursor: 0, targets: null }), run: runBar(1, 'Time left'), notice: 'The clock starts with your first key.', level: 'ready' }),
+    stage: typedStage({ stream: textStream(WORDS, { cursor: 0, targets: null }), run: runBar(1, 'Time left', 'run--limit'), notice: 'The clock starts with your first key.', level: 'ready' }),
     targets: [],
     next: null,
     time: '01:00',
@@ -239,6 +265,7 @@ const zen = page({
   description: 'Free typing with no sample text and no figures. Text grows at the bottom and older lines rise and fade.',
   typing: true,
   plain: true,
+  figures: false,
   variants: ZEN,
   reloadVariants: true,
   note: 'Type here. Enter starts a new line and Backspace works. The caret blinks only after a pause.',

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Keymind: home</title>
 <meta name="description" content="Dashboard: next session on the skill relief, level, goals, quests, event and recent sessions.">
-<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');})();</script>
+<script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
 <body>
@@ -51,7 +51,7 @@
       <a class="btn btn--primary" href="typing-words.html">Start session</a>
     </div>
     <section class="sec quickwrap"><header class="sec__h"><h2>Other sessions</h2><a class="link" href="session-setup.html">All modes</a></header>
-  <ul class="quick"><li class="quick__r"><b class="quick__m">Words</b><span class="quick__s">25 words from the 1,000 most common</span><a class="btn btn--sm" href="plain-words.html" aria-label="Start Words">Start</a><a class="link" href="session-setup.html" aria-label="Change the Words setup">Change</a></li><li class="quick__r"><b class="quick__m">Texts</b><span class="quick__s">Walden, continues at 36%</span><a class="btn btn--sm" href="plain-text.html" aria-label="Start Texts">Start</a><a class="link" href="session-setup.html?variant=file-list" aria-label="Change the Texts setup">Change</a></li><li class="quick__r"><b class="quick__m">Zen</b><span class="quick__s">No setup and no figures</span><a class="btn btn--sm" href="typing-zen.html" aria-label="Start Zen">Start</a><span></span></li></ul>
+  <ul class="quick"><li class="quick__r"><b class="quick__m">Words</b><span class="quick__s" title="25 words from the 1,000 most common">25 words from the 1,000 most common</span><a class="btn btn--sm" href="plain-words.html" aria-label="Start Words">Start</a><a class="link" href="session-setup.html" aria-label="Change the Words setup">Change</a></li><li class="quick__r"><b class="quick__m">Texts</b><span class="quick__s" title="Walden, continues at 36%">Walden, continues at 36%</span><a class="btn btn--sm" href="plain-text.html" aria-label="Start Texts">Start</a><a class="link" href="session-setup.html?variant=file-list" aria-label="Change the Texts setup">Change</a></li><li class="quick__r"><b class="quick__m">Zen</b><span class="quick__s" title="No setup and no figures">No setup and no figures</span><a class="btn btn--sm" href="typing-zen.html" aria-label="Start Zen">Start</a><span></span></li></ul>
 </section>
   </section>
   <aside class="s4 stack gam">
@@ -100,9 +100,10 @@
   <summary>Mockup</summary>
   <div class="review__body">
     
-    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></span></div>
+    <div class="review__row"><span>Theme</span><span class="review__seg"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button><button type="button" data-set-theme="system">System</button></span></div>
     <div class="review__row"><label for="rv-data">Data</label><select id="rv-data" data-set-data><option value="full">Full</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Error</option></select></div>
     <div class="review__row"><span>Gamification</span><span class="review__seg"><button type="button" data-set-gam="on">On</button><button type="button" data-set-gam="off">Clean</button></span></div>
+    
     
     <div class="review__row"><label for="rv-vision">Vision</label><select id="rv-vision" data-set-vision><option value="none">Typical</option><option value="protan">Protanopia</option><option value="deutan">Deuteranopia</option><option value="tritan">Tritanopia</option><option value="achroma">No colour</option></select></div>
     <p>Figures are sample data.</p>

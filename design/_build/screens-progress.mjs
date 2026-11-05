@@ -158,6 +158,7 @@ const settings = page({
     ${group('typing', 'Typing', [
     setting('Backspace', 'Corrections are allowed everywhere. The original error is always counted.', seg('Backspace', ['Allowed', 'Blocked in Adaptive'])),
     setting('On error', 'Keep typing, or wait for the right key.', seg('On error', ['Keep going', 'Stop until correct'])),
+    setting('Live figures', 'WPM, accuracy and elapsed time while you type. A time limit always shows, and the summary keeps every figure.', sw('s-figures')),
     setting('On-screen keyboard', 'The finger hint is part of the keyboard.', sel('s-kbd', 'On-screen keyboard', ['On, with finger hint', 'Only on error', 'Off']), { labelFor: 's-kbd' }),
     setting('Sounds', '', sw('s-sound')),
     setting('Sound set', '', sel('s-soundset', 'Sound set', ['Soft', 'Mechanical', 'Tick']), { dep: 's-sound', labelFor: 's-soundset' }),
