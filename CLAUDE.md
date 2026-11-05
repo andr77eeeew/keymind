@@ -33,8 +33,10 @@ src-tauri/src/
   journal/               append-only event journal
   projector/             journal -> SQLite derived tables
   stats/                 session metrics, shared by the summary and the projector
-  brain/                 student model, decision model, heuristic fallback
-  generator/             exercise text generation, and loading of content/
+  brain/                 student model, letter unlocking, the heuristic and the adaptive session
+                         (ADR-0010); the ML decision model joins it at stage 8
+  generator/             exercise text generation (words, adaptive recipes, Markov pseudowords,
+                         ADR-0011), and loading of content/
   settings/              policies: settings_changed events and their cache
   imports/               TXT and EPUB import, kept only in the local data folder
   rules/                 XP, levels, goals, quests, events, achievements, tips
