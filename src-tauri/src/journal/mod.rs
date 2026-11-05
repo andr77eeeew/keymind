@@ -8,7 +8,7 @@ pub mod writer;
 use std::path::PathBuf;
 
 pub use event::{Event, EventBody};
-pub use reader::{ReadReport, read_dir};
+pub use reader::{Line, LineChunk, ReadReport, parse_line, read_dir, read_lines_from};
 pub use service::{JournalService, ServiceError};
 pub use writer::JournalWriter;
 
