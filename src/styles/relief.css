@@ -789,7 +789,7 @@ input {
   background: var(--color-ink-2);
   transform-origin: left;
   transform: scaleX(var(--v));
-  transition: transform 500ms linear;
+  /* No transition: gliding kept frames busy all session and made 59% of paints late (ADR-0004). */
 }
 /* Live figures off: the panel loses them and the line stops. A limit is not a metric, so it stays. */
 html[data-figures="off"] .stat--live {
@@ -1634,9 +1634,6 @@ html[data-kbd="off"] .app:not(.app--video) .stage > .window {
   .sk i,
   .zen__caret.is-idle::before {
     animation: none;
-  }
-  .run i {
-    transition: none;
   }
   .busy i {
     animation: none;
