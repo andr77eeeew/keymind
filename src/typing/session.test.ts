@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { TypingSession, type Hint, type SessionEventLike } from "./session";
+import type { MessageKind } from "./messages";
+import {
+  TypingSession,
+  type LiveStats,
+  type PauseReason,
+  type SessionEventLike,
+} from "./session";
 import type {
   JournalEvent,
   KeystrokeEvent,
@@ -12,6 +18,8 @@ const SETTINGS: Settings = {
   on_error: "continue",
   backspace: "allowed",
   theme: "light",
+  live_figures: true,
+  theme_chosen: false,
 };
 
 const WORDS_PLAN: SessionPlan = {
@@ -45,8 +53,11 @@ function key(
 
 function setup(plan: SessionPlan = WORDS_PLAN, settings: Settings = SETTINGS) {
   const events: JournalEvent[] = [];
-  const hints: Hint[] = [];
+  const hints: Array<MessageKind | null> = [];
+  const live: LiveStats[] = [];
+  const pauses: PauseReason[] = [];
   const ended: Array<[string | null, string]> = [];
+  const saved: boolean[] = [];
   let paused = 0;
   let clock = 1000;
   const session = new TypingSession({
@@ -58,13 +69,16 @@ function setup(plan: SessionPlan = WORDS_PLAN, settings: Settings = SETTINGS) {
       return Promise.resolve();
     },
     callbacks: {
-      live: () => {},
-      hint: (hint) => hints.push(hint),
-      health: () => {},
-      paused: () => {
+      live: (stats) => live.push(stats),
+      message: (kind) => hints.push(kind),
+      paused: (reason) => {
         paused += 1;
+        pauses.push(reason);
       },
-      ended: (sid, reason) => ended.push([sid, reason]),
+      ended: (sid, reason, wasSaved) => {
+        ended.push([sid, reason]);
+        saved.push(wasSaved);
+      },
     },
     now: () => clock,
     newId: () => "sid-1",
@@ -94,6 +108,9 @@ function setup(plan: SessionPlan = WORDS_PLAN, settings: Settings = SETTINGS) {
     session,
     events,
     hints,
+    live,
+    pauses,
+    saved,
     ended,
     moved,
     zen,
@@ -185,8 +202,8 @@ describe("TypingSession", () => {
     session.handleKeyDown(key("Shift", 1, { code: "ShiftLeft" }));
     session.handleKeyDown(key("A", 2, { code: "KeyA" }));
     session.handleKeyDown(key("Shift", 3, { code: "ShiftRight" }));
-    session.handleKeyUp("ShiftLeft");
-    session.handleKeyUp("ShiftRight");
+    session.handleKeyUp({ code: "ShiftLeft" });
+    session.handleKeyUp({ code: "ShiftRight" });
     await session.finish("aborted");
     const list = strokes(events);
     expect(list[0]).toMatchObject({ kind: "char", mods: ["ShiftLeft"] });
@@ -250,6 +267,171 @@ describe("TypingSession", () => {
       }),
     );
     expect(hints).toEqual(["caps"]);
+  });
+
+  it("watches Caps Lock on the release too", () => {
+    const { session, hints } = setup();
+    session.handleKeyDown(
+      key("a", 1, { getModifierState: (name) => name === "CapsLock" }),
+    );
+    session.handleKeyUp({ code: "CapsLock", getModifierState: () => false });
+    expect(hints).toEqual(["caps", null]);
+  });
+
+  it("waits a moment before it says a stop-mode session stopped", () => {
+    const { session, hints } = setup(WORDS_PLAN, {
+      ...SETTINGS,
+      on_error: "stop",
+    });
+    session.handleKeyDown(key("x", 1));
+    vi.advanceTimersByTime(500);
+    expect(hints).toEqual([]);
+    vi.advanceTimersByTime(100);
+    expect(hints).toEqual(["stop"]);
+    session.handleKeyDown(key("a", 700));
+    expect(hints).toEqual(["stop", null]);
+  });
+
+  it("says nothing when the right key comes in time", () => {
+    const { session, hints } = setup(WORDS_PLAN, {
+      ...SETTINGS,
+      on_error: "stop",
+    });
+    session.handleKeyDown(key("x", 1));
+    session.handleKeyDown(key("a", 100));
+    vi.advanceTimersByTime(1000);
+    expect(hints).toEqual([]);
+  });
+
+  it("explains a blocked Backspace until the next key or a few seconds", () => {
+    const { session, hints } = setup(
+      { ...WORDS_PLAN, text: "abc" },
+      { ...SETTINGS, backspace: "blocked" },
+    );
+    session.handleKeyDown(key("a", 1));
+    session.handleKeyDown(key("Backspace", 2, { code: "Backspace" }));
+    expect(hints).toEqual(["backspace"]);
+    session.handleKeyDown(key("b", 3));
+    expect(hints).toEqual(["backspace", null]);
+    session.handleKeyDown(key("Backspace", 4, { code: "Backspace" }));
+    vi.advanceTimersByTime(3000);
+    expect(hints).toEqual(["backspace", null, "backspace", null]);
+  });
+
+  it("says when the clock of a timed session starts", () => {
+    const { session, hints } = setup({ ...WORDS_PLAN, seconds: 60 });
+    expect(hints).toEqual(["ready"]);
+    session.handleKeyDown(key("a", 1));
+    expect(hints).toEqual(["ready", null]);
+  });
+
+  it("reports whether the end of a session reached the disk", async () => {
+    const hints: Array<MessageKind | null> = [];
+    const saved: boolean[] = [];
+    const session = new TypingSession({
+      plan: WORDS_PLAN,
+      settings: SETTINGS,
+      appVersion: "1",
+      send: () => Promise.reject(new Error("disk")),
+      callbacks: {
+        live: () => {},
+        message: (kind) => hints.push(kind),
+        paused: () => {},
+        ended: (_sid, _reason, wasSaved) => saved.push(wasSaved),
+      },
+      newId: () => "sid",
+    });
+    session.handleKeyDown(key("a", 1));
+    const done = session.finish("aborted");
+    await vi.advanceTimersByTimeAsync(60000);
+    await done;
+    expect(hints).toContain("disk");
+    expect(saved).toEqual([false]);
+    session.dispose();
+  });
+
+  it("tells a pause by Esc from one by a lost focus", () => {
+    const { session, pauses } = setup();
+    session.handleKeyDown(key("a", 1));
+    session.handleKeyDown(key("Escape", 2, { code: "Escape" }));
+    session.resume();
+    session.handleBlur();
+    expect(pauses).toEqual(["esc", "blur"]);
+  });
+
+  it("reports progress through the text", () => {
+    const { session, live } = setup({ ...WORDS_PLAN, text: "abcd" });
+    session.handleKeyDown(key("a", 1));
+    session.handleKeyDown(key("b", 2));
+    vi.advanceTimersByTime(500);
+    expect(live[live.length - 1]?.progress).toBe(0.5);
+  });
+
+  it("reports the time left as progress in a timed session", () => {
+    const { session, live, setClock } = setup({ ...WORDS_PLAN, seconds: 10 });
+    session.handleKeyDown(key("a", 1000));
+    setClock(6000);
+    vi.advanceTimersByTime(500);
+    expect(live[live.length - 1]?.progress).toBeCloseTo(0.5, 5);
+  });
+
+  it("runs no live timer when nothing on the screen would change", () => {
+    const { session, live } = setup(WORDS_PLAN, {
+      ...SETTINGS,
+      live_figures: false,
+    });
+    session.handleKeyDown(key("a", 1));
+    vi.advanceTimersByTime(2000);
+    expect(live).toEqual([]);
+  });
+
+  it("keeps the clock of a timed session with the figures off", () => {
+    const { session, live } = setup(
+      { ...WORDS_PLAN, seconds: 60 },
+      { ...SETTINGS, live_figures: false },
+    );
+    session.handleKeyDown(key("a", 1));
+    vi.advanceTimersByTime(500);
+    expect(live.length).toBeGreaterThan(0);
+  });
+
+  it("runs no live timer in Zen", () => {
+    const { session, live } = setup({
+      mode: "zen",
+      text: "",
+      source: { kind: "zen" },
+      detail: "",
+    });
+    session.handleKeyDown(key("a", 1));
+    vi.advanceTimersByTime(2000);
+    expect(live).toEqual([]);
+  });
+
+  it("makes Enter a new line in Zen and nothing elsewhere", async () => {
+    const zen = setup({
+      mode: "zen",
+      text: "",
+      source: { kind: "zen" },
+      detail: "",
+    });
+    zen.session.handleKeyDown(key("a", 1));
+    const enter = key("Enter", 2, { code: "Enter" });
+    zen.session.handleKeyDown(enter);
+    expect(enter.prevented).toBe(true);
+    expect(zen.zen.text).toBe("a\n");
+    await zen.session.finish("completed");
+    expect(strokes(zen.events)[1]).toMatchObject({
+      kind: "char",
+      code: "Enter",
+      key: "\n",
+      pos: 1,
+    });
+
+    const words = setup();
+    const other = key("Enter", 1, { code: "Enter" });
+    words.session.handleKeyDown(other);
+    expect(other.prevented).toBe(true);
+    expect(words.session.started).toBe(false);
   });
 
   it("leaves the keyboard to the dialog while paused", async () => {

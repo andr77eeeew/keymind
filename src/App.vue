@@ -3,33 +3,52 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { onBeforeUnmount, onMounted } from "vue";
 import { useAppStore } from "./stores/app";
 import { useSessionStore } from "./stores/session";
-import { useSettingsStore } from "./stores/settings";
 import { finishActiveSession } from "./typing/active";
+import { onStatsStatus } from "./typing/api";
 import HomeView from "./views/HomeView.vue";
+import OnboardingView from "./views/OnboardingView.vue";
 import SettingsView from "./views/SettingsView.vue";
+import SetupView from "./views/SetupView.vue";
 import SummaryView from "./views/SummaryView.vue";
 import TypingView from "./views/TypingView.vue";
 
 const app = useAppStore();
 const session = useSessionStore();
-const settings = useSettingsStore();
 
 let stopListening: (() => void) | null = null;
+let stopStatus: (() => void) | null = null;
 
 onMounted(async () => {
   void app.loadInfo();
-  void settings.load();
+
+  // Listening comes first, so a rebuild that ends during the first read is not missed.
+  try {
+    stopStatus = await onStatsStatus(session.statusChanged);
+  } catch {
+    // Outside Tauri there are no events.
+  }
+  void session.loadHome();
 
   if (import.meta.env.VITE_LATENCY_PROBE) {
     (window as unknown as Record<string, unknown>).__keymindStart = (
       text: string,
+      mode?: "zen",
     ) =>
-      session.begin({
-        mode: "texts",
-        text,
-        source: { kind: "paste", chars: text.length },
-        detail: "Latency bench",
-      });
+      session.begin(
+        mode === "zen"
+          ? {
+              mode,
+              text: "",
+              source: { kind: "zen" },
+              detail: "",
+            }
+          : {
+              mode: "texts",
+              text,
+              source: { kind: "paste", chars: text.length },
+              detail: "Latency bench",
+            },
+      );
   }
 
   // The window closes on its own once this returns, and Tauri destroys it.
@@ -44,12 +63,15 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   stopListening?.();
+  stopStatus?.();
 });
 </script>
 
 <template>
-  <TypingView v-if="app.screen === 'typing'" />
+  <OnboardingView v-if="app.screen === 'onboarding'" />
+  <TypingView v-else-if="app.screen === 'typing'" />
   <SummaryView v-else-if="app.screen === 'summary'" />
   <SettingsView v-else-if="app.screen === 'settings'" />
+  <SetupView v-else-if="app.screen === 'setup'" />
   <HomeView v-else />
 </template>

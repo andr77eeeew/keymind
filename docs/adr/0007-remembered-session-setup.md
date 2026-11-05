@@ -38,6 +38,10 @@ Option 1. The last `session_started` of a mode, by `ts` across all devices, defi
 - Pasted text cannot be repeated, because keeping it would break the decision that it stays out of
   the journal. A file cannot be repeated when it was deleted, lives on another device or is finished.
   In these cases Home opens the setup of that mode instead of starting at once.
+- Order comes from the instant, not from the text of a timestamp, because devices write different
+  time zones. A row with a source or a mode this version does not know is left out.
+- The view is updated in the background, so Home puts a session that just ended ahead of it. That
+  list lives in memory, and the journal replaces it at the next launch.
 - Storage is derived: a `last_setups` view over the `sessions` table of the projector (ADR-0008). The
   `last_setups.json` cache first planned here was never built, because the projector arrived before
   the screens that need it.

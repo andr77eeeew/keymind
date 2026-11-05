@@ -150,6 +150,17 @@ pub fn rebuild_stats(state: State<'_, AppState>) {
     state.projector.request_rebuild();
 }
 
+/// Whether the first-launch step comes before Home.
+#[tauri::command]
+pub async fn asks_for_theme(state: State<'_, AppState>) -> Result<bool, CommandError> {
+    let settings = *state
+        .settings
+        .lock()
+        .map_err(|_| CommandError::SettingsLocked)?;
+    let root = state.paths.journal_root.clone();
+    blocking(move || Ok(settings::asks_for_theme(&settings, &root))).await
+}
+
 #[tauri::command]
 pub async fn generate_words(
     state: State<'_, AppState>,

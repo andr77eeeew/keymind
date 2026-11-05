@@ -1,73 +1,140 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import AppShell from "../components/AppShell.vue";
 import { useAppStore } from "../stores/app";
 import { useSessionStore } from "../stores/session";
+import { readingProgress, summaryContent } from "../typing/summary";
+
+/** The press that ended a session may still be held, and must not start the next one. */
+const FOCUS_DELAY_MS = 400;
 
 const app = useAppStore();
 const session = useSessionStore();
+const primary = useTemplateRef<HTMLButtonElement>("primary");
 
-const figures = computed(() => {
-  const summary = session.summary;
-  if (summary === null) {
-    return [];
-  }
-  const totalSeconds = Math.round(summary.duration_ms / 1000);
-  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return [
-    { label: "WPM", value: Math.round(summary.wpm).toString() },
-    { label: "CPM", value: Math.round(summary.cpm).toString() },
-    {
-      label: "Accuracy",
-      value:
-        summary.accuracy === null ? "—" : `${summary.accuracy.toFixed(1)}%`,
-    },
-    {
-      label: "Rhythm evenness",
-      value: summary.rhythm === null ? "—" : `${Math.round(summary.rhythm)}%`,
-    },
-    { label: "Time", value: `${minutes}:${seconds}` },
-  ];
+const content = computed(() => {
+  const ended = session.endedSession;
+  return ended && session.summary
+    ? summaryContent(ended.plan, session.summary, ended.cursor)
+    : null;
 });
 
-const title = computed(() =>
-  session.summary?.reason === "aborted"
-    ? "Session ended early"
-    : "Session complete",
-);
+const reading = computed(() => {
+  const ended = session.endedSession;
+  return ended ? readingProgress(ended.plan, ended.cursor) : null;
+});
+
+const nextLabel = computed(() => {
+  if (reading.value === null) {
+    return "Next session";
+  }
+  return reading.value.finished ? "Start again" : "Continue reading";
+});
+
+const unsaved = computed(() => session.endedSession?.saved === false);
+
+const focusTimer = setTimeout(() => primary.value?.focus(), FOCUS_DELAY_MS);
+onMounted(() => {
+  // Keeps the keys away from whatever had the focus before.
+  (document.activeElement as HTMLElement | null)?.blur?.();
+});
+onBeforeUnmount(() => clearTimeout(focusTimer));
 </script>
 
 <template>
   <AppShell>
-    <div class="page-head">
-      <h1>{{ title }}</h1>
+    <div class="page-head page-head--stack">
+      <h1>
+        {{
+          session.summaryFailed
+            ? unsaved
+              ? "The session could not be saved yet"
+              : "Session ended"
+            : (content?.heading ?? "Session ended")
+        }}
+      </h1>
+      <p v-if="content">{{ content.sub }}</p>
     </div>
-    <section class="sec">
-      <header class="sec__h"><h2>Session</h2></header>
-      <div v-if="session.summaryFailed" class="state state--error">
+
+    <div v-if="session.summaryFailed" class="state state--error">
+      <template v-if="unsaved">
+        <p class="state__h">Your typing has not reached the disk yet</p>
+        <p>
+          Keymind keeps trying while it runs, so leave it open until the disk
+          responds.
+        </p>
+      </template>
+      <template v-else>
         <p class="state__h">The summary could not be read</p>
         <p>
           Your typing is safe in the journal. Later sessions are not affected.
         </p>
+      </template>
+    </div>
+    <div v-else-if="content === null" class="sk" aria-busy="true">
+      <span class="visually-hidden">Loading</span>
+      <i style="--w: 92%" />
+      <i style="--w: 74%" />
+      <i style="--w: 84%" />
+    </div>
+    <template v-else>
+      <div class="result">
+        <div class="result__lead">
+          <div
+            v-for="figure in content.lead"
+            :key="figure.label"
+            class="figure figure--lead"
+          >
+            <b>{{ figure.value }}</b>
+            <span>{{ figure.label }}</span>
+          </div>
+        </div>
+        <div class="result__rest">
+          <div
+            v-for="figure in content.rest"
+            :key="figure.label"
+            class="figure"
+          >
+            <b>{{ figure.value }}</b>
+            <span>{{ figure.label }}</span>
+          </div>
+        </div>
+        <p class="result__note">{{ content.note }}</p>
       </div>
-      <div v-else class="figures">
-        <div v-for="figure in figures" :key="figure.label" class="figure">
-          <b>{{ figure.value }}</b>
-          <span>{{ figure.label }}</span>
+      <div v-if="reading" class="result__extra">
+        <div class="meter">
+          <div class="meter__head">
+            <span>Read so far</span>
+            <b>{{ reading.text }}</b>
+          </div>
+          <div
+            class="meter__bar"
+            role="progressbar"
+            aria-label="Read so far"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="reading.value"
+          >
+            <i :style="{ '--v': reading.value / 100 }" />
+          </div>
         </div>
       </div>
-    </section>
+    </template>
+
     <div class="row">
       <button
+        ref="primary"
         type="button"
         class="btn btn--primary"
         :disabled="session.starting"
         @click="session.start()"
       >
-        Next session
+        {{ nextLabel }}
       </button>
-      <button type="button" class="btn" @click="app.go('home')">
+      <button type="button" class="btn" @click="app.go('setup')">
+        Change setup
+      </button>
+      <button type="button" class="btn btn--quiet" @click="app.go('home')">
         Back to home
       </button>
     </div>

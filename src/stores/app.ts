@@ -9,7 +9,8 @@ export interface AppInfo {
 }
 
 /** A handful of screens with no deep links, so a router would add nothing yet. */
-export type Screen = "home" | "typing" | "summary" | "settings";
+export type Screen =
+  "onboarding" | "home" | "setup" | "typing" | "summary" | "settings";
 
 export const useAppStore = defineStore("app", () => {
   const info = ref<AppInfo | null>(null);

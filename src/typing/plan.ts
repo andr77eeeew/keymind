@@ -5,6 +5,7 @@ import {
   pickPassage,
   type ImportedText,
 } from "./api";
+import { poolText } from "./remembered";
 import type { SessionPlan } from "./types";
 
 /** More words than anyone types in the longest timed session, which is two minutes. */
@@ -25,6 +26,14 @@ function randomSeed(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0];
 }
 
+/** "Jane Austen, Pride and Prejudice (1813)" gives the two names, or nothing for another form. */
+export function bookOf(
+  source: string,
+): { author: string; title: string } | null {
+  const match = /^([^,]+), (.+) \(\d+\)$/.exec(source);
+  return match ? { author: match[1], title: match[2] } : null;
+}
+
 /** Builds what a session needs. Everything slow happens here, before the typing screen opens. */
 export async function buildPlan(
   setup: SessionSetup,
@@ -42,7 +51,7 @@ export async function buildPlan(
               pool: setup.pool,
               count: setup.count,
             },
-            detail: `Common ${setup.pool} · ${setup.count} words`,
+            detail: `${setup.count} words, top ${poolText(setup.pool)}`,
           }
         : {
             mode: "words",
@@ -54,23 +63,31 @@ export async function buildPlan(
               seconds: setup.seconds,
             },
             seconds: setup.seconds,
-            detail: `Common ${setup.pool} · ${setup.seconds} seconds`,
+            detail: `${setup.seconds} seconds, top ${poolText(setup.pool)}`,
           };
     case "passage": {
       const passage = await pickPassage(setup.difficulty, seed);
       return {
         mode: "texts",
         text: passage.text,
-        source: { kind: "passage", id: passage.id },
-        detail: "Passage",
-        caption: passage.source,
+        source:
+          setup.difficulty === null
+            ? { kind: "passage", id: passage.id }
+            : {
+                kind: "passage",
+                id: passage.id,
+                difficulty: setup.difficulty,
+              },
+        detail: bookOf(passage.source)?.title ?? "Passage",
+        caption: `${passage.source}. Public domain.`,
+        passageSource: passage.source,
       };
     }
     case "paste": {
       const { text } = await cleanText(setup.text);
       if (text.length === 0) {
         throw new PlanError(
-          "This text has no characters that can be typed on the English layout.",
+          "Nothing here can be typed on the English layout, the only one available for now.",
         );
       }
       return {
@@ -78,6 +95,7 @@ export async function buildPlan(
         text,
         source: { kind: "paste", chars: text.length },
         detail: "Your text",
+        caption: "Your text. It is not kept.",
       };
     }
     case "import": {
@@ -89,7 +107,9 @@ export async function buildPlan(
         text: full.slice(offset),
         source: { kind: "import", id: setup.item.id, offset },
         detail: setup.item.title,
+        caption: "Your file. It stays on this computer.",
         importOffset: offset,
+        importChars: full.length,
       };
     }
     case "zen":
@@ -97,7 +117,7 @@ export async function buildPlan(
         mode: "zen",
         text: "",
         source: { kind: "zen" },
-        detail: "Free typing",
+        detail: "",
       };
   }
 }

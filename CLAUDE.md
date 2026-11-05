@@ -26,7 +26,8 @@ Read the relevant SPEC sections before starting any task.
 ## Repository layout
 
 ```
-src/                     Vue UI; src/typing/ is the non-reactive input path (ADR-0004)
+src/                     Vue UI; src/typing/ is the non-reactive input path (ADR-0004),
+                         src/relief/ draws the contour ground
 src-tauri/src/
   journal/               append-only event journal
   projector/             journal -> SQLite derived tables

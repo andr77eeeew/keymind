@@ -52,3 +52,5 @@ This file is written by `tools/content/build.py`, except where a section says ot
   Full text: `licenses/OFL-golos-text.txt`.
 - **JetBrains Mono**, the JetBrains Mono Project Authors, SIL OFL 1.1, through
   `@fontsource/jetbrains-mono`. Full text: `licenses/OFL-jetbrains-mono.txt`.
+- `design/screens/assets/fonts/` holds copies of the same files, under the same licenses, so the
+  mockups open without a network.

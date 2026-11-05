@@ -18,6 +18,7 @@ pub mod sync;
 use std::sync::{Arc, Mutex};
 
 use tauri::path::BaseDirectory;
+use tauri::webview::PageLoadEvent;
 use tauri::{Emitter, Manager};
 
 pub use error::AppError;
@@ -60,6 +61,13 @@ pub fn run() -> Result<(), AppError> {
             app.manage(state);
             Ok(())
         })
+        // The window starts hidden, so a dark theme never opens with a white flash. Showing it from
+        // here and not from the UI means that a page which fails to run still gets a window.
+        .on_page_load(|webview, payload| {
+            if matches!(payload.event(), PageLoadEvent::Finished) {
+                let _ = webview.window().show();
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             commands::app_info,
             commands::append_events,
@@ -78,6 +86,7 @@ pub fn run() -> Result<(), AppError> {
             commands::delete_import,
             commands::get_settings,
             commands::set_setting,
+            commands::asks_for_theme,
         ])
         .run(tauri::generate_context!())?;
     Ok(())

@@ -79,6 +79,9 @@ pub enum TextSource {
     },
     Passage {
         id: String,
+        /// The difficulty asked for, which Home repeats. Missing means any, as in older journals.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        difficulty: Option<u8>,
     },
     Paste {
         chars: u64,
