@@ -155,3 +155,47 @@ describe("TextRenderer", () => {
     expect(current?.textContent).toBe(engine.text[500]);
   });
 });
+
+describe("TextRenderer window height", () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  function withLines(text: string, full: string) {
+    const windowEl = document.createElement("div");
+    windowEl.style.setProperty("--lines", full);
+    const stream = document.createElement("div");
+    windowEl.append(stream);
+    document.body.append(windowEl);
+    // A style sheet sets the full height in the app, and this stands in for it after the reset.
+    const real = window.getComputedStyle.bind(window);
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el) => {
+      const style = real(el);
+      return new Proxy(style, {
+        get: (target, name) =>
+          name === "getPropertyValue"
+            ? (property: string) =>
+                property === "--lines" &&
+                !windowEl.style.getPropertyValue(property)
+                  ? full
+                  : target.getPropertyValue(property)
+            : Reflect.get(target, name),
+      });
+    });
+    new TextRenderer(windowEl, stream, new TypingEngine(text, "continue"));
+    return windowEl;
+  }
+
+  it("gives a short text a window of its own height", () => {
+    // jsdom has no layout, so everything measures as one line.
+    const windowEl = withLines("short text", "4");
+    expect(windowEl.style.getPropertyValue("--lines")).toBe("1");
+    vi.restoreAllMocks();
+  });
+
+  it("leaves the full height to a text that is not all in the DOM", () => {
+    const windowEl = withLines("word ".repeat(1000), "4");
+    expect(windowEl.style.getPropertyValue("--lines")).toBe("");
+    vi.restoreAllMocks();
+  });
+});

@@ -88,14 +88,20 @@ describe("classifyKey", () => {
     );
   });
 
-  it("blocks Tab and Enter, which would move the focus or press a button", () => {
+  it("blocks Tab, which would move the focus", () => {
     expect(classifyKey(input({ code: "Tab", key: "Tab" }))).toEqual({
       action: "none",
       block: true,
     });
-    expect(classifyKey(input({ code: "Enter", key: "Enter" })).action).toBe(
-      "none",
-    );
+  });
+
+  it("names Enter, which only Zen uses, and ignores a held one", () => {
+    expect(classifyKey(input({ code: "Enter", key: "Enter" }))).toEqual({
+      action: "enter",
+    });
+    expect(
+      classifyKey(input({ code: "Enter", key: "Enter", repeat: true })).action,
+    ).toBe("none");
   });
 });
 

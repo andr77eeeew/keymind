@@ -12,6 +12,8 @@ export type KeyAction =
   /** A character of the text. */
   | { action: "char"; key: string }
   | { action: "backspace" }
+  /** A new line in Zen. Anywhere else it does nothing, so it cannot press a button. */
+  | { action: "enter" }
   /** Shift, Ctrl, Alt or Win, kept so later stages can tell a Shift error from a letter error. */
   | { action: "modifier" }
   /** A character of another alphabet, which means the wrong layout is active. */
@@ -58,8 +60,11 @@ export function classifyKey(input: KeyInput): KeyAction {
   if (input.key === "Escape") {
     return { action: "escape" };
   }
+  if (input.key === "Enter") {
+    return { action: "enter" };
+  }
   if (input.key.length !== 1) {
-    // Tab, Enter, F-keys and arrows, plus Dead, Process and AltGraph, which never give one
+    // Tab, F-keys and arrows, plus Dead, Process and AltGraph, which never give one
     // committed character of their own.
     return { action: "none", block: true };
   }

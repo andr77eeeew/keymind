@@ -52,6 +52,7 @@ export class TextRenderer implements TextView {
   private maintenance: ReturnType<typeof setTimeout> | null = null;
   private width = 0;
   private disposed = false;
+  private readonly windowEl: HTMLElement;
 
   constructor(
     windowEl: HTMLElement,
@@ -60,6 +61,7 @@ export class TextRenderer implements TextView {
   ) {
     this.engine = engine;
     this.stream = stream;
+    this.windowEl = windowEl;
     this.cursor = engine.cursor;
     this.lineHeight = () => {
       if (this.cachedLineHeight === 0) {
@@ -130,7 +132,27 @@ export class TextRenderer implements TextView {
     while (this.end < this.engine.text.length && this.end < pos + CHUNK) {
       this.appendChunk();
     }
+    this.fitShortText();
     this.scrollToCursor();
+  }
+
+  /**
+   * A text shorter than the window gets a window of its own height, once for each layout, so
+   * nothing moves while typing. It only runs when the whole text is in the DOM.
+   */
+  private fitShortText(): void {
+    const style = this.windowEl.style;
+    style.removeProperty("--lines");
+    if (this.start !== 0 || this.end < this.engine.text.length) {
+      return;
+    }
+    const count = (this.lines[this.lines.length - 1] ?? 0) + 1;
+    const full = Number(
+      getComputedStyle(this.windowEl).getPropertyValue("--lines"),
+    );
+    if (count < full) {
+      style.setProperty("--lines", String(count));
+    }
   }
 
   /**

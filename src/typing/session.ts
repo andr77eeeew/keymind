@@ -6,6 +6,7 @@ import {
   type KeyInput,
 } from "./classify";
 import { TypingEngine } from "./engine";
+import { Messages, type MessageKind } from "./messages";
 import { probe } from "./probe";
 import type { TextView } from "./renderer";
 import {
@@ -20,6 +21,9 @@ import {
 const LAYOUT = "en-qwerty";
 const LIVE_INTERVAL_MS = 500;
 const LIMIT_CHECK_MS = 100;
+/** A wrong key is often just a slip, so the message waits to see if the next one is right. */
+const STOP_MESSAGE_DELAY_MS = 600;
+const BACKSPACE_MESSAGE_MS = 3000;
 
 export interface SessionEventLike extends KeyInput {
   timeStamp: number;
@@ -33,19 +37,23 @@ export interface LiveStats {
   wpm: number;
   /** Percent, `null` before the first press and in Zen. */
   accuracy: number | null;
+  /** From 0 to 1: how much of the text is done, or how much of the time is left. */
+  progress: number;
 }
 
-export type Hint = "layout" | "caps" | null;
+export type PauseReason = "esc" | "blur";
 
 export interface SessionCallbacks {
   live(stats: LiveStats): void;
-  hint(hint: Hint): void;
-  /** Writing to the disk failed or recovered. */
-  health(healthy: boolean): void;
+  /** The one message the slot shows now, reported only when it changes. */
+  message(kind: MessageKind | null): void;
   /** Esc or a lost focus. The view shows the pause dialog. */
-  paused(): void;
-  /** The session is over. `sid` is null if no press was ever made. */
-  ended(sid: string | null, reason: EndReason): void;
+  paused(reason: PauseReason): void;
+  /**
+   * The session is over. `sid` is null if no press was ever made, and `saved` is false if the
+   * last events have not reached the disk yet.
+   */
+  ended(sid: string | null, reason: EndReason, saved: boolean): void;
 }
 
 /** A view for free typing, where text only grows at the end. */
@@ -93,7 +101,9 @@ export class TypingSession {
   private pausedTotal = 0;
   private chars = 0;
   private correct = 0;
-  private hintShown: Hint = null;
+  private readonly messages: Messages;
+  private stopMessage: ReturnType<typeof setTimeout> | null = null;
+  private backspaceMessage: ReturnType<typeof setTimeout> | null = null;
   private ended = false;
   private liveTimer: ReturnType<typeof setInterval> | null = null;
   private limitTimer: ReturnType<typeof setInterval> | null = null;
@@ -107,9 +117,13 @@ export class TypingSession {
     this.newId = deps.newId ?? (() => crypto.randomUUID());
     this.wallClock = deps.wallClock ?? localTimestamp;
     this.engine = new TypingEngine(deps.plan.text, deps.settings.on_error);
+    this.messages = new Messages(deps.callbacks.message);
     this.batcher = new Batcher(deps.send, {
-      onHealthChange: deps.callbacks.health,
+      onHealthChange: (healthy) => this.messages.set("disk", !healthy),
     });
+    if (deps.plan.seconds !== undefined) {
+      this.messages.set("ready", true);
+    }
   }
 
   get isZen(): boolean {
@@ -146,6 +160,7 @@ export class TypingSession {
       }
       return;
     }
+    this.noteCapsLock(event);
     const decision = classifyKey(event);
 
     switch (decision.action) {
@@ -157,6 +172,12 @@ export class TypingSession {
         event.preventDefault();
         this.onBackspace(event);
         break;
+      case "enter":
+        event.preventDefault();
+        if (this.isZen) {
+          this.onChar(event, "\n");
+        }
+        break;
       case "modifier":
         if (this.started) {
           this.push(this.keystrokeBase(event, "modifier"));
@@ -164,7 +185,7 @@ export class TypingSession {
         break;
       case "layout":
         event.preventDefault();
-        this.showHint("layout");
+        this.messages.set("layout", true);
         if (this.started) {
           this.push({
             ...this.keystrokeBase(event, "char"),
@@ -175,7 +196,7 @@ export class TypingSession {
         break;
       case "escape":
         event.preventDefault();
-        this.pause();
+        this.pause("esc");
         break;
       case "none":
         if (decision.block) {
@@ -188,19 +209,24 @@ export class TypingSession {
     }
   }
 
-  handleKeyUp(code: string): void {
-    this.held.release(code);
+  handleKeyUp(
+    event: Pick<SessionEventLike, "code" | "getModifierState">,
+  ): void {
+    this.held.release(event.code);
+    if (!this.ended) {
+      this.noteCapsLock(event);
+    }
   }
 
   /** A blur pauses a running session, because no typing happens while another window has focus. */
   handleBlur(): void {
     this.held.reset();
     if (this.started) {
-      this.pause();
+      this.pause("blur");
     }
   }
 
-  pause(): void {
+  pause(reason: PauseReason = "esc"): void {
     if (this.ended || this.isPaused) {
       return;
     }
@@ -217,7 +243,7 @@ export class TypingSession {
       });
       this.batcher.flushSoon();
     }
-    this.callbacks.paused();
+    this.callbacks.paused(reason);
   }
 
   resume(): void {
@@ -257,17 +283,21 @@ export class TypingSession {
         duration: this.activeUntilLastPress(),
       });
     }
+    this.clearMessageTimers();
+    let saved = true;
     try {
       await this.batcher.drain();
     } catch {
-      // The health callback has told the user. The batcher keeps retrying in the background.
+      // The summary says so. The batcher keeps retrying in the background.
+      saved = false;
     }
-    this.callbacks.ended(this.sid, reason);
+    this.callbacks.ended(this.sid, reason, saved);
   }
 
   /** Stops timers and the view. `finish` must have run if anything was typed. */
   dispose(): void {
     this.stopTimers();
+    this.clearMessageTimers();
     this.view?.dispose();
     this.view = null;
   }
@@ -276,7 +306,8 @@ export class TypingSession {
     if (this.sid === null) {
       this.begin(event);
     }
-    this.showHint(event.getModifierState?.("CapsLock") ? "caps" : null);
+    this.messages.set("layout", false);
+    this.clearBackspaceMessage();
 
     const base = this.keystrokeBase(event, "char");
     this.notePress(base.t);
@@ -296,6 +327,12 @@ export class TypingSession {
     }
     if (result.correct) {
       this.correct += 1;
+      this.clearStopMessage();
+    } else if (this.settings.on_error === "stop" && this.stopMessage === null) {
+      this.stopMessage = setTimeout(() => {
+        this.stopMessage = null;
+        this.messages.set("stop", true);
+      }, STOP_MESSAGE_DELAY_MS);
     }
     (this.view as TextView | null)?.moveCursor(this.engine.cursor);
     this.push({
@@ -328,6 +365,7 @@ export class TypingSession {
     if (this.settings.backspace === "blocked") {
       // Corrections are off, so the press is recorded and changes nothing.
       this.push({ ...base, ignored: "policy" });
+      this.showBackspaceMessage();
       return;
     }
     const cleared = this.engine.backspace();
@@ -335,6 +373,7 @@ export class TypingSession {
       return;
     }
     this.notePress(base.t);
+    this.clearStopMessage();
     (this.view as TextView | null)?.moveCursor(this.engine.cursor);
     this.push({ ...base, pos: cleared });
   }
@@ -342,6 +381,7 @@ export class TypingSession {
   private begin(event: SessionEventLike): void {
     this.sid = this.newId();
     this.t0 = event.timeStamp;
+    this.messages.set("ready", false);
     this.push({
       v: SCHEMA_VERSION,
       type: "session_started",
@@ -408,11 +448,15 @@ export class TypingSession {
 
   private startTimers(): void {
     this.stopTimers();
-    this.liveTimer = setInterval(() => this.reportLive(), LIVE_INTERVAL_MS);
-    if (this.plan.seconds !== undefined) {
+    const timed = this.plan.seconds !== undefined;
+    // With the figures off and no limit, nothing on the screen would change.
+    if (!this.isZen && (timed || this.settings.live_figures)) {
+      this.liveTimer = setInterval(() => this.reportLive(), LIVE_INTERVAL_MS);
+      this.reportLive();
+    }
+    if (timed) {
       this.limitTimer = setInterval(() => this.checkLimit(), LIMIT_CHECK_MS);
     }
-    this.reportLive();
   }
 
   private stopTimers(): void {
@@ -428,12 +472,17 @@ export class TypingSession {
 
   private reportLive(): void {
     const elapsed = this.activeElapsedMs(this.now());
+    const limit = this.plan.seconds;
     const seconds =
-      this.plan.seconds !== undefined
-        ? Math.max(0, this.plan.seconds - elapsed / 1000)
+      limit !== undefined
+        ? Math.max(0, limit - elapsed / 1000)
         : elapsed / 1000;
     this.callbacks.live({
       seconds,
+      progress:
+        limit !== undefined
+          ? seconds / limit
+          : this.engine.cursor / this.plan.text.length,
       // Below a second the figure is noise.
       wpm: elapsed >= 1000 ? this.correct / 5 / (elapsed / 60000) : 0,
       accuracy:
@@ -452,10 +501,47 @@ export class TypingSession {
     }
   }
 
-  private showHint(hint: Hint): void {
-    if (hint !== this.hintShown) {
-      this.hintShown = hint;
-      this.callbacks.hint(hint);
+  private noteCapsLock(
+    event: Pick<SessionEventLike, "getModifierState">,
+  ): void {
+    if (event.getModifierState) {
+      this.messages.set("caps", event.getModifierState("CapsLock"));
+    }
+  }
+
+  private showBackspaceMessage(): void {
+    this.clearBackspaceMessage();
+    this.messages.set("backspace", true);
+    this.backspaceMessage = setTimeout(() => {
+      this.backspaceMessage = null;
+      this.messages.set("backspace", false);
+    }, BACKSPACE_MESSAGE_MS);
+  }
+
+  private clearBackspaceMessage(): void {
+    if (this.backspaceMessage !== null) {
+      clearTimeout(this.backspaceMessage);
+      this.backspaceMessage = null;
+      this.messages.set("backspace", false);
+    }
+  }
+
+  private clearStopMessage(): void {
+    if (this.stopMessage !== null) {
+      clearTimeout(this.stopMessage);
+      this.stopMessage = null;
+    }
+    this.messages.set("stop", false);
+  }
+
+  private clearMessageTimers(): void {
+    if (this.stopMessage !== null) {
+      clearTimeout(this.stopMessage);
+      this.stopMessage = null;
+    }
+    if (this.backspaceMessage !== null) {
+      clearTimeout(this.backspaceMessage);
+      this.backspaceMessage = null;
     }
   }
 }
