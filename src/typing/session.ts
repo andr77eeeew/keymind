@@ -363,7 +363,10 @@ export class TypingSession {
     }
 
     // The block belongs to the adaptive mode, where the brain wants the first attempt (SPEC).
-    if (this.settings.backspace === "blocked" && this.plan.mode === "adaptive") {
+    if (
+      this.settings.backspace === "blocked" &&
+      this.plan.mode === "adaptive"
+    ) {
       // Corrections are off, so the press is recorded and changes nothing.
       this.push({ ...base, ignored: "policy" });
       this.showBackspaceMessage();

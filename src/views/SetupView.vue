@@ -231,8 +231,8 @@ function confirmDelete(id: string): void {
         <div class="setup__b">
           <p v-if="session.mode === 'adaptive'" class="setup__none">
             <template v-if="nextFocus"
-              >The next session works on
-              <b class="gram">{{ nextFocus }}</b>.
+              >The next session works on <b class="gram">{{ nextFocus }}</b
+              >.
             </template>
             Home starts it with one action, and this screen is only a second way
             in.
