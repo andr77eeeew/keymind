@@ -38,9 +38,9 @@ Option 1. The last `session_started` of a mode, by `ts` across all devices, defi
 - Pasted text cannot be repeated, because keeping it would break the decision that it stays out of
   the journal. A file cannot be repeated when it was deleted, lives on another device or is finished.
   In these cases Home opens the setup of that mode instead of starting at once.
-- Storage is derived. Until stage 2 it is a `last_setups.json` cache next to `settings.json`, written
-  when a session starts and rebuilt by scanning the journal if it is missing. From stage 2 it is a
-  `last_setups` table in SQLite filled by the projector, and the cache goes away.
+- Storage is derived: a `last_setups` view over the `sessions` table of the projector (ADR-0008). The
+  `last_setups.json` cache first planned here was never built, because the projector arrived before
+  the screens that need it.
 
 ## Consequences
 
@@ -48,8 +48,7 @@ Option 1. The last `session_started` of a mode, by `ts` across all devices, defi
   extra work.
 - Adjusting a setup and leaving without starting forgets the change. That is accepted: a setup that
   was never used is a weak signal of what the user wants next.
-- Rebuilding the cache before stage 2 reads whole journal files, so it runs in the background and
-  never on the typing path. Home shows the default setup until it finishes.
+- During a rebuild the view is not ready yet, so Home shows the default setup until it finishes.
 - With clocks that disagree between devices, "last" can pick the older session. The cost is one wrong
   suggestion on Home, and the setup screen is one action away.
 - A future mode with a setup only has to record it in its text source to be remembered too.
