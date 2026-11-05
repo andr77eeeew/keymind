@@ -1,7 +1,9 @@
-//! Exercise text generation. Stage 1 draws random frequent words and picks built-in passages.
-//! The brain's targeted exercises join at stage 3.
+//! Exercise text generation: random frequent words, built-in passages, and the brain's adaptive
+//! texts (ADR-0011).
 
+pub mod adaptive;
 pub mod content;
+pub mod markov;
 
 use rand_chacha::ChaCha8Rng;
 use rand_chacha::rand_core::{Rng, SeedableRng};

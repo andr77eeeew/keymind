@@ -6,6 +6,8 @@ use std::sync::{Arc, OnceLock};
 
 use serde::{Deserialize, Serialize};
 
+use super::markov::Chain;
+
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum ContentError {
     #[error("could not read the built-in content at {path}: {message}")]
@@ -27,13 +29,24 @@ pub struct Passage {
 #[derive(Deserialize)]
 struct WordEntry {
     word: String,
+    /// The share of all words, from wordfreq.
+    #[serde(default)]
+    freq: f64,
+}
+
+/// The word list and what is derived from it.
+struct WordData {
+    words: Arc<Vec<String>>,
+    /// Letters a to z, most frequent in running text first.
+    letters: Arc<Vec<char>>,
 }
 
 /// Loads each file on first use and keeps it. The first session of a run pays for the read, and
 /// that happens on the way to the typing screen, never on the input path.
 pub struct ContentStore {
     dir: PathBuf,
-    words: OnceLock<Result<Arc<Vec<String>>, ContentError>>,
+    words: OnceLock<Result<WordData, ContentError>>,
+    chain: OnceLock<Result<Arc<Chain>, ContentError>>,
     passages: OnceLock<Result<Arc<Vec<Passage>>, ContentError>>,
 }
 
@@ -42,15 +55,33 @@ impl ContentStore {
         Self {
             dir: dir.into(),
             words: OnceLock::new(),
+            chain: OnceLock::new(),
             passages: OnceLock::new(),
         }
     }
 
     /// English words, most frequent first.
     pub fn words(&self) -> Result<Arc<Vec<String>>, ContentError> {
-        self.words
-            .get_or_init(|| load_words(&self.dir.join("en").join("words.json")).map(Arc::new))
+        self.word_data().map(|data| data.words.clone())
+    }
+
+    /// Letters a to z, most frequent in running text first. Letters open in this order.
+    pub fn letter_order(&self) -> Result<Arc<Vec<char>>, ContentError> {
+        self.word_data().map(|data| data.letters.clone())
+    }
+
+    /// The pseudoword chain, trained on the whole word list.
+    pub fn chain(&self) -> Result<Arc<Chain>, ContentError> {
+        self.chain
+            .get_or_init(|| Ok(Arc::new(Chain::train(self.words()?.iter()))))
             .clone()
+    }
+
+    fn word_data(&self) -> Result<&WordData, ContentError> {
+        self.words
+            .get_or_init(|| load_words(&self.dir.join("en").join("words.json")))
+            .as_ref()
+            .map_err(Clone::clone)
     }
 
     pub fn passages(&self) -> Result<Arc<Vec<Passage>>, ContentError> {
@@ -76,10 +107,31 @@ fn damaged(path: &Path, error: &serde_json::Error) -> ContentError {
     }
 }
 
-fn load_words(path: &Path) -> Result<Vec<String>, ContentError> {
+fn load_words(path: &Path) -> Result<WordData, ContentError> {
     let entries: Vec<WordEntry> =
         serde_json::from_str(&read(path)?).map_err(|error| damaged(path, &error))?;
-    Ok(entries.into_iter().map(|entry| entry.word).collect())
+    let letters = letter_order(&entries);
+    Ok(WordData {
+        words: Arc::new(entries.into_iter().map(|entry| entry.word).collect()),
+        letters: Arc::new(letters),
+    })
+}
+
+/// Every letter a to z, by how often it appears in running text: each word counts as often as it
+/// is used. A letter that never appears goes last, in alphabetical order.
+fn letter_order(entries: &[WordEntry]) -> Vec<char> {
+    let mut weight = [0.0f64; 26];
+    for entry in entries {
+        for b in entry.word.bytes().filter(u8::is_ascii_lowercase) {
+            weight[usize::from(b - b'a')] += entry.freq;
+        }
+    }
+    let mut letters: Vec<char> = ('a'..='z').collect();
+    letters.sort_by(|a, b| {
+        let (wa, wb) = (weight[*a as usize - 97], weight[*b as usize - 97]);
+        wb.total_cmp(&wa).then(a.cmp(b))
+    });
+    letters
 }
 
 fn load_passages(path: &Path) -> Result<Vec<Passage>, ContentError> {
@@ -111,6 +163,10 @@ mod tests {
             "",
         );
         assert_eq!(*store.words().unwrap(), vec!["the", "of"]);
+        let order: String = store.letter_order().unwrap().iter().collect();
+        // "the" is used more, so its letters lead; unused letters follow alphabetically.
+        assert!(order.starts_with("eht"), "{order}");
+        assert!(order.ends_with("xyz"), "{order}");
     }
 
     #[test]
@@ -146,6 +202,9 @@ mod tests {
     fn the_shipped_content_loads() {
         let store = ContentStore::new(Path::new(env!("CARGO_MANIFEST_DIR")).join("../content"));
         assert!(store.words().unwrap().len() >= 5000);
+        let order: String = store.letter_order().unwrap().iter().collect();
+        assert!(order.starts_with("etaoin"), "{order}");
+        assert_eq!(order.len(), 26);
         let passages = store.passages().unwrap();
         for difficulty in 1..=3 {
             assert!(passages.iter().any(|p| p.difficulty == difficulty));

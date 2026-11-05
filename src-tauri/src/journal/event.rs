@@ -3,6 +3,8 @@
 //! Readers ignore unknown fields and unknown event types, so a journal written by a newer
 //! version still loads in an older one, and the other way round.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -91,8 +93,53 @@ pub enum TextSource {
         offset: u64,
     },
     Zen,
+    /// A text the brain built. The seed, the recipe and the content version give the text again.
+    Adaptive {
+        seed: u32,
+        recipe: Recipe,
+    },
+    /// The starting test: passages in this order, under a time limit.
+    Test {
+        passages: Vec<String>,
+        seconds: u32,
+    },
     #[serde(other)]
     Unknown,
+}
+
+/// What the brain chose for an adaptive session. Every field has a default, so a recipe written by
+/// a later version, with fields this one does not know, still reads. See ADR-0010.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Recipe {
+    /// The rules of the generator. A later version keeps the old rules for old recipes.
+    pub v: u32,
+    /// `heuristic` until the ML brain of stage 8.
+    pub brain: String,
+    /// The open letters, most frequent first.
+    pub letters: String,
+    /// The key in focus, as a letter.
+    pub focus: String,
+    /// Letters and transitions due for review.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub review: Vec<String>,
+    pub words: u32,
+    /// The model's estimates at the start, in milliseconds, for the target gain.
+    pub before: BTreeMap<String, f64>,
+}
+
+impl Default for Recipe {
+    fn default() -> Self {
+        Self {
+            v: 1,
+            brain: String::new(),
+            letters: String::new(),
+            focus: String::new(),
+            review: Vec::new(),
+            words: 0,
+            before: BTreeMap::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
