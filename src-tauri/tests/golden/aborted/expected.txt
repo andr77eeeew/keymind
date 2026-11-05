@@ -1,0 +1,25 @@
+# projected_files
+device | file | bytes | events | bad_lines | unknown | duplicates | orphans
+dev-a | 2026-11-05.jsonl | 1012 | 6 | 0 | 0 | 0 | 0
+# session_state
+sid | last_seq | state
+k1 | 3 | {"stats":{"sid":"k1","reason":null,"last_seq":3,"first_t":0.0,"last_t":100.0,"paused_before_last":0.0,"paused_total":0.0,"pause_started":null,"chars":2,"correct":2,"judged":2,"judged_correct":2,"backspaces":0,"previous_char_t":100.0,"interval_count":1,"interval_mean":100.0,"interval_m2":0.0},"date":"2026-11-05","layout":"en-qwerty","previous":{"t":100.0,"character":"b","pos":1,"correct":true}}
+k2 | 3 | NULL
+# sessions
+sid | device | ts | started_ms | date | mode | layout | source | reason | duration_ms | chars | correct | judged | judged_correct | backspaces | cpm | wpm | accuracy | rhythm
+k1 | dev-a | 2026-11-05T15:00:00+02:00 | 1793883600000 | 2026-11-05 | words | en-qwerty | {"kind":"words","seed":7,"pool":1000,"count":2} | NULL | 100.0 | 2 | 2 | 2 | 2 | 0 | 1200.0 | 240.0 | 100.0 | NULL
+k2 | dev-a | 2026-11-05T15:10:00+02:00 | 1793884200000 | 2026-11-05 | texts | en-qwerty | {"kind":"passage","id":"austen-pride-0001"} | aborted | 0.0 | 1 | 1 | 1 | 1 | 0 | 0.0 | 0.0 | 100.0 | NULL
+# key_stats
+date | layout | code | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | KeyA | 2 | 0 | 0 | 0 | 0
+2026-11-05 | en-qwerty | KeyB | 1 | 1 | 100000 | 10000000000 | 0
+# bigram_stats
+date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | a | b | 1 | 1 | 100000 | 10000000000 | 0
+# daily_stats
+date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
+2026-11-05 | 2 | 100.0 | 100.0 | 3 | 3 | 3 | 0 | 0
+# last_setups
+mode | sid | device | ts | source
+texts | k2 | dev-a | 2026-11-05T15:10:00+02:00 | {"kind":"passage","id":"austen-pride-0001"}
+words | k1 | dev-a | 2026-11-05T15:00:00+02:00 | {"kind":"words","seed":7,"pool":1000,"count":2}

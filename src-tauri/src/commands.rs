@@ -12,7 +12,9 @@ use time::OffsetDateTime;
 
 use crate::generator::{self, ContentError, ContentStore, Passage};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
-use crate::journal::{Event, JournalService, ServiceError};
+use crate::journal::{Event, EventBody, JournalService, ServiceError};
+use crate::projector::queries::{self, LastSetup, StatsOverview};
+use crate::projector::{ProjectorError, ProjectorService, ProjectorStatus};
 use crate::settings::{self, Settings, SettingsError};
 use crate::stats::SessionSummary;
 use crate::storage::AppPaths;
@@ -21,6 +23,7 @@ use crate::storage::AppPaths;
 pub struct AppState {
     pub paths: AppPaths,
     pub journal: JournalService,
+    pub projector: ProjectorService,
     pub content: std::sync::Arc<ContentStore>,
     pub settings: std::sync::Arc<Mutex<Settings>>,
 }
@@ -36,6 +39,8 @@ pub enum CommandError {
     Import(#[from] ImportError),
     #[error(transparent)]
     Settings(#[from] SettingsError),
+    #[error(transparent)]
+    Projector(#[from] ProjectorError),
     #[error("the built-in content has no passage of that difficulty")]
     NoPassage,
     #[error("the settings are unavailable because an earlier change failed")]
@@ -85,7 +90,23 @@ pub async fn append_events(
     events: Vec<Event>,
 ) -> Result<(), CommandError> {
     let journal = state.journal.clone();
-    blocking(move || Ok(journal.append(events)?)).await
+    let projector = state.projector.clone();
+    blocking(move || {
+        let ended = ends_a_session(&events);
+        journal.append(events)?;
+        // Only after the end of a session, so that nothing runs while the user types.
+        if ended {
+            projector.request_catch_up();
+        }
+        Ok(())
+    })
+    .await
+}
+
+fn ends_a_session(events: &[Event]) -> bool {
+    events
+        .iter()
+        .any(|event| matches!(event.body, EventBody::SessionEnded(_)))
 }
 
 #[tauri::command]
@@ -95,6 +116,38 @@ pub async fn session_summary(
 ) -> Result<Option<SessionSummary>, CommandError> {
     let journal = state.journal.clone();
     blocking(move || Ok(journal.take_summary(sid)?)).await
+}
+
+#[tauri::command]
+pub fn stats_status(state: State<'_, AppState>) -> Result<ProjectorStatus, CommandError> {
+    Ok(state.projector.status()?)
+}
+
+/// `from_date` is the local `YYYY-MM-DD` the period starts on, or nothing for all time.
+#[tauri::command]
+pub async fn stats_overview(
+    state: State<'_, AppState>,
+    from_date: Option<String>,
+) -> Result<StatsOverview, CommandError> {
+    let projector = state.projector.clone();
+    blocking(move || {
+        Ok(projector.read(|connection| queries::overview(connection, from_date.as_deref()))?)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn last_setups(state: State<'_, AppState>) -> Result<Vec<LastSetup>, CommandError> {
+    let projector = state.projector.clone();
+    let device = state.paths.device.clone();
+    blocking(move || Ok(projector.read(|connection| queries::last_setups(connection, &device))?))
+        .await
+}
+
+/// Returns at once. The UI follows the rebuild through `stats-status` events.
+#[tauri::command]
+pub fn rebuild_stats(state: State<'_, AppState>) {
+    state.projector.request_rebuild();
 }
 
 #[tauri::command]
@@ -259,6 +312,19 @@ mod tests {
 
         assert_eq!(info.name, "keymind");
         assert_eq!(info.version, env!("CARGO_PKG_VERSION"));
+    }
+
+    #[test]
+    fn only_a_batch_with_a_session_end_starts_the_projector() {
+        let line = |json: &str| serde_json::from_str::<Event>(json).unwrap();
+        let press = line(
+            r#"{"v":1,"type":"keystroke","sid":"s","seq":1,"t":0.0,"kind":"char","code":"KeyA"}"#,
+        );
+        let end = line(
+            r#"{"v":1,"type":"session_ended","sid":"s","seq":2,"t":0.0,"reason":"aborted","duration":0.0}"#,
+        );
+        assert!(!ends_a_session(std::slice::from_ref(&press)));
+        assert!(ends_a_session(&[press, end]));
     }
 
     #[test]

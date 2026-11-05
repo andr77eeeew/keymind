@@ -1,0 +1,3 @@
+{"v":1,"type":"keystroke","sid":"d1","seq":5,"t":300.0,"kind":"char","code":"KeyC","key":"c","expected":"c","correct":true,"pos":2}
+{"v":1,"type":"session_ended","sid":"d1","seq":6,"t":300.0,"reason":"completed","duration":300.0}
+{"v":1,"type":"keystroke","sid":"d1","se

@@ -40,7 +40,7 @@ src-tauri/src/
   integrations/          LRCLIB, Windows media controls, yt-dlp
 content/                 word lists, passages, rule files (*.toml), LICENSES.md
 tools/content/           Python pipeline that builds content/ from sources
-scripts/                 latency bench and its CDP helper
+scripts/                 latency and rebuild benches, synthetic journal, CDP helper
 research/                notebooks and registered experiments
 design/                  mockups and design tokens
 docs/                    SPEC.md, adr/
@@ -59,6 +59,10 @@ Keep up to date:
 - Release build: `npm run tauri build`
 - Input latency bench: `VITE_LATENCY_PROBE=1 npx tauri build --no-bundle`, then
   `node scripts/latency-bench.mjs` (ADR-0004). Rebuild without the variable afterwards.
+- Projector load: `node scripts/synth-journal.mjs <folder>`, then `node scripts/rebuild-bench.mjs <folder>`,
+  and `node scripts/latency-bench.mjs 5000 <folder>` to measure typing during rebuilds (ADR-0008).
+- After a deliberate projector change, update its golden dumps and read the diff:
+  `UPDATE_GOLDEN=1 npm run rust:test`.
 - `KEYMIND_DATA_DIR` points the app at another data folder. Automated runs must always set it,
   so they never write to real journals.
 
@@ -98,14 +102,15 @@ Keep up to date:
   Keep pure logic separate from Tauri commands so it can be unit-tested.
 - TypeScript: strict mode, ESLint + Prettier, shared state in Pinia stores.
 - Unit tests are required for journal, projector, statistics, generator, brain and rules.
-  The projector is tested against small "golden" journal files.
+  The projector is tested against small "golden" journal files in `src-tauri/tests/golden/`.
 - Run tests, lint and build before saying a task is done.
 - Every new dependency gets a one-line reason in the commit or ADR.
 
 ## Git
 
 - Conventional Commits, small focused commits.
-- One branch per roadmap stage: `stage-N-short-name`. Never force-push `main`.
+- One branch per roadmap stage: `stage-N-short-name`. A large stage may use several such branches
+  and PRs when its approved plan says so, as stage 2 does. Never force-push `main`.
 - Never commit secrets, journals or personal data.
 
 ## Documentation

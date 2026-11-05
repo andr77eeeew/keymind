@@ -17,12 +17,12 @@ pub mod sync;
 
 use std::sync::{Arc, Mutex};
 
-use tauri::Manager;
 use tauri::path::BaseDirectory;
+use tauri::{Emitter, Manager};
 
 pub use error::AppError;
 
-/// Opens the data folder and starts the writer thread before the first window needs them.
+/// Opens the data folder and starts the background threads before the first window needs them.
 fn prepare_state(app: &tauri::App) -> Result<commands::AppState, AppError> {
     // Automated runs use a throwaway folder, so they never touch the journals of a real user.
     let root = match std::env::var_os("KEYMIND_DATA_DIR") {
@@ -32,6 +32,13 @@ fn prepare_state(app: &tauri::App) -> Result<commands::AppState, AppError> {
     let paths = storage::AppPaths::prepare(&root).map_err(AppError::Storage)?;
     let journal = journal::JournalService::start(&paths.journal).map_err(AppError::Storage)?;
     let settings = settings::load(&paths.settings_cache, &paths.journal)?;
+    let handle = app.handle().clone();
+    let projector =
+        projector::ProjectorService::start(&paths.database, &paths.journal_root, move |status| {
+            // No window listening yet is fine: the UI also asks for the status when it opens.
+            let _ = handle.emit("stats-status", status);
+        })
+        .map_err(AppError::Storage)?;
     let content_dir = app
         .path()
         .resolve("content", BaseDirectory::Resource)
@@ -39,6 +46,7 @@ fn prepare_state(app: &tauri::App) -> Result<commands::AppState, AppError> {
     Ok(commands::AppState {
         paths,
         journal,
+        projector,
         content: Arc::new(generator::ContentStore::new(content_dir)),
         settings: Arc::new(Mutex::new(settings)),
     })
@@ -56,6 +64,10 @@ pub fn run() -> Result<(), AppError> {
             commands::app_info,
             commands::append_events,
             commands::session_summary,
+            commands::stats_status,
+            commands::stats_overview,
+            commands::last_setups,
+            commands::rebuild_stats,
             commands::generate_words,
             commands::pick_passage,
             commands::clean_text,

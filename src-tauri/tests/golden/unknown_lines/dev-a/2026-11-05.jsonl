@@ -1,0 +1,11 @@
+{"v":1,"type":"settings_changed","ts":"2026-11-05T08:00:00Z","key":"theme","old":"dark","new":"light"}
+{"v":9,"type":"brain_decision","payload":{"x":1}}
+this is not json
+{"v":1,"type":"keystroke","sid":"lost","seq":7,"t":0.0,"kind":"char","code":"KeyZ","key":"z","expected":"z","correct":true,"pos":0}
+{"v":1,"type":"session_started","sid":"u1","seq":1,"ts":"2026-11-05T16:00:00+02:00","mode":"words","layout":"en-qwerty","source":{"kind":"future_source","extra":1},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0","future_field":"ignored"}
+{"v":1,"type":"keystroke","sid":"u1","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0,"future_field":{"nested":true}}
+{"v":1,"type":"keystroke","sid":"u1","seq":3,"t":100.0,"kind":"char","code":"KeyB","key":"b","expected":"b","correct":true,"pos":1}
+{"v":1,"type":"session_ended","sid":"u1","seq":4,"t":100.0,"reason":"completed","duration":100.0}
+{"v":1,"type":"keystroke","sid":"u1","seq":5,"t":200.0,"kind":"char","code":"KeyC","key":"c","expected":"c","correct":true,"pos":2}
+{"v":1,"type":"session_started","sid":"u2","seq":1,"ts":"not a time","mode":"words","layout":"en-qwerty","source":{"kind":"words","seed":7,"pool":1000,"count":2},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"u2","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0}

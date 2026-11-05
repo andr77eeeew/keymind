@@ -1,16 +1,27 @@
 // Measures the input path of a release build in the real WebView2. See ADR-0004.
 //
 //   VITE_LATENCY_PROBE=1 npx tauri build --no-bundle
-//   node scripts/latency-bench.mjs [presses per text, default 5000]
+//   node scripts/latency-bench.mjs [presses per text, default 5000] [journal folder]
+//
+// With a journal folder, from `synth-journal.mjs`, the projector keeps rebuilding from it during the
+// whole run, which shows the typing screen does not feel the background work. See ADR-0008.
 //
 // Keep the window visible and do not click elsewhere: a hidden page has no frames to measure, and
 // a blur pauses the session. The run checks both and refuses to report if either happened.
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { launchApp, press, wait } from "./lib/cdp.mjs";
 
 const PRESSES = Number(process.argv[2] ?? 5000);
+const LOAD_JOURNAL = process.argv[3];
+const REBUILD_CHECK_MS = 500;
 const LENGTHS = [1_000, 100_000, 1_000_000];
 const EXE = join("src-tauri", "target", "release", "keymind.exe");
 
@@ -212,9 +223,39 @@ function countJournal(dataDir) {
   return { keystrokes, sessions, ended };
 }
 
+/** Keeps a rebuild running, and counts how often one really was running when looked at. */
+function keepRebuilding(app) {
+  const seen = { checks: 0, rebuilding: 0, rebuilds: 0 };
+  const timer = setInterval(async () => {
+    try {
+      const status = await app.evaluate(
+        `window.__TAURI_INTERNALS__.invoke("stats_status")`,
+      );
+      seen.checks += 1;
+      if (status.state === "rebuilding") {
+        seen.rebuilding += 1;
+      } else {
+        seen.rebuilds += 1;
+        await app.evaluate(
+          `window.__TAURI_INTERNALS__.invoke("rebuild_stats")`,
+        );
+      }
+    } catch {
+      // The run is ending.
+    }
+  }, REBUILD_CHECK_MS);
+  return { seen, stop: () => clearInterval(timer) };
+}
+
 const dataDir = mkdtempSync(join(tmpdir(), "keymind-bench-"));
+let baseline = 0;
+if (LOAD_JOURNAL) {
+  cpSync(LOAD_JOURNAL, join(dataDir, "journal"), { recursive: true });
+  baseline = countJournal(dataDir).keystrokes;
+}
 const app = await launchApp({ exe: EXE, dataDir });
 let failed = false;
+let load = null;
 try {
   await wait(1500);
   await app.send("Emulation.setFocusEmulationEnabled", { enabled: true });
@@ -224,18 +265,27 @@ try {
       "This build has no probes. Build it with VITE_LATENCY_PROBE=1.",
     );
   }
+  if (LOAD_JOURNAL) {
+    load = keepRebuilding(app);
+  }
   const results = [];
   for (const length of LENGTHS) {
     console.error(`Typing into a text of ${length} characters...`);
     results.push(await benchLength(app, length));
   }
+  load?.stop();
   report(results);
+  if (load) {
+    console.log(
+      `\nA rebuild was running at ${load.seen.rebuilding} of ${load.seen.checks} checks, ${load.seen.rebuilds} requested.`,
+    );
+  }
   const sent = results.reduce((sum, r) => sum + r.sent, 0);
   const journal = countJournal(dataDir);
   console.log(
     `\nSent ${sent} presses. Journal: ${journal.keystrokes} keystrokes, ${journal.sessions} sessions started, ${journal.ended} ended.`,
   );
-  if (journal.keystrokes !== sent) {
+  if (journal.keystrokes - baseline !== sent) {
     failed = true;
     console.error("The journal does not match the presses sent.");
   }
@@ -247,6 +297,7 @@ try {
   failed = true;
   console.error(String(error));
 } finally {
+  load?.stop();
   app.kill();
   await wait(500);
   rmSync(dataDir, { recursive: true, force: true });

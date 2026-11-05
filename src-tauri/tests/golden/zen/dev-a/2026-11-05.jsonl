@@ -1,0 +1,8 @@
+{"v":1,"type":"session_started","sid":"z1","seq":1,"ts":"2026-11-05T12:00:00+02:00","mode":"zen","layout":"en-qwerty","source":{"kind":"zen"},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"z1","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","pos":0}
+{"v":1,"type":"keystroke","sid":"z1","seq":3,"t":100.0,"kind":"char","code":"KeyB","key":"b","pos":1}
+{"v":1,"type":"keystroke","sid":"z1","seq":4,"t":250.0,"kind":"char","code":"KeyC","key":"c","pos":2}
+{"v":1,"type":"keystroke","sid":"z1","seq":5,"t":300.0,"kind":"backspace","code":"Backspace","pos":2}
+{"v":1,"type":"keystroke","sid":"z1","seq":6,"t":400.0,"kind":"char","code":"KeyD","key":"d","pos":2}
+{"v":1,"type":"keystroke","sid":"z1","seq":7,"t":500.0,"kind":"char","code":"KeyE","key":"e","pos":3}
+{"v":1,"type":"session_ended","sid":"z1","seq":8,"t":500.0,"reason":"completed","duration":500.0}

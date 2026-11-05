@@ -1,0 +1,6 @@
+{"v":1,"type":"session_started","sid":"k1","seq":1,"ts":"2026-11-05T15:00:00+02:00","mode":"words","layout":"en-qwerty","source":{"kind":"words","seed":7,"pool":1000,"count":2},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"k1","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0}
+{"v":1,"type":"keystroke","sid":"k1","seq":3,"t":100.0,"kind":"char","code":"KeyB","key":"b","expected":"b","correct":true,"pos":1}
+{"v":1,"type":"session_started","sid":"k2","seq":1,"ts":"2026-11-05T15:10:00+02:00","mode":"texts","layout":"en-qwerty","source":{"kind":"passage","id":"austen-pride-0001"},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"k2","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":0}
+{"v":1,"type":"session_ended","sid":"k2","seq":3,"t":0.0,"reason":"aborted","duration":0.0}

@@ -1,15 +1,16 @@
 //! Session metrics. See ADR-0005 for the formulas.
 //!
 //! The accumulator takes events one at a time and keeps a fixed amount of state, so it costs the
-//! same on a live session and on a replayed journal. Stage 2 uses the same code in the projector.
+//! same on a live session and on a replayed journal. The projector uses the same code, so a summary
+//! and the statistics screen can never disagree.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::journal::event::{Ignored, KeyKind, Keystroke};
 use crate::journal::{Event, EventBody};
 
-/// A longer gap is a break, not rhythm, so it stays out of the evenness figure.
-const RHYTHM_GAP_LIMIT_MS: f64 = 2000.0;
+/// A longer gap is a break, not typing, so it stays out of rhythm and of key times.
+pub const GAP_LIMIT_MS: f64 = 2000.0;
 /// Below this many intervals an evenness figure means nothing.
 const RHYTHM_MIN_INTERVALS: u64 = 2;
 
@@ -32,7 +33,8 @@ pub struct SessionSummary {
     pub rhythm: Option<f64>,
 }
 
-#[derive(Debug, Clone, Default)]
+/// Serializable, so the projector can stop in the middle of a session and go on later.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct SessionStats {
     sid: String,
     reason: Option<String>,
@@ -127,13 +129,19 @@ impl SessionStats {
     }
 
     fn push_interval(&mut self, interval: f64) {
-        if interval > RHYTHM_GAP_LIMIT_MS {
+        if interval > GAP_LIMIT_MS {
             return;
         }
         self.interval_count += 1;
         let delta = interval - self.interval_mean;
         self.interval_mean += delta / self.interval_count as f64;
         self.interval_m2 += delta * (interval - self.interval_mean);
+    }
+
+    /// Presses judged against a text, and how many of those were correct. Daily accuracy is built
+    /// from these, because an average of session percentages would be wrong.
+    pub fn judged(&self) -> (u64, u64) {
+        (self.judged, self.judged_correct)
     }
 
     pub fn summary(&self) -> SessionSummary {
@@ -376,6 +384,29 @@ mod tests {
             duration: 0.0,
         }))]);
         assert_eq!(summary.reason.as_deref(), Some("aborted"));
+    }
+
+    #[test]
+    fn a_saved_state_goes_on_exactly_where_it_stopped() {
+        // Intervals that have no exact binary form, so a lossy save would change the result.
+        let events: Vec<_> = (0u32..50)
+            .map(|i| char_key(u64::from(i) + 1, f64::from(i) * 152.3 + 0.1, i % 7 != 0))
+            .collect();
+        let whole = run(&events);
+
+        for split in 0..events.len() {
+            let mut stats = SessionStats::new("s");
+            for event in &events[..split] {
+                stats.push(event);
+            }
+            let saved = serde_json::to_string(&stats).unwrap();
+            let mut restored: SessionStats = serde_json::from_str(&saved).unwrap();
+            assert_eq!(restored, stats);
+            for event in &events[split..] {
+                restored.push(event);
+            }
+            assert_eq!(restored.summary(), whole);
+        }
     }
 
     #[test]
