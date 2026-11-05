@@ -1,0 +1,5 @@
+{"v":1,"type":"session_started","sid":"z2","seq":1,"ts":"2026-11-05T12:00:00+02:00","mode":"zen","layout":"en-qwerty","source":{"kind":"zen"},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"z2","seq":2,"t":0.0,"kind":"char","code":"KeyA","key":"a","pos":0}
+{"v":1,"type":"keystroke","sid":"z2","seq":3,"t":100.0,"kind":"char","code":"Enter","key":"\n","pos":1}
+{"v":1,"type":"keystroke","sid":"z2","seq":4,"t":250.0,"kind":"char","code":"KeyB","key":"b","pos":2}
+{"v":1,"type":"session_ended","sid":"z2","seq":5,"t":250.0,"reason":"completed","duration":250.0}

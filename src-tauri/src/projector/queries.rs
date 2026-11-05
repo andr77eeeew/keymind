@@ -322,7 +322,8 @@ pub fn dump(connection: &Connection) -> String {
                     ValueRef::Null => "NULL".to_owned(),
                     ValueRef::Integer(value) => value.to_string(),
                     ValueRef::Real(value) => format!("{value:?}"),
-                    ValueRef::Text(value) => String::from_utf8_lossy(value).into_owned(),
+                    // Zen journals Enter as a character, and a dump keeps one row per line.
+                    ValueRef::Text(value) => String::from_utf8_lossy(value).replace('\n', "\\n"),
                     ValueRef::Blob(_) => "BLOB".to_owned(),
                 })
                 .collect();
