@@ -5,7 +5,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use serde::Serialize;
 
-use super::model::{Estimate, PRIOR_SAMPLES, Prior, Trace, estimate};
+use super::model::{Estimate, PRIOR_SAMPLES, Prior, Trace, date_text, estimate};
 use super::unlock::{Letters, open_letters};
 use super::{BAR_ERRORS, BAR_MS};
 use crate::journal::event::Recipe;
@@ -42,6 +42,8 @@ pub struct Target {
     /// A letter or two letters.
     pub gram: String,
     pub estimate: Estimate,
+    /// The last day it was practised, `YYYY-MM-DD`, or nothing when it never was.
+    pub last_date: Option<String>,
 }
 
 /// The heuristic's choice for the next session.
@@ -53,6 +55,8 @@ pub struct Choice {
     /// The focus key first, then the slowest transitions into it.
     pub targets: Vec<Target>,
     pub review: Vec<Target>,
+    /// Every open letter, in the order it opened, for how close each is to the bar.
+    pub open_keys: Vec<Target>,
     /// Typing speed of the open keys, for the length of the session.
     pub chars_per_minute: f64,
 }
@@ -67,9 +71,11 @@ impl Choice {
             focus: self.focus.to_string(),
             review: self.review.iter().map(|t| t.gram.clone()).collect(),
             words,
+            targets: self.targets.iter().map(|t| t.gram.clone()).collect(),
             before: self
                 .targets
                 .iter()
+                .filter(|t| t.estimate.samples >= PRIOR_SAMPLES)
                 .map(|t| (t.gram.clone(), (t.estimate.ms * 10.0).round() / 10.0))
                 .collect(),
         }
@@ -88,6 +94,17 @@ pub fn choose(order: &[char], knowledge: &Knowledge, today: i32, gradual: bool) 
             error: into.error,
         };
         estimate(knowledge.pairs.get(&(a, b)), prior, today)
+    };
+    let last = |trace: Option<&Trace>| trace.and_then(|t| date_text(t.last_day));
+    let key_target = |c: char| Target {
+        gram: c.to_string(),
+        estimate: key(c),
+        last_date: last(knowledge.keys.get(&c)),
+    };
+    let pair_target = |a: char, b: char| Target {
+        gram: format!("{a}{b}"),
+        estimate: pair(a, b),
+        last_date: last(knowledge.pairs.get(&(a, b))),
     };
 
     // The weakest open key. On a tie the more frequent letter wins, as it comes first.
@@ -112,37 +129,25 @@ pub fn choose(order: &[char], knowledge: &Knowledge, today: i32, gradual: bool) 
         .open
         .iter()
         .filter(|&&a| knowledge.pairs.contains_key(&(a, focus)))
-        .map(|&a| Target {
-            gram: format!("{a}{focus}"),
-            estimate: pair(a, focus),
-        })
+        .map(|&a| pair_target(a, focus))
         .collect();
     into.sort_by(|a, b| b.estimate.ms.total_cmp(&a.estimate.ms));
     into.truncate(TARGET_PAIRS);
-    let mut targets = vec![Target {
-        gram: focus.to_string(),
-        estimate: focus_estimate,
-    }];
+    let mut targets = vec![key_target(focus)];
     targets.extend(into);
 
     let mut review: Vec<Target> = Vec::new();
     for &c in letters.open.iter().filter(|&&c| c != focus) {
-        let e = key(c);
-        if e.due() {
-            review.push(Target {
-                gram: c.to_string(),
-                estimate: e,
-            });
+        let target = key_target(c);
+        if target.estimate.due() {
+            review.push(target);
         }
     }
     for &(a, b) in knowledge.pairs.keys() {
         if letters.open.contains(&a) && letters.open.contains(&b) && b != focus {
-            let e = pair(a, b);
-            if e.due() {
-                review.push(Target {
-                    gram: format!("{a}{b}"),
-                    estimate: e,
-                });
+            let target = pair_target(a, b);
+            if target.estimate.due() {
+                review.push(target);
             }
         }
     }
@@ -155,8 +160,10 @@ pub fn choose(order: &[char], knowledge: &Knowledge, today: i32, gradual: bool) 
     });
     review.truncate(REVIEW_LIMIT);
 
+    let open_keys = letters.open.iter().map(|&c| key_target(c)).collect();
     Choice {
         chars_per_minute: 60_000.0 / prior.ms,
+        open_keys,
         letters,
         focus,
         reason,
@@ -284,18 +291,36 @@ mod tests {
         let mut k = knowledge(&[('e', 450.0, 0), ('t', 250.0, 0)]);
         k.pairs.insert(('t', 'e'), trace(0, 520.0, 50, 0));
         k.pairs.insert(('a', 'e'), trace(0, 480.0, 50, 0));
+        // Two samples: a target, but too little to know, so it has no value at the start.
+        k.pairs.insert(('i', 'e'), trace(0, 300.0, 2, 0));
         let choice = choose(&ORDER, &k, 0, true);
         assert_eq!(choice.focus, 'e');
         let recipe = choice.recipe(40);
         assert_eq!(recipe.letters, "etaoin");
         assert_eq!(recipe.focus, "e");
         assert_eq!(recipe.words, 40);
+        // The slowest transition into the focus comes first.
+        assert_eq!(recipe.targets, vec!["e", "te", "ae", "ie"]);
+        assert_eq!(recipe.target_grams(), recipe.targets);
         assert_eq!(
             recipe.before.keys().collect::<Vec<_>>(),
             vec!["ae", "e", "te"]
         );
-        // The slowest transition into the focus comes first.
-        assert_eq!(choice.targets[1].gram, "te");
+    }
+
+    #[test]
+    fn every_open_letter_comes_with_its_estimate_and_last_day() {
+        let k = knowledge(&[('e', 250.0, 0), ('t', 400.0, 0)]);
+        let choice = choose(&ORDER, &k, 3, true);
+        let grams: String = choice.open_keys.iter().map(|t| t.gram.as_str()).collect();
+        assert_eq!(grams, "etaoin");
+        assert_eq!(
+            choice.open_keys[0].last_date.as_deref(),
+            date_text(0).as_deref()
+        );
+        assert!(choice.open_keys[0].estimate.mastered);
+        assert!(!choice.open_keys[1].estimate.mastered);
+        assert_eq!(choice.open_keys[2].last_date, None);
     }
 
     #[test]

@@ -5,6 +5,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use super::ProjectorError;
+use crate::journal::event::Recipe;
 
 /// A session below this many correct characters is too short to be a record.
 const RECORD_MIN_CORRECT: i64 = 100;
@@ -76,6 +77,21 @@ pub struct SessionRow {
     pub rhythm: Option<f64>,
     /// What the session typed, so a saved summary can say so.
     pub source: Value,
+    /// The targets of an adaptive session, focus first. Empty for every other mode.
+    pub targets: Vec<SessionTarget>,
+}
+
+/// One target of an adaptive session: the estimate at the start and what the session measured.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct SessionTarget {
+    pub gram: String,
+    /// `None` when the brain knew too little about it at the start.
+    pub before_ms: Option<f64>,
+    pub presses: i64,
+    pub samples: i64,
+    /// Mean time in this session, from any number of samples. The UI decides what is enough.
+    pub ms: Option<f64>,
+    pub errors: i64,
 }
 
 /// Lines the projector could not use, so damage is reported instead of hidden.
@@ -245,7 +261,46 @@ fn session_row(row: &Row<'_>) -> rusqlite::Result<SessionRow> {
         rhythm: row.get(11)?,
         // Written by the projector, so this only fails on a damaged database.
         source: serde_json::from_str(&source).unwrap_or(Value::Null),
+        targets: Vec::new(),
     })
+}
+
+/// The targets in the order of the recipe, which puts the focus first.
+fn add_targets(connection: &Connection, rows: &mut [SessionRow]) -> Result<(), ProjectorError> {
+    let mut statement = connection.prepare_cached(
+        "SELECT gram, before_ms, presses, samples, sum_us, errors FROM session_targets
+         WHERE sid = ?1",
+    )?;
+    for row in rows.iter_mut().filter(|row| row.mode == "adaptive") {
+        let mut found: Vec<SessionTarget> = statement
+            .query_map([&row.sid], |r| {
+                let samples: i64 = r.get(3)?;
+                let sum_us: i64 = r.get(4)?;
+                Ok(SessionTarget {
+                    gram: r.get(0)?,
+                    before_ms: r.get(1)?,
+                    presses: r.get(2)?,
+                    samples,
+                    ms: (samples > 0).then(|| sum_us as f64 / samples as f64 / 1000.0),
+                    errors: r.get(5)?,
+                })
+            })?
+            .collect::<Result<_, _>>()?;
+        let order: Vec<String> = row
+            .source
+            .pointer("/recipe")
+            .and_then(|recipe| serde_json::from_value::<Recipe>(recipe.clone()).ok())
+            .map(|recipe| recipe.target_grams())
+            .unwrap_or_default();
+        found.sort_by_key(|t| {
+            order
+                .iter()
+                .position(|g| *g == t.gram)
+                .unwrap_or(usize::MAX)
+        });
+        row.targets = found;
+    }
+    Ok(())
 }
 
 const SESSION_COLUMNS: &str = "sid, ts, mode, reason, duration_ms, chars, correct, backspaces, cpm,
@@ -259,7 +314,9 @@ pub fn session(connection: &Connection, sid: &str) -> Result<Option<SessionRow>,
         ))?
         .query_row([sid], session_row)
         .optional()?;
-    Ok(found)
+    let mut rows: Vec<SessionRow> = found.into_iter().collect();
+    add_targets(connection, &mut rows)?;
+    Ok(rows.pop())
 }
 
 fn recent(connection: &Connection) -> Result<Vec<SessionRow>, ProjectorError> {
@@ -270,8 +327,11 @@ fn recent(connection: &Connection) -> Result<Vec<SessionRow>, ProjectorError> {
          ORDER BY started_ms DESC, sid DESC
          LIMIT ?1"
     ))?;
-    let rows = statement.query_map([RECENT_SESSIONS], session_row)?;
-    Ok(rows.collect::<Result<_, _>>()?)
+    let mut rows: Vec<SessionRow> = statement
+        .query_map([RECENT_SESSIONS], session_row)?
+        .collect::<Result<_, _>>()?;
+    add_targets(connection, &mut rows)?;
+    Ok(rows)
 }
 
 fn skipped(connection: &Connection) -> Result<Skipped, ProjectorError> {
@@ -329,6 +389,7 @@ pub fn dump(connection: &Connection) -> String {
         ("key_stats", "1, 2, 3"),
         ("bigram_stats", "1, 2, 3, 4"),
         ("model_state", "1, 2"),
+        ("session_targets", "1, 2"),
         ("daily_stats", "1"),
         ("last_setups", "1"),
     ] {

@@ -124,8 +124,32 @@ pub struct Recipe {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub review: Vec<String>,
     pub words: u32,
-    /// The model's estimates at the start, in milliseconds, for the target gain.
+    /// What the summary follows: the focus key first, then transitions into it.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub targets: Vec<String>,
+    /// The model's estimates at the start, in milliseconds, for the target gain. A target with too
+    /// few samples to know has none, because a change from a guess would mean nothing.
     pub before: BTreeMap<String, f64>,
+}
+
+impl Recipe {
+    /// The targets. Recipes of the first days of stage 3 had no list, and named them through
+    /// `before`.
+    pub fn target_grams(&self) -> Vec<String> {
+        if !self.targets.is_empty() {
+            return self.targets.clone();
+        }
+        let mut grams = Vec::new();
+        if !self.focus.is_empty() {
+            grams.push(self.focus.clone());
+        }
+        for gram in self.before.keys() {
+            if !grams.contains(gram) {
+                grams.push(gram.clone());
+            }
+        }
+        grams
+    }
 }
 
 impl Default for Recipe {
@@ -137,6 +161,7 @@ impl Default for Recipe {
             focus: String::new(),
             review: Vec::new(),
             words: 0,
+            targets: Vec::new(),
             before: BTreeMap::new(),
         }
     }

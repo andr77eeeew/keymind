@@ -4,7 +4,7 @@
 //! Key and transition times are integer microseconds. Floating-point sums depend on the order of
 //! the additions, so with them a catch-up in several steps would not match a rebuild in one.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,8 @@ use time::format_description::well_known::Rfc3339;
 
 use super::ProjectorError;
 use super::layout::key_for_char;
-use crate::journal::event::{Ignored, KeyKind, Keystroke, SessionStarted};
+use crate::brain::{letter_of, letter_of_code};
+use crate::journal::event::{Ignored, KeyKind, Keystroke, SessionStarted, TextSource};
 use crate::journal::{Event, EventBody};
 use crate::stats::{GAP_LIMIT_MS, SessionStats};
 
@@ -34,6 +35,10 @@ struct Checkpoint {
     date: String,
     layout: String,
     previous: Option<PreviousPress>,
+    /// The targets of an adaptive session, counted the same way as the daily tables. Older
+    /// checkpoints have none.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    targets: BTreeMap<String, Counters>,
 }
 
 struct Slot {
@@ -43,7 +48,7 @@ struct Slot {
     closed: bool,
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 struct Counters {
     presses: i64,
     samples: i64,
@@ -195,6 +200,17 @@ impl<'a> Applier<'a> {
                 start.layout,
                 source,
             ])?;
+        let mut targets = BTreeMap::new();
+        if let TextSource::Adaptive { recipe, .. } = &start.source {
+            let mut insert = self.connection.prepare_cached(
+                "INSERT INTO session_targets (sid, gram, before_ms, presses, samples, sum_us, errors)
+                 VALUES (?1, ?2, ?3, 0, 0, 0, 0)",
+            )?;
+            for gram in recipe.target_grams() {
+                insert.execute(params![start.sid, gram, recipe.before.get(&gram)])?;
+                targets.insert(gram, Counters::default());
+            }
+        }
         let mut stats = SessionStats::new(&start.sid);
         stats.push(event);
         self.sessions.insert(
@@ -206,6 +222,7 @@ impl<'a> Applier<'a> {
                     date,
                     layout: start.layout.clone(),
                     previous: None,
+                    targets,
                 }),
                 closed: false,
             },
@@ -221,6 +238,10 @@ impl<'a> Applier<'a> {
                  judged = ?6, judged_correct = ?7, backspaces = ?8, cpm = ?9, wpm = ?10,
                  accuracy = ?11, rhythm = ?12
              WHERE sid = ?1",
+        )?;
+        let mut target = self.connection.prepare_cached(
+            "UPDATE session_targets SET presses = ?3, samples = ?4, sum_us = ?5, errors = ?6
+             WHERE sid = ?1 AND gram = ?2",
         )?;
         let mut save = self.connection.prepare_cached(
             "INSERT INTO session_state (sid, last_seq, state) VALUES (?1, ?2, ?3)
@@ -256,6 +277,9 @@ impl<'a> Applier<'a> {
             } else {
                 Some(serde_json::to_string(checkpoint).map_err(ProjectorError::BadState)?)
             };
+            for (gram, c) in &checkpoint.targets {
+                target.execute(params![sid, gram, c.presses, c.samples, c.sum_us, c.errors])?;
+            }
             save.execute(params![sid, int(slot.last_seq), state])?;
         }
 
@@ -362,6 +386,11 @@ fn push_key(
                 keys.entry((date.clone(), layout.clone(), code.to_owned()))
                     .or_default()
                     .add(interval_us, !correct);
+                if let Some(counters) = letter_of_code(code)
+                    .and_then(|letter| checkpoint.targets.get_mut(letter.to_string().as_str()))
+                {
+                    counters.add(interval_us, !correct);
+                }
             }
 
             if let (Some(before), Some(second)) = (previous, character.as_ref())
@@ -374,6 +403,11 @@ fn push_key(
                     .entry((date.clone(), layout.clone(), first.clone(), second.clone()))
                     .or_default()
                     .add(interval_us, !correct);
+                if let (Some(a), Some(b)) = (letter_of(first), letter_of(second))
+                    && let Some(counters) = checkpoint.targets.get_mut(format!("{a}{b}").as_str())
+                {
+                    counters.add(interval_us, !correct);
+                }
             }
 
             checkpoint.previous = Some(PreviousPress {
