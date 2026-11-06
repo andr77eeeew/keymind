@@ -1,0 +1,56 @@
+# projected_files
+device | file | bytes | events | bad_lines | unknown | duplicates | orphans
+dev-a | 2026-11-05.jsonl | 2243 | 16 | 0 | 0 | 0 | 0
+# session_state
+sid | last_seq | state
+t1 | 12 | NULL
+w1 | 4 | NULL
+# sessions
+sid | device | ts | started_ms | date | mode | layout | source | reason | duration_ms | chars | correct | judged | judged_correct | backspaces | cpm | wpm | accuracy | rhythm
+t1 | dev-a | 2026-11-05T10:00:00+02:00 | 1793865600000 | 2026-11-05 | test | en-qwerty | {"kind":"test","passages":["p1","p2"],"seconds":60} | completed | 1340.0 | 8 | 7 | 8 | 7 | 1 | 313.43283582089555 | 62.68656716417911 | 87.5 | 86.88422552559793
+w1 | dev-a | 2026-11-05T10:05:00+02:00 | 1793865900000 | 2026-11-05 | words | en-qwerty | {"kind":"words","seed":7,"pool":1000,"count":1} | completed | 200.0 | 2 | 2 | 2 | 2 | 0 | 600.0 | 120.0 | 100.0 | NULL
+# key_stats
+date | layout | code | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty | KeyA | 2 | 0 | 0 | 0 | 1
+2026-11-05 | en-qwerty | KeyC | 1 | 1 | 140000 | 19600000000 | 0
+2026-11-05 | en-qwerty | KeyE | 1 | 1 | 150000 | 22500000000 | 0
+2026-11-05 | en-qwerty | KeyH | 2 | 2 | 360000 | 65600000000 | 0
+2026-11-05 | en-qwerty | KeyT | 3 | 1 | 150000 | 22500000000 | 0
+2026-11-05 | en-qwerty | Space | 1 | 1 | 140000 | 19600000000 | 0
+# bigram_stats
+date | layout | first | second | presses | samples | sum_us | sum_sq_us | errors
+2026-11-05 | en-qwerty |   | c | 1 | 1 | 140000 | 19600000000 | 0
+2026-11-05 | en-qwerty | T | h | 1 | 1 | 160000 | 25600000000 | 0
+2026-11-05 | en-qwerty | a | t | 1 | 1 | 150000 | 22500000000 | 0
+2026-11-05 | en-qwerty | c | a | 1 | 0 | 0 | 0 | 1
+2026-11-05 | en-qwerty | e |   | 1 | 1 | 140000 | 19600000000 | 0
+2026-11-05 | en-qwerty | h | e | 1 | 1 | 150000 | 22500000000 | 0
+2026-11-05 | en-qwerty | t | h | 1 | 1 | 200000 | 40000000000 | 0
+# model_state
+layout | gram | half_life | last_date | samples | sum_ms | sum_sq_ms | presses | errors | mastered | total_samples
+en-qwerty | a | 2.0 | 2026-11-05 | 0.0 | 0.0 | 0.0 | 2.0 | 1.0 | 0 | 0
+en-qwerty | at | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 1.0 | 0.0 | 0 | 1
+en-qwerty | c | 2.0 | 2026-11-05 | 1.0 | 140.0 | 19600.0 | 1.0 | 0.0 | 0 | 1
+en-qwerty | ca | 2.0 | 2026-11-05 | 0.0 | 0.0 | 0.0 | 1.0 | 1.0 | 0 | 0
+en-qwerty | e | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 1.0 | 0.0 | 0 | 1
+en-qwerty | h | 2.0 | 2026-11-05 | 2.0 | 360.0 | 65600.0 | 2.0 | 0.0 | 0 | 2
+en-qwerty | he | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 1.0 | 0.0 | 0 | 1
+en-qwerty | t | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 3.0 | 0.0 | 0 | 1
+en-qwerty | th | 2.0 | 2026-11-05 | 1.0 | 200.0 | 40000.0 | 1.0 | 0.0 | 0 | 1
+# session_targets
+sid | gram | before_ms | presses | samples | sum_us | errors
+# session_keys
+sid | layout | code | presses | samples | sum_us | errors
+t1 | en-qwerty | KeyA | 2 | 0 | 0 | 1
+t1 | en-qwerty | KeyC | 1 | 1 | 140000 | 0
+t1 | en-qwerty | KeyE | 1 | 1 | 150000 | 0
+t1 | en-qwerty | KeyH | 1 | 1 | 160000 | 0
+t1 | en-qwerty | KeyT | 2 | 1 | 150000 | 0
+t1 | en-qwerty | Space | 1 | 1 | 140000 | 0
+# daily_stats
+date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
+2026-11-05 | 2 | 1540.0 | 1540.0 | 9 | 10 | 9 | 695.0738042047834 | 8
+# last_setups
+mode | sid | device | ts | source
+test | t1 | dev-a | 2026-11-05T10:00:00+02:00 | {"kind":"test","passages":["p1","p2"],"seconds":60}
+words | w1 | dev-a | 2026-11-05T10:05:00+02:00 | {"kind":"words","seed":7,"pool":1000,"count":1}

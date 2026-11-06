@@ -15,6 +15,7 @@ export interface Settings {
   live_figures: boolean;
   theme_chosen: boolean;
   letters: LetterPolicy;
+  test_done: boolean;
 }
 
 /** Mirrors `journal::event::Recipe`. */

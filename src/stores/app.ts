@@ -18,6 +18,7 @@ export type Screen =
   | "statistics"
   | "past"
   | "brain"
+  | "test-result"
   | "settings";
 
 export const useAppStore = defineStore("app", () => {
@@ -26,6 +27,12 @@ export const useAppStore = defineStore("app", () => {
   const screen = ref<Screen>("home");
   /** Where a saved summary goes back to, which is also what the menu marks while it is open. */
   const pastFrom = ref<Screen>("home");
+  /**
+   * The first launch, from the theme to the first session. The steps show only while it lasts, and
+   * the test belongs to it when `testStep` is set.
+   */
+  const onboarding = ref(false);
+  const testStep = ref(false);
 
   async function loadInfo(): Promise<void> {
     try {
@@ -41,5 +48,14 @@ export const useAppStore = defineStore("app", () => {
     screen.value = next;
   }
 
-  return { info, error, screen, pastFrom, loadInfo, go };
+  return {
+    info,
+    error,
+    screen,
+    pastFrom,
+    onboarding,
+    testStep,
+    loadInfo,
+    go,
+  };
 });

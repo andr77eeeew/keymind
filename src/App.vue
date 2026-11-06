@@ -5,6 +5,7 @@ import { useAppStore } from "./stores/app";
 import { useBrainStore } from "./stores/brain";
 import { useSessionStore } from "./stores/session";
 import { useStatsStore } from "./stores/stats";
+import { useTestStore } from "./stores/test";
 import { finishActiveSession } from "./typing/active";
 import { onStatsStatus } from "./typing/api";
 import BrainView from "./views/BrainView.vue";
@@ -14,6 +15,7 @@ import PastSummaryView from "./views/PastSummaryView.vue";
 import SettingsView from "./views/SettingsView.vue";
 import SetupView from "./views/SetupView.vue";
 import SummaryView from "./views/SummaryView.vue";
+import TestResultView from "./views/TestResultView.vue";
 import TypingView from "./views/TypingView.vue";
 
 // The charts are the only heavy part of the UI, so the start and the typing screen never load them.
@@ -25,6 +27,7 @@ const app = useAppStore();
 const session = useSessionStore();
 const stats = useStatsStore();
 const brain = useBrainStore();
+const test = useTestStore();
 
 let stopListening: (() => void) | null = null;
 let stopStatus: (() => void) | null = null;
@@ -38,6 +41,7 @@ onMounted(async () => {
       session.statusChanged(status);
       stats.statusChanged(status);
       brain.statusChanged(status);
+      test.statusChanged(status);
     });
   } catch {
     // Outside Tauri there are no events.
@@ -90,6 +94,7 @@ onBeforeUnmount(() => {
   <PastSummaryView v-else-if="app.screen === 'past'" />
   <SettingsView v-else-if="app.screen === 'settings'" />
   <BrainView v-else-if="app.screen === 'brain'" />
+  <TestResultView v-else-if="app.screen === 'test-result'" />
   <SetupView v-else-if="app.screen === 'setup'" />
   <HomeView v-else />
 </template>

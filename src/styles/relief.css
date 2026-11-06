@@ -1462,6 +1462,20 @@ html[data-kbd="off"] .app:not(.app--video) .stage > .window {
   gap: var(--space-lg);
   align-content: center;
 }
+.steps {
+  display: flex;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.steps [aria-current="step"] {
+  color: var(--color-ink);
+  font-weight: var(--weight-medium);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+}
 .pick {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

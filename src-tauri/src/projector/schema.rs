@@ -13,7 +13,7 @@ use rusqlite::{Connection, OpenFlags};
 
 use super::ProjectorError;
 
-pub const SCHEMA_VERSION: i64 = 3;
+pub const SCHEMA_VERSION: i64 = 4;
 
 const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -114,6 +114,19 @@ CREATE TABLE session_targets (
     sum_us    INTEGER NOT NULL,
     errors    INTEGER NOT NULL,
     PRIMARY KEY (sid, gram)
+) WITHOUT ROWID;
+
+-- The keys of each starting test on their own, counted like key_stats, so its result draws a map of
+-- that minute alone. Other modes add nothing here.
+CREATE TABLE session_keys (
+    sid       TEXT NOT NULL,
+    layout    TEXT NOT NULL,
+    code      TEXT NOT NULL,
+    presses   INTEGER NOT NULL,
+    samples   INTEGER NOT NULL,
+    sum_us    INTEGER NOT NULL,
+    errors    INTEGER NOT NULL,
+    PRIMARY KEY (sid, layout, code)
 ) WITHOUT ROWID;
 
 -- Views, because a second stored copy of the same numbers could drift from the first.

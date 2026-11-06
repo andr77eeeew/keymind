@@ -22,6 +22,8 @@ en-qwerty | a | 2.0 | 2026-11-05 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 0 | 0
 en-qwerty | b | 2.0 | 2026-11-05 | 1.0 | 150.0 | 22500.0 | 1.0 | 0.0 | 0 | 1
 # session_targets
 sid | gram | before_ms | presses | samples | sum_us | errors
+# session_keys
+sid | layout | code | presses | samples | sum_us | errors
 # daily_stats
 date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
 2026-11-05 | 1 | 250.0 | 0 | 0 | 0 | 0 | 0 | 0

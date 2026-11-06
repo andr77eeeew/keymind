@@ -24,6 +24,8 @@ import {
 import type { Mode, SessionPlan, SessionSummary } from "../typing/types";
 import { useAppStore } from "./app";
 import { useBrainStore } from "./brain";
+import { useSettingsStore } from "./settings";
+import { useTestStore } from "./test";
 
 export type WordsBy = "count" | "time";
 export type TextSourceChoice = "passage" | "paste" | "import";
@@ -72,6 +74,8 @@ export const useSessionStore = defineStore("session", () => {
   const summaryFailed = ref(false);
   const startError = ref<string | null>(null);
   const starting = ref(false);
+  /** The starting test could not be prepared, which Home says in place of the map. */
+  const testFailed = ref(false);
 
   const rows = ref<LastSetupRow[]>([]);
   /** Sessions that ended in this run, newest first. The projector reaches them a moment later. */
@@ -267,6 +271,24 @@ export const useSessionStore = defineStore("session", () => {
     }
   }
 
+  /**
+   * The starting test, from the first launch, Home or the Brain screen. It is not a mode of the
+   * setup screen, so a failure goes home and says so there.
+   */
+  async function startTest(): Promise<void> {
+    starting.value = true;
+    testFailed.value = false;
+    try {
+      begin(await buildPlan({ mode: "test" }));
+    } catch {
+      testFailed.value = true;
+      app.onboarding = false;
+      app.go("home");
+    } finally {
+      starting.value = false;
+    }
+  }
+
   /** Starts a remembered setup. One that cannot start opens its setup instead (ADR-0007). */
   async function startChoice(choice: Choice): Promise<void> {
     if (choice.noRepeat) {
@@ -292,14 +314,38 @@ export const useSessionStore = defineStore("session", () => {
     ];
   }
 
-  /** Opens the result of a session, or goes home if nothing was typed. */
+  /** The test step is answered once a test ends in any way, so the first launch does not ask again. */
+  function testEnded(
+    sid: string | null,
+    saved: boolean,
+    skipped: boolean,
+  ): void {
+    void useSettingsStore().change("test_done", true);
+    if (sid === null || skipped) {
+      app.onboarding = false;
+      app.go("home");
+      return;
+    }
+    useTestStore().follow(sid, saved);
+    app.go("test-result");
+  }
+
+  /**
+   * Opens the result of a session, or goes home if nothing was typed. `skipped` is a starting test
+   * left by its Skip link, which goes home whatever was typed.
+   */
   async function ended(
     sid: string | null,
     cursor = 0,
     saved = true,
+    skipped = false,
   ): Promise<void> {
     const finished = plan.value;
     plan.value = null;
+    if (finished?.mode === "test") {
+      testEnded(sid, saved, skipped);
+      return;
+    }
     if (sid === null || finished === null) {
       app.go("home");
       return;
@@ -454,6 +500,7 @@ export const useSessionStore = defineStore("session", () => {
     summaryFailed,
     startError,
     starting,
+    testFailed,
     setupsState,
     home,
     firstSession,
@@ -462,6 +509,7 @@ export const useSessionStore = defineStore("session", () => {
     openSetup,
     start,
     startChoice,
+    startTest,
     begin,
     ended,
     refreshImports,

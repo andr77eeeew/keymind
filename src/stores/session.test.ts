@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionPlan } from "../typing/types";
 import { useAppStore } from "./app";
 import { useSessionStore } from "./session";
+import { useTestStore } from "./test";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 vi.mock("@tauri-apps/api/event", () => ({ listen: vi.fn() }));
@@ -14,6 +15,75 @@ const WORDS_PLAN: SessionPlan = {
   source: { kind: "words", seed: 1, pool: 1000, count: 1 },
   detail: "",
 };
+
+const TEST_PLAN: SessionPlan = {
+  mode: "test",
+  text: "the cat",
+  source: { kind: "test", passages: ["p1"], seconds: 60 },
+  seconds: 60,
+  detail: "One minute",
+};
+
+describe("the starting test", () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.mocked(invoke).mockReset();
+  });
+
+  it("starts as a one-minute session of the passages the core picked", async () => {
+    vi.mocked(invoke).mockResolvedValue({ text: "the cat", passages: ["p1"] });
+    const store = useSessionStore();
+    await store.startTest();
+    expect(invoke).toHaveBeenCalledWith("starting_test", {
+      seed: expect.any(Number),
+    });
+    expect(store.plan).toMatchObject(TEST_PLAN);
+    expect(useAppStore().screen).toBe("typing");
+  });
+
+  it("goes home and says so when it cannot be prepared", async () => {
+    vi.mocked(invoke).mockRejectedValue("content is missing");
+    const store = useSessionStore();
+    useAppStore().onboarding = true;
+    await store.startTest();
+    expect(store.testFailed).toBe(true);
+    expect(useAppStore().screen).toBe("home");
+    expect(useAppStore().onboarding).toBe(false);
+  });
+
+  it("opens its result, marks the step done and is not a setup to repeat", async () => {
+    vi.mocked(invoke).mockImplementation(async (command: string) =>
+      command === "stats_status" ? { state: "working" } : undefined,
+    );
+    const store = useSessionStore();
+    store.begin(TEST_PLAN);
+    await store.ended("t1");
+    expect(useAppStore().screen).toBe("test-result");
+    expect(useTestStore().sid).toBe("t1");
+    expect(invoke).toHaveBeenCalledWith("set_setting", {
+      key: "test_done",
+      value: true,
+    });
+    expect(store.home.primary.used.mode).not.toBe("test");
+    expect(store.home.others.map((choice) => choice.used.mode)).not.toContain(
+      "test",
+    );
+  });
+
+  it("goes home when skipped, whatever was typed", async () => {
+    vi.mocked(invoke).mockResolvedValue(undefined);
+    const store = useSessionStore();
+    useAppStore().onboarding = true;
+    store.begin(TEST_PLAN);
+    await store.ended("t1", 3, true, true);
+    expect(useAppStore().screen).toBe("home");
+    expect(useAppStore().onboarding).toBe(false);
+    expect(invoke).toHaveBeenCalledWith("set_setting", {
+      key: "test_done",
+      value: true,
+    });
+  });
+});
 
 describe("session store", () => {
   beforeEach(() => {
