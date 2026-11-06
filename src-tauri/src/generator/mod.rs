@@ -4,6 +4,7 @@
 pub mod adaptive;
 pub mod content;
 pub mod markov;
+pub mod starting;
 
 use rand_chacha::ChaCha8Rng;
 use rand_chacha::rand_core::{Rng, SeedableRng};
@@ -52,7 +53,7 @@ pub fn pick_passage(passages: &[Passage], difficulty: Option<u8>, seed: u32) -> 
 
 /// An unbiased number below `limit`. Written here instead of taken from `rand`, whose sampling may
 /// change between versions: old seeds in the journal have to keep giving the same text.
-fn below(rng: &mut ChaCha8Rng, limit: usize) -> usize {
+pub(crate) fn below(rng: &mut ChaCha8Rng, limit: usize) -> usize {
     let limit = limit as u64;
     let zone = u64::MAX - (u64::MAX % limit);
     loop {
