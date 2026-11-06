@@ -86,8 +86,18 @@ estimate to an extreme, and a rare pair gets a reasonable value.
 so it comes into focus by itself and needs no rule of its own. The reason shown is "new" (under 5
 samples), "slow" or "errors", whichever part of the weakness is larger.
 
-**Targets** are the focus key and up to 3 of the slowest pairs into it that have data. Their estimates
-at the start go into the recipe as `before`, so the summary can show the change without the model.
+**Targets** are the focus key and up to 3 of the slowest pairs into it that have data. The recipe
+lists them in that order as `targets`. Their estimates at the start go into `before`, but only for
+targets with at least 5 samples after forgetting: below that the estimate is mostly the prior, and a
+change measured against it would be a change against a guess. The first recipes of stage 3 had no
+`targets` list; for them the targets are the focus key and then the keys of `before`.
+
+**What a session did to its targets.** The projector keeps `session_targets`: per adaptive session
+and target, `before_ms` from the recipe and the presses, samples, time and errors of the session,
+counted with the definitions of `key_stats` and `bigram_stats` (ADR-0008). A key target counts the
+presses of that letter, a pair target the transitions between the two letters. The summary shows
+the session mean only from 5 samples on, and the change is that mean minus `before_ms`, both rounded
+to whole milliseconds. The heading follows the focus key.
 
 **Review** is up to 3 due keys or pairs among the open letters, except the focus key and pairs into it,
 least confident first, with the name as the tie-break.
@@ -110,4 +120,8 @@ The UI passes today's local date to the commands, because the core has no local 
 - Faded n-grams fall back to the prior with wide bounds. A key unpractised for weeks can therefore
   take the focus again, which is the intended review.
 - The rules are plain functions in `brain/`, without Tauri, and are unit-tested.
+- The reward of stage 8, gain on targets in later sessions, can be read from `session_targets` and
+  the daily tables, with no new journal fields.
+- A recipe written in the first days of stage 3 may hold a `before` value of a target that had only
+  the prior behind it. Such sessions show a change against that value. There are only a few of them.
 - Stage 8 adds the boosted student model and the bandit next to this code, not instead of it.

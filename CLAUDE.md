@@ -28,7 +28,8 @@ Read the relevant SPEC sections before starting any task.
 ```
 src/                     Vue UI; src/typing/ is the non-reactive input path (ADR-0004),
                          src/relief/ draws the contour ground, src/stats/ is the pure logic
-                         of the statistics screen (heat scales, relief hills, trends, tables)
+                         of the statistics screen (heat scales, relief hills, trends, tables),
+                         src/brain/ words what the brain chose and what a session did to its targets
 src-tauri/src/
   journal/               append-only event journal
   projector/             journal -> SQLite derived tables
