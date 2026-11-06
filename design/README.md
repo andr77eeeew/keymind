@@ -347,7 +347,8 @@ pair of transitions.
   into it. There is no relief before and after.
 - **Starting test result** (`onboarding-result`): the map and the figures, no daily goal and no reminder.
 - **Later** (`brain-later`): the ML page of stage 8 keeps what drove the pick, ML against the
-  heuristic, the weekly chart and the experiments.
+  heuristic, the weekly chart and the experiments. ML also picks one key in focus, so the focus, the
+  targets and the summary look the same in both arms of the A/B comparison.
 
 ### A saved summary
 
