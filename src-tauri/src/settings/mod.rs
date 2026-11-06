@@ -64,6 +64,9 @@ pub struct Settings {
     /// already set writes no event, so the theme alone cannot tell.
     pub theme_chosen: bool,
     pub letters: LetterPolicy,
+    /// The first-launch test is done, taken or skipped. A test that was typed also leaves a
+    /// session, but a skipped one leaves only this.
+    pub test_done: bool,
 }
 
 impl Default for Settings {
@@ -75,6 +78,7 @@ impl Default for Settings {
             live_figures: true,
             theme_chosen: false,
             letters: LetterPolicy::default(),
+            test_done: false,
         }
     }
 }
@@ -146,11 +150,23 @@ pub fn change_event(
     Ok(Some((next, event)))
 }
 
-/// Whether to ask for a theme on this launch: not once it was answered, and not for someone who
-/// already has sessions here or from another computer. If the journal cannot be read the answer is
-/// no, because a look is no reason to stand in the way.
-pub fn asks_for_theme(settings: &Settings, journal_root: &Path) -> bool {
-    !settings.theme_chosen && matches!(any_session(journal_root), Ok(false))
+/// The first-launch steps still to show. None for someone who already has sessions here or from
+/// another computer. If the journal cannot be read there are none, because no step is a reason to
+/// stand in the way.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
+pub struct FirstRun {
+    pub theme: bool,
+    pub test: bool,
+}
+
+pub fn first_run(settings: &Settings, journal_root: &Path) -> FirstRun {
+    if !matches!(any_session(journal_root), Ok(false)) {
+        return FirstRun::default();
+    }
+    FirstRun {
+        theme: !settings.theme_chosen,
+        test: !settings.test_done,
+    }
 }
 
 /// Stops at the first session, and a journal without sessions holds only a few settings events, so
@@ -324,11 +340,15 @@ mod tests {
     }
 
     #[test]
-    fn the_theme_is_asked_for_until_answered_and_only_without_sessions() {
+    fn each_step_is_asked_for_until_answered_and_only_without_sessions() {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path().join("journal");
         let settings = Settings::default();
-        assert!(asks_for_theme(&settings, &root), "no journal yet");
+        let both = FirstRun {
+            theme: true,
+            test: true,
+        };
+        assert_eq!(first_run(&settings, &root), both, "no journal yet");
 
         let device = root.join("device-a");
         fs::create_dir_all(&device).unwrap();
@@ -337,13 +357,25 @@ mod tests {
             "{\"type\":\"settings_changed\"}\n",
         )
         .unwrap();
-        assert!(asks_for_theme(&settings, &root), "only settings so far");
+        assert_eq!(first_run(&settings, &root), both, "only settings so far");
 
-        let answered = Settings {
+        let themed = Settings {
             theme_chosen: true,
             ..settings
         };
-        assert!(!asks_for_theme(&answered, &root));
+        assert_eq!(
+            first_run(&themed, &root),
+            FirstRun {
+                theme: false,
+                test: true
+            },
+            "closed before the test"
+        );
+        let skipped = Settings {
+            test_done: true,
+            ..themed
+        };
+        assert_eq!(first_run(&skipped, &root), FirstRun::default());
 
         let other = root.join("device-b");
         fs::create_dir_all(&other).unwrap();
@@ -352,7 +384,11 @@ mod tests {
             "{\"type\":\"session_started\"}\n",
         )
         .unwrap();
-        assert!(!asks_for_theme(&settings, &root), "another computer counts");
+        assert_eq!(
+            first_run(&settings, &root),
+            FirstRun::default(),
+            "another computer counts"
+        );
     }
 
     #[test]

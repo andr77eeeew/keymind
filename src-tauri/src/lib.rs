@@ -89,7 +89,9 @@ pub fn run() -> Result<(), AppError> {
             commands::delete_import,
             commands::get_settings,
             commands::set_setting,
-            commands::asks_for_theme,
+            commands::first_run,
+            commands::starting_test,
+            commands::session_keys,
         ])
         .run(tauri::generate_context!())?;
     Ok(())

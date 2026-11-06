@@ -14,12 +14,13 @@ use crate::brain::heuristic::{Choice, Knowledge, choose};
 use crate::brain::model::{PRIOR_SAMPLES, day_number};
 use crate::brain::session::{AdaptiveSession, next_session};
 use crate::brain::{BAR_ERRORS, BAR_MS};
+use crate::generator::starting::{self, StartingTest};
 use crate::generator::{self, ContentError, ContentStore, Passage, adaptive};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
 use crate::journal::{Event, EventBody, JournalService, ServiceError};
-use crate::projector::queries::{self, LastSetup, SessionRow, StatsOverview};
+use crate::projector::queries::{self, KeyRow, LastSetup, SessionRow, StatsOverview};
 use crate::projector::{ProjectorError, ProjectorService, ProjectorStatus};
-use crate::settings::{self, LetterPolicy, Settings, SettingsError};
+use crate::settings::{self, FirstRun, LetterPolicy, Settings, SettingsError};
 use crate::stats::SessionSummary;
 use crate::storage::AppPaths;
 
@@ -152,6 +153,17 @@ pub async fn stats_session(
     blocking(move || Ok(projector.read(|connection| queries::session(connection, &sid))?)).await
 }
 
+/// The keys of a starting test on their own, for the map on its result.
+#[tauri::command]
+pub async fn session_keys(
+    state: State<'_, AppState>,
+    sid: String,
+) -> Result<Vec<KeyRow>, CommandError> {
+    let projector = state.projector.clone();
+    blocking(move || Ok(projector.read(|connection| queries::session_keys(connection, &sid))?))
+        .await
+}
+
 #[tauri::command]
 pub async fn last_setups(state: State<'_, AppState>) -> Result<Vec<LastSetup>, CommandError> {
     let projector = state.projector.clone();
@@ -166,15 +178,15 @@ pub fn rebuild_stats(state: State<'_, AppState>) {
     state.projector.request_rebuild();
 }
 
-/// Whether the first-launch step comes before Home.
+/// The first-launch steps that come before Home.
 #[tauri::command]
-pub async fn asks_for_theme(state: State<'_, AppState>) -> Result<bool, CommandError> {
+pub async fn first_run(state: State<'_, AppState>) -> Result<FirstRun, CommandError> {
     let settings = *state
         .settings
         .lock()
         .map_err(|_| CommandError::SettingsLocked)?;
     let root = state.paths.journal_root.clone();
-    blocking(move || Ok(settings::asks_for_theme(&settings, &root))).await
+    blocking(move || Ok(settings::first_run(&settings, &root))).await
 }
 
 #[tauri::command]
@@ -325,6 +337,31 @@ pub async fn pick_passage(
         generator::pick_passage(&passages, difficulty, seed)
             .cloned()
             .ok_or(CommandError::NoPassage)
+    })
+    .await
+}
+
+/// The text of the starting test, and the passages it is made of for the journal.
+#[derive(Serialize)]
+pub struct TestText {
+    pub text: String,
+    pub passages: Vec<String>,
+}
+
+#[tauri::command]
+pub async fn starting_test(
+    state: State<'_, AppState>,
+    seed: u32,
+) -> Result<TestText, CommandError> {
+    let content = state.content.clone();
+    blocking(move || {
+        let passages = content.passages()?;
+        let StartingTest { ids, text } =
+            starting::starting_test(&passages, seed).ok_or(CommandError::NoPassage)?;
+        Ok(TestText {
+            text,
+            passages: ids,
+        })
     })
     .await
 }
