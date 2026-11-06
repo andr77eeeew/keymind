@@ -2,7 +2,10 @@
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import AppShell from "../components/AppShell.vue";
 import SummaryFigures from "../components/SummaryFigures.vue";
+import TargetsTable from "../components/TargetsTable.vue";
+import { targetHeading } from "../brain/view";
 import { useAppStore } from "../stores/app";
+import { useBrainStore } from "../stores/brain";
 import { useSessionStore } from "../stores/session";
 import { readingProgress, summaryContent } from "../typing/summary";
 
@@ -16,6 +19,7 @@ const TIMED_GUARD_MS = 1000;
 
 const app = useAppStore();
 const session = useSessionStore();
+const brain = useBrainStore();
 const primary = useTemplateRef<HTMLButtonElement>("primary");
 
 const content = computed(() => {
@@ -38,6 +42,15 @@ const nextLabel = computed(() => {
 });
 
 const unsaved = computed(() => session.endedSession?.saved === false);
+
+const adaptive = computed(
+  () => session.endedSession?.plan.source.kind === "adaptive" && !unsaved.value,
+);
+const gramHeading = computed(() =>
+  adaptive.value && brain.endedTargets
+    ? targetHeading(brain.endedTargets)
+    : null,
+);
 
 const timed = session.endedSession?.plan.seconds !== undefined;
 const guardMs = timed ? TIMED_GUARD_MS : FOCUS_DELAY_MS;
@@ -68,7 +81,11 @@ onBeforeUnmount(() => {
 <template>
   <AppShell>
     <div class="page-head page-head--stack">
-      <h1>
+      <h1 v-if="gramHeading && content && !session.summaryFailed">
+        {{ gramHeading.lead }}<span class="gram">{{ gramHeading.gram }}</span
+        >{{ gramHeading.tail }}
+      </h1>
+      <h1 v-else>
         {{
           session.summaryFailed
             ? unsaved
@@ -103,6 +120,33 @@ onBeforeUnmount(() => {
     </div>
     <template v-else>
       <SummaryFigures :content="content" />
+      <section v-if="adaptive" class="sec">
+        <header class="sec__h"><h2>Targets</h2></header>
+        <div v-if="brain.endedState === 'error'" class="state state--error">
+          <p class="state__h">The targets could not be read</p>
+          <p>
+            Your typing is saved. They show up in this session's saved summary
+            once the statistics can be read.
+          </p>
+        </div>
+        <div
+          v-else-if="brain.endedTargets === null"
+          class="sk"
+          aria-busy="true"
+        >
+          <span class="visually-hidden">Loading</span>
+          <i style="--w: 92%" />
+          <i style="--w: 74%" />
+        </div>
+        <div
+          v-else-if="brain.endedTargets.length === 0"
+          class="state state--empty"
+        >
+          <p class="state__h">No targets in this session</p>
+          <p>Sessions from before targets were recorded have none.</p>
+        </div>
+        <TargetsTable v-else :targets="brain.endedTargets" />
+      </section>
       <div v-if="reading" class="result__extra">
         <div class="meter">
           <div class="meter__head">

@@ -170,6 +170,16 @@ fn adaptive_and_test_sources_read_back_and_tolerate_new_fields() {
         serde_json::from_str(r#"{"kind":"adaptive","seed":1,"recipe":{}}"#).unwrap();
     assert!(matches!(bare, event::TextSource::Adaptive { recipe, .. } if recipe.v == 1));
 
+    // The first recipes of stage 3 named their targets only through `before`, the focus first.
+    assert_eq!(recipe.target_grams(), vec!["e"]);
+    let early: event::Recipe =
+        serde_json::from_str(r#"{"focus":"e","before":{"te":420.0,"e":400.0,"ae":380.0}}"#)
+            .unwrap();
+    assert_eq!(early.target_grams(), vec!["e", "ae", "te"]);
+    // An empty list is not written, so such a line stays as it was.
+    let written = serde_json::to_string(&early).unwrap();
+    assert!(!written.contains("targets"), "{written}");
+
     let test: event::TextSource =
         serde_json::from_str(r#"{"kind":"test","passages":["a","b"],"seconds":60}"#).unwrap();
     assert_eq!(

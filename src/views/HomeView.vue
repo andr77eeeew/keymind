@@ -3,8 +3,10 @@ import { computed, onMounted, useTemplateRef } from "vue";
 import AppShell from "../components/AppShell.vue";
 import RecentSessions from "../components/RecentSessions.vue";
 import ReliefMap from "../components/ReliefMap.vue";
+import { whyLine } from "../brain/view";
 import { FEW_SESSIONS, reliefHills, weakestPins } from "../stats/relief";
 import { useAppStore } from "../stores/app";
+import { useBrainStore } from "../stores/brain";
 import { useSessionStore } from "../stores/session";
 import { useStatsStore } from "../stores/stats";
 
@@ -14,10 +16,24 @@ const RECENT_ROWS = 4;
 const app = useAppStore();
 const session = useSessionStore();
 const stats = useStatsStore();
+const brain = useBrainStore();
 const primaryButton = useTemplateRef<HTMLButtonElement>("primary");
 
 const primary = computed(() => session.home.primary);
 const stuck = computed(() => primary.value.noRepeat);
+
+/** The brain picks the next session, so Home says what it works on and why. */
+const adaptive = computed(
+  () => !stuck.value && primary.value.used.mode === "adaptive",
+);
+const focus = computed(() =>
+  adaptive.value && !session.firstSession && brain.nextState === "ready"
+    ? brain.next
+    : null,
+);
+const why = computed(() =>
+  focus.value ? whyLine(focus.value) : primary.value.line,
+);
 
 const heading = computed(() => {
   if (stuck.value) {
@@ -26,9 +42,10 @@ const heading = computed(() => {
   if (session.setupsState === "error" || session.libraryState === "error") {
     return "Start a session";
   }
-  return session.firstSession
-    ? "Your first session"
-    : "Start where you left off";
+  if (session.firstSession) {
+    return "Your first session";
+  }
+  return adaptive.value ? "Your next session" : "Start where you left off";
 });
 
 const failed = computed(
@@ -71,6 +88,7 @@ onMounted(() => {
   primaryButton.value?.focus();
   void session.refreshImports();
   stats.showHome();
+  brain.showNext();
 });
 </script>
 
@@ -78,12 +96,26 @@ onMounted(() => {
   <AppShell>
     <section class="sheet next">
       <div class="next__h">
-        <h1 :class="{ 'clamp-2': stuck }" :title="stuck ? heading : undefined">
+        <h1 v-if="focus">
+          Next session works on <span class="gram">{{ focus.focus }}</span>
+        </h1>
+        <h1
+          v-else
+          :class="{ 'clamp-2': stuck }"
+          :title="stuck ? heading : undefined"
+        >
           {{ heading }}
         </h1>
+        <a
+          v-if="adaptive"
+          class="link"
+          href="#"
+          @click.prevent="app.go('brain')"
+          >Why this session</a
+        >
         <p class="start__setup start__setup--inline">
           <b>{{ primary.name }}</b>
-          <span>{{ primary.line }}</span>
+          <span>{{ why }}</span>
         </p>
       </div>
 

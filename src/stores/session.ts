@@ -23,6 +23,7 @@ import {
 } from "../typing/remembered";
 import type { Mode, SessionPlan, SessionSummary } from "../typing/types";
 import { useAppStore } from "./app";
+import { useBrainStore } from "./brain";
 
 export type WordsBy = "count" | "time";
 export type TextSourceChoice = "passage" | "paste" | "import";
@@ -320,6 +321,9 @@ export const useSessionStore = defineStore("session", () => {
       }
     }
     app.go("summary");
+    if (source.kind === "adaptive" && saved) {
+      useBrainStore().followEnded(sid);
+    }
     if (!saved) {
       // The summary reads the journal, which does not have the end of this session yet.
       summaryFailed.value = true;

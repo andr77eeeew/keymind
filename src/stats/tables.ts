@@ -1,3 +1,4 @@
+import { targetGain, type TargetGain } from "../brain/view";
 import type { Records, SessionRow } from "../typing/api";
 import { clockText } from "../typing/summary";
 import { localDate, shortDate } from "./trends";
@@ -46,6 +47,7 @@ export interface SessionLine {
   time: string;
   wpm: string;
   accuracy: string;
+  gain: TargetGain;
 }
 
 export function sessionLine(row: SessionRow, now: Date): SessionLine {
@@ -62,6 +64,7 @@ export function sessionLine(row: SessionRow, now: Date): SessionLine {
     time: clockText(row.duration_ms),
     wpm: row.chars < FEW_CHARS ? DASH : String(Math.round(row.wpm)),
     accuracy,
+    gain: targetGain(row.mode, row.targets),
   };
 }
 

@@ -360,6 +360,45 @@ fn a_saved_session_reads_back_with_its_source() {
 }
 
 #[test]
+fn an_adaptive_session_measures_its_targets_like_the_daily_tables() {
+    let stats = golden_overview("adaptive");
+    let row = stats.recent.iter().find(|row| row.sid == "a2").unwrap();
+    let targets: Vec<_> = row
+        .targets
+        .iter()
+        .map(|t| {
+            (
+                t.gram.as_str(),
+                t.before_ms,
+                t.presses,
+                t.samples,
+                t.ms,
+                t.errors,
+            )
+        })
+        .collect();
+    // `a` is pressed 7 times; the wrong press counts against it and has no time.
+    assert_eq!(
+        targets,
+        vec![
+            ("a", Some(600.0), 7, 6, Some(450.0), 1),
+            ("ea", Some(420.0), 7, 6, Some(450.0), 1),
+            ("ta", None, 0, 0, None, 0),
+        ]
+    );
+
+    // An early recipe without a list follows its focus.
+    let early = stats.recent.iter().find(|row| row.sid == "a1").unwrap();
+    assert_eq!(early.targets.len(), 1);
+    assert_eq!(early.targets[0].gram, "e");
+    assert_eq!(early.targets[0].before_ms, Some(600.0));
+
+    // Other modes have none.
+    let words = golden_overview("words");
+    assert!(words.recent.iter().all(|row| row.targets.is_empty()));
+}
+
+#[test]
 fn what_this_version_cannot_use_changes_no_number() {
     let stats = golden_overview("unknown_lines");
     assert_eq!(stats.skipped.unknown, 1);

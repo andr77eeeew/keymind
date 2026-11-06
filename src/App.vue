@@ -2,10 +2,12 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { defineAsyncComponent, onBeforeUnmount, onMounted } from "vue";
 import { useAppStore } from "./stores/app";
+import { useBrainStore } from "./stores/brain";
 import { useSessionStore } from "./stores/session";
 import { useStatsStore } from "./stores/stats";
 import { finishActiveSession } from "./typing/active";
 import { onStatsStatus } from "./typing/api";
+import BrainView from "./views/BrainView.vue";
 import HomeView from "./views/HomeView.vue";
 import OnboardingView from "./views/OnboardingView.vue";
 import PastSummaryView from "./views/PastSummaryView.vue";
@@ -22,6 +24,7 @@ const StatisticsView = defineAsyncComponent(
 const app = useAppStore();
 const session = useSessionStore();
 const stats = useStatsStore();
+const brain = useBrainStore();
 
 let stopListening: (() => void) | null = null;
 let stopStatus: (() => void) | null = null;
@@ -34,6 +37,7 @@ onMounted(async () => {
     stopStatus = await onStatsStatus((status) => {
       session.statusChanged(status);
       stats.statusChanged(status);
+      brain.statusChanged(status);
     });
   } catch {
     // Outside Tauri there are no events.
@@ -85,6 +89,7 @@ onBeforeUnmount(() => {
   <StatisticsView v-else-if="app.screen === 'statistics'" />
   <PastSummaryView v-else-if="app.screen === 'past'" />
   <SettingsView v-else-if="app.screen === 'settings'" />
+  <BrainView v-else-if="app.screen === 'brain'" />
   <SetupView v-else-if="app.screen === 'setup'" />
   <HomeView v-else />
 </template>

@@ -13,7 +13,7 @@ use rusqlite::{Connection, OpenFlags};
 
 use super::ProjectorError;
 
-pub const SCHEMA_VERSION: i64 = 2;
+pub const SCHEMA_VERSION: i64 = 3;
 
 const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -100,6 +100,20 @@ CREATE TABLE model_state (
     mastered      INTEGER NOT NULL,
     total_samples INTEGER NOT NULL,
     PRIMARY KEY (layout, gram)
+) WITHOUT ROWID;
+
+-- The targets of each adaptive session: the brain's estimate at the start, and what the session
+-- measured with the definitions of key_stats and bigram_stats (ADR-0010). before_ms is NULL for a
+-- target the brain knew too little about.
+CREATE TABLE session_targets (
+    sid       TEXT NOT NULL,
+    gram      TEXT NOT NULL,
+    before_ms REAL,
+    presses   INTEGER NOT NULL,
+    samples   INTEGER NOT NULL,
+    sum_us    INTEGER NOT NULL,
+    errors    INTEGER NOT NULL,
+    PRIMARY KEY (sid, gram)
 ) WITHOUT ROWID;
 
 -- Views, because a second stored copy of the same numbers could drift from the first.

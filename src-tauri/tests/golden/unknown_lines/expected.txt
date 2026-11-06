@@ -19,6 +19,8 @@ layout | gram | half_life | last_date | samples | sum_ms | sum_sq_ms | presses |
 en-qwerty | a | 2.0 | 2026-11-05 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 0 | 0
 en-qwerty | ab | 2.0 | 2026-11-05 | 1.0 | 100.0 | 10000.0 | 1.0 | 0.0 | 0 | 1
 en-qwerty | b | 2.0 | 2026-11-05 | 1.0 | 100.0 | 10000.0 | 1.0 | 0.0 | 0 | 1
+# session_targets
+sid | gram | before_ms | presses | samples | sum_us | errors
 # daily_stats
 date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
 2026-11-05 | 1 | 100.0 | 100.0 | 2 | 2 | 2 | 0 | 0

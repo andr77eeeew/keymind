@@ -1613,11 +1613,20 @@ html[data-kbd="off"] .app:not(.app--video) .stage > .window {
 .s4 {
   grid-column: span 4;
 }
+.s5 {
+  grid-column: span 5;
+}
 .s6 {
   grid-column: span 6;
 }
+.s7 {
+  grid-column: span 7;
+}
 .s8 {
   grid-column: span 8;
+}
+.s12 {
+  grid-column: span 12;
 }
 @media (max-width: 60rem) {
   .grid > * {
@@ -1647,6 +1656,18 @@ details.tv summary {
   color: var(--color-ink);
   padding-inline: var(--space-2xs);
   box-shadow: inset 0 -2px 0 var(--color-target);
+}
+/* Summary and Brain. */
+.delta {
+  font-family: var(--font-code);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.grams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-xs);
+  align-items: baseline;
 }
 .sec__note {
   font-size: var(--text-sm);
