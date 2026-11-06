@@ -182,7 +182,7 @@ const views = {
     </li>${SAMPLE.slice(1).map((item) => libRow({ ...item, id: 'i' })).join('')}</ul>${libAdd()}`)),
   zen: shellSetup('zen', panel('Zen', 'Type anything. There is no text to follow, and no figures on the screen.', '<p class="setup__none">Zen has nothing to set up. Backspace always works here.</p>', foot({ sum: 'Free typing, for as long as you like', href: 'typing-zen.html' }))),
   'start-error': shellSetup('texts', panel('Texts', TEXTS_DESC, `${sources('p')}${row('Difficulty', 'Passages from public-domain books.', segGo('Difficulty', [['Any'], ['Easy'], ['Medium'], ['Hard', '', true]]))}<p class="field__error" role="alert">The passage could not be prepared. Nothing was started. Try again or pick another mode.</p>`, foot({ sum: 'A hard passage', label: 'Try again', href: 'plain-text.html' }))),
-  future: shellSetup('adaptive', panel('Adaptive', 'Sessions built from your weak transitions. The brain picks everything, so there is nothing to set up.', '<p class="setup__none">The next session works on <b class="gram">ea</b> and <b class="gram">ss</b>. Home starts it with one action, and this screen is only a second way in.</p>', foot({ sum: 'A session of about ten minutes', href: 'typing-words.html' })), FUTURE),
+  future: shellSetup('adaptive', panel('Adaptive', 'Sessions built from your weak keys. The brain picks everything, so there is nothing to set up.', '<p class="setup__none">The next session works on <b class="gram">e</b>. Home starts it with one action, and this screen is only a second way in.</p>', foot({ sum: 'A session of about three minutes', href: 'typing-words.html' })), FUTURE),
 };
 const sessionSetup = page({
   title: 'Keymind: session setup',
@@ -368,7 +368,7 @@ const summarySaved = page({
       empty: ['This session could not be read', 'Your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
       error: ['This session could not be read', 'Your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
     })}
-    <div class="row"><a class="btn btn--primary" href="${s.from === 'stats' ? 'statistics.html' : 'home-stats.html'}" autofocus>${s.from === 'stats' ? 'Back to statistics' : 'Back to home'}</a></div>`, { nav: ['home', 'stats', 'settings'], gam: false }))).join('\n'),
+    <div class="row"><a class="btn btn--primary" href="${s.from === 'stats' ? 'statistics.html' : 'home-stats.html'}" autofocus>${s.from === 'stats' ? 'Back to statistics' : 'Back to home'}</a></div>`, { nav: ['home', 'stats', 'brain', 'settings'], gam: false }))).join('\n'),
 });
 
 export const sessionPages = {

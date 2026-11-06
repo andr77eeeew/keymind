@@ -240,7 +240,7 @@ export function shell(active, content, { nav = NAV.map(([id]) => id), gam = true
   return `<div class="shell">
 <header class="top">
   <a class="wordmark" href="home.html" aria-label="Keymind home">Keymind</a>
-  <nav class="nav" aria-label="Main">${NAV.filter(([id]) => nav.includes(id)).map(([id, page, label]) => [id, id === 'stats' && nav.includes('brain') ? 'statistics-later.html' : page, label]).map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
+  <nav class="nav" aria-label="Main">${NAV.filter(([id]) => nav.includes(id)).map(([id, page, label]) => [id, nav.includes('progress') && (id === 'stats' || id === 'brain') ? page.replace('.html', '-later.html') : page, label]).map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
   ${gam ? `<div class="top__right gam">
     <a class="top__stat" href="achievements.html"><span>Level</span> <b><span data-show="full loading error">14</span><span data-show="empty">1</span></b></a>
     <a class="top__stat" href="quests.html"><span>Streak</span> <b><span data-show="full loading error">23</span><span data-show="empty">0</span></b></a>

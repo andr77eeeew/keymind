@@ -56,9 +56,9 @@ function walk(start, end, noise, s, dec = 0) {
 }
 
 const SESSIONS = [
-  ['Today, 12:04', 'Adaptive', '10:02', 58, '97%', 'ea −24 ms'],
+  ['Today, 12:04', 'Adaptive', '03:06', 58, '97%', 'e −24 ms'],
   ['Yesterday, 18:40', 'Code', '14:20', 41, '94%', '{ −31 ms'],
-  ['Yesterday, 12:01', 'Adaptive', '10:00', 56, '96%', 'ss −9 ms'],
+  ['Yesterday, 12:01', 'Adaptive', '03:00', 56, '96%', 's −9 ms'],
   ['Nov 2, 20:15', 'Music', '03:48', 52, '93%', 'none'],
   ['Nov 2, 12:10', 'Words', '05:00', 61, '98%', 'none'],
 ];
@@ -73,15 +73,14 @@ const home = page({
   body: shell('home', `<div class="grid">
   <section class="sheet next s8 cleanwide">
     <div class="next__h">
-      <h1><span data-show="full">Next session works on ${gram('ea')} and ${gram('ss')}</span><span data-show="empty">Your first session</span><span data-show="loading error">Your next session</span></h1>
+      <h1><span data-show="full">Next session works on ${gram('e')}</span><span data-show="empty">Your first session</span><span data-show="loading error">Your next session</span></h1>
       <a class="link" href="brain.html">Why this session</a>
     </div>
     ${region({
       full: `<div class="map">
         ${relief({ seedValue: 7 })}
-        ${keyboard({ targets: ['KeyE', 'KeyA', 'KeyS'], cls: 'kbd--map' })}
-        ${mapPin(4, 1.5, '<b>ea</b> 188 ms')}
-        ${mapPin(2.75, 2.5, '<b>ss</b> 196 ms')}
+        ${keyboard({ targets: ['KeyE'], cls: 'kbd--map' })}
+        ${mapPin(3.5, 1.5, '<b>e</b> 412 ms')}
       </div>`,
       loading: '<div class="sk"><i style="--w:100%;height:190px"></i></div>',
       empty: ['No relief yet', 'A one-minute test draws your first map.', '<a class="btn" href="onboarding-test.html">Take the starting test</a>'],
@@ -132,37 +131,34 @@ const home = page({
 });
 
 // ---- Session summary
-const beforeWeak = [['KeyE', 1], ['KeyS', 0.85], ['KeyA', 0.55], ['KeyP', 0.85], ['Semicolon', 0.72], ['KeyX', 0.45], ['Digit6', 0.45], ['Slash', 0.38], ['BracketLeft', 0.42]];
-const afterWeak = [['KeyE', 0.7], ['KeyS', 0.72], ['KeyA', 0.42], ['KeyP', 0.85], ['Semicolon', 0.72], ['KeyX', 0.45], ['Digit6', 0.45], ['Slash', 0.38], ['BracketLeft', 0.42]];
 const summary = page({
   title: 'Session summary',
-  description: 'What changed on the targeted transitions, then the speed, accuracy, XP, goals and a tip.',
+  description: 'What the session did to its focus key and the pairs into it, then the speed, accuracy, XP, goals and a tip.',
   gam: true,
   data: true,
   body: shell('home', `<div class="levelup gam" role="status"><b>Level 15</b><a class="btn btn--sm" href="achievements.html">See what opened</a></div>
-<div class="page-head"><h1>You moved ${gram('ea')} by 24 ms</h1><p>Adaptive session, today at 12:04</p></div>
+<div class="page-head"><h1>You moved ${gram('e')} by 24 ms</h1><p>Adaptive session, today at 12:04</p></div>
 <div class="grid">
   <div class="s7 stack" style="gap:var(--space-lg)">
-    ${sec('Targeted transitions', `<table class="tbl"><thead><tr><th>Transition</th><th class="n">Before</th><th class="n">After</th><th class="n">Change</th><th class="n">Errors</th></tr></thead><tbody>
-      <tr><td>${gram('ea')}</td><td class="n">212 ms</td><td class="n">188 ms</td><td class="n"><b class="delta">−24 ms</b></td><td class="n">6.1% to 3.8%</td></tr>
-      <tr><td>${gram('ss')}</td><td class="n">205 ms</td><td class="n">196 ms</td><td class="n"><b class="delta">−9 ms</b></td><td class="n">5.4% to 5.1%</td></tr>
-    </tbody></table>`)}
-    ${sec('Your relief', `<div class="ba">
-      <figure><figcaption>Before</figcaption><div class="map">${relief({ weak: beforeWeak })}${keyboard({ targets: ['KeyE', 'KeyA', 'KeyS'] })}</div></figure>
-      <figure><figcaption>After</figcaption><div class="map">${relief({ weak: afterWeak })}${keyboard({ targets: ['KeyE', 'KeyA', 'KeyS'] })}</div></figure>
-    </div>`)}
+    ${sec('Targets', `<table class="tbl"><thead><tr><th>Target</th><th class="n">Before</th><th class="n">This session</th><th class="n">Change</th><th class="n">Errors</th></tr></thead><tbody>
+      <tr><td>${gram('e')}</td><td class="n">412 ms</td><td class="n">388 ms</td><td class="n"><b class="delta">−24 ms</b></td><td class="n">2.1%</td></tr>
+      <tr><td>${gram('re')}</td><td class="n">398 ms</td><td class="n">371 ms</td><td class="n"><b class="delta">−27 ms</b></td><td class="n">1.6%</td></tr>
+      <tr><td>${gram('he')}</td><td class="n">376 ms</td><td class="n">380 ms</td><td class="n">+4 ms</td><td class="n">2.9%</td></tr>
+      <tr><td>${gram('de')}</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </tbody></table>
+    <p class="sec__note sec__note--after">Before is the brain's estimate at the start. A dash means too few samples to say.</p>`)}
     ${sec('Tip', `<p style="font-size:var(--text-sm)">Your left ring finger is 22 ms slower than your left index. Try the S and X drill.</p><p class="muted" style="font-size:var(--text-xs)">Based on 412 presses across your last 5 sessions.</p>`, '<a class="link" href="settings.html#progress">Tips settings</a>')}
   </div>
   <div class="s5 stack" style="gap:var(--space-lg)">
     ${sec('Session', `<div class="figures">
       <div class="figure"><b>58</b><span>WPM</span></div><div class="figure"><b>97%</b><span>Accuracy</span></div>
-      <div class="figure"><b>72%</b><span>Rhythm evenness</span></div><div class="figure"><b>10:02</b><span>Time</span></div>
+      <div class="figure"><b>72%</b><span>Rhythm evenness</span></div><div class="figure"><b>03:06</b><span>Time</span></div>
     </div>`)}
     ${sec('XP', `<table class="tbl"><tbody>
-      <tr><td>10 min of practice</td><td class="n">100</td></tr>
+      <tr><td>3 min of practice</td><td class="n">30</td></tr>
       <tr><td>Accuracy 97%</td><td class="n">× 0.97</td></tr>
-      <tr><td>Gain on weak transitions</td><td class="n">+31</td></tr>
-      <tr><td><b>Earned</b></td><td class="n"><b>128 XP</b></td></tr>
+      <tr><td>Gain on the focus key</td><td class="n">+12</td></tr>
+      <tr><td><b>Earned</b></td><td class="n"><b>41 XP</b></td></tr>
     </tbody></table>`, '', 'gam')}
     ${sec('Errors', `<div class="bars">
       <div><span>Substitution</span><i class="bar-h" style="--v:.72"></i><b>13</b></div>
@@ -214,7 +210,7 @@ function matrix(focus) {
     cells.slice(row * 26, row * 26 + 26).forEach((c) => {
       if (!c.ms) { out.push(`<i data-s="x" data-tip="${c.g}: too few samples"></i>`); return; }
       const st = msStep(c.ms, median); const e = errStep(c.err);
-      out.push(`<i data-h="${st}" data-s="${st}" data-e="${e}"${focus && (c.g === 'ea' || c.g === 'ss') ? ' class="is-focus-cell"' : ''} data-tip="${c.g}: ${c.ms} ms, ${c.err}% errors"></i>`);
+      out.push(`<i data-h="${st}" data-s="${st}" data-e="${e}"${focus && ['re', 'he', 'de'].includes(c.g) ? ' class="is-focus-cell"' : ''} data-tip="${c.g}: ${c.ms} ms, ${c.err}% errors"></i>`);
     });
   });
   return `<div class="mx-wrap"><div class="mx" id="mx" data-metric="speed" role="img" aria-label="Transition matrix. The first letter is the row, the second is the column. The table beside it lists the slowest transitions.">${out.join('')}</div></div>`;
@@ -227,13 +223,13 @@ const slowestTable = (one) => `<table class="tbl tbl--rows"><thead><tr><th>Trans
 const SAVED = (v) => `summary-saved.html${v ? `?variant=${v}` : ''}`;
 const STATS_RECENT = [
   ['Today, 01:11', 'Words', '00:45', 67, '97%', '', 'none'],
-  ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'ea −24 ms'],
+  ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'e −24 ms'],
   ['Yesterday, 21:30', 'Texts', '04:02', 52, '99%', 'file', 'none'],
   ['Yesterday, 18:20', 'Zen', '04:12', 49, 'None', '', 'none'],
   ['Nov 2, 20:15', 'Words', '00:38', 47, '94%', 'closed', 'none'],
   ['Nov 2, 12:10', 'Texts', '00:46', 52, '98%', '', 'none'],
 ];
-const ONE_DAY_RECENT = [['Today, 01:11', 'Words', '00:45', 67, '97%', '', 'none'], ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'ea −24 ms'], ['Today, 00:40', 'Texts', '04:02', 52, '99%', 'file', 'none'], ['Today, 00:31', 'Words', '00:38', 47, '94%', 'closed', 'none']];
+const ONE_DAY_RECENT = [['Today, 01:11', 'Words', '00:45', 67, '97%', '', 'none'], ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'e −24 ms'], ['Today, 00:40', 'Texts', '04:02', 52, '99%', 'file', 'none'], ['Today, 00:31', 'Words', '00:38', 47, '94%', 'closed', 'none']];
 const recentStats = (gain, rows = STATS_RECENT) => `<table class="tbl tbl--rows"><thead><tr><th>When</th><th>Mode</th><th class="n">Time</th><th class="n">WPM</th><th class="n">Accuracy</th>${gain ? '<th>Target gain</th>' : ''}</tr></thead><tbody>${rows.map(([a, b, c, d, e, v, f]) => `<tr><td><a class="link" href="${SAVED(v)}">${a}</a></td><td>${b}</td><td class="n">${c}</td><td class="n">${d}</td><td class="n">${e}</td>${gain ? `<td>${f}</td>` : ''}</tr>`).join('')}</tbody></table>`;
 const record = (label, value, date, v) => `<tr><td><a class="link" href="${SAVED(v)}">${label}</a></td><td class="n">${value}</td><td>${date}</td></tr>`;
 
@@ -294,7 +290,7 @@ const statistics = page({
   data: true,
   variants: STATS,
   note: 'Speed is coloured against your own median key, errors in absolute percent. Today is Nov 4 here.',
-  body: shell('stats', `${statsHead}${statsRegion(false)}`, { nav: ['home', 'stats', 'settings'], gam: false }),
+  body: shell('stats', `${statsHead}${statsRegion(false)}`, { nav: ['home', 'stats', 'brain', 'settings'], gam: false }),
 });
 const statisticsLater = page({
   title: 'Keymind: statistics, later stages',
@@ -305,19 +301,15 @@ const statisticsLater = page({
 });
 
 // ---- Brain
+// `brain` is what the app has at stage 3: the heuristic picks one key (ADR-0010). `brain-later` keeps the
+// ML comparison of stage 8 in place of the "Still on the heuristic" note.
 const weeks = ['Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2'];
-const brain = page({
-  title: 'Keymind: brain',
-  description: 'What the adaptive engine is focused on and why, and how ML compares with the heuristic.',
-  data: true,
-  gam: true,
-  body: shell('brain', `<div class="page-head"><h1>Brain</h1><a class="link" href="settings.html#brain">Brain settings</a></div>
-${region({
-    full: `<div class="grid">
-  <section class="sheet s7 stack">
-    <div class="next__h"><h2>In focus: ${gram('ea')} ${gram('ss')}</h2><span class="tag tag--target">Chosen by ML, A/B session</span></div>
-    <p style="font-size:var(--text-sm)">These two are still slow, and everyday English leans on them more than on anything slower. Faster here saves the most time.</p>
-    <div>
+const LETTER_ROWS = [['e', '412 ms', '2.4%', 'Too slow'], ['t', '251 ms', '1.8%', 'Within the bar'], ['a', '298 ms', '2.1%', 'Within the bar'], ['o', '322 ms', '5.4%', 'Too many errors'], ['i', '276 ms', '2.9%', 'Within the bar'], ['n', '305 ms', '3.1%', 'Within the bar'], ['s', '361 ms', '3.4%', 'Too slow'], ['r', '287 ms', '2.6%', 'Within the bar']];
+const lettersTable = `<p class="sec__note">5 of 8 open letters keep within the bar of 343 ms and 5% errors. ${gram('h')} opens once all of them do.</p>
+    <table class="tbl tbl--rows"><thead><tr><th>Letter</th><th class="n">Time</th><th class="n">Errors</th><th>Against the bar</th></tr></thead><tbody>
+      ${LETTER_ROWS.map(([g, t, e, s]) => `<tr><td>${gram(g)}</td><td class="n">${t}</td><td class="n">${e}</td><td><span class="tag${s === 'Within the bar' ? ' tag--strong' : ''}">${s}</span></td></tr>`).join('')}
+    </tbody></table>`;
+const pickBars = `<div>
       <h3 style="margin-bottom:var(--space-xs)">What drove the pick</h3>
       <div class="bars">
         <div><span>Finger pair</span><i class="bar-h" style="--v:.34"></i><b>34%</b></div>
@@ -327,22 +319,8 @@ ${region({
         <div><span>Position in word</span><i class="bar-h" style="--v:.06"></i><b>6%</b></div>
         <div><span>Shift needed</span><i class="bar-h" style="--v:.04"></i><b>4%</b></div>
       </div>
-    </div>
-  </section>
-  <div class="s5 stack" style="gap:var(--space-lg)">
-    ${sec('Recipe for the next session', `<table class="tbl"><tbody>
-      <tr><td>New material</td><td class="n">30%</td></tr>
-      <tr><td>Review</td><td class="n">70%</td></tr>
-      <tr><td>Length</td><td class="n">10 min</td></tr>
-      <tr><td>Difficulty</td><td class="n">Medium</td></tr>
-    </tbody></table>`)}
-    ${sec('Due for review', `<ul class="rows">
-      <li style="grid-template-columns:auto minmax(0,1fr) auto">${gram('{')}<span>then Enter</span><span class="muted">Today</span></li>
-      <li style="grid-template-columns:auto minmax(0,1fr) auto">${gram('p;')}<span>Same finger</span><span class="muted">Tomorrow</span></li>
-      <li style="grid-template-columns:auto minmax(0,1fr) auto">${gram('ex')}<span>Row change</span><span class="muted">Nov 7</span></li>
-    </ul>`)}
-  </div>
-  ${sec('ML against the heuristic', `<p class="tag tag--strong" style="margin-block:var(--space-xs) var(--space-sm)">Not conclusive yet</p>
+    </div>`;
+const mlSections = `${sec('ML against the heuristic', `<p class="tag tag--strong" style="margin-block:var(--space-xs) var(--space-sm)">Not conclusive yet</p>
     <p style="font-size:var(--text-sm);margin-bottom:var(--space-md)">ML leads by 5 ms, with an interval of 6 ms each way. That still includes zero, so ML cannot be called better.</p>
     <table class="tbl"><thead><tr><th>Sessions alternate</th><th class="n">Sessions</th><th class="n">Gain on targets</th><th class="n">Session WPM</th></tr></thead><tbody>
       <tr><td>ML</td><td class="n">42</td><td class="n">−14 ms ± 5</td><td class="n">55</td></tr>
@@ -363,13 +341,58 @@ ${region({
   ${sec('Experiments', `<table class="tbl tbl--rows"><thead><tr><th>Experiment</th><th>Change</th><th>Status</th><th>Result</th></tr></thead><tbody>
     <tr><td class="tnum">exp-004</td><td>Add time since last practice</td><td><span class="tag tag--strong">Running</span></td><td>Waiting for sessions</td></tr>
     <tr><td class="tnum">exp-003</td><td>Longer forgetting window</td><td><span class="tag">Done</span></td><td>No clear gain, rolled back</td></tr>
-  </tbody></table>`, '', 's12')}
-</div>`,
+  </tbody></table>`, '', 's12')}`;
+const reviewRow = (g, when) => `<li style="grid-template-columns:auto minmax(0,1fr) auto">${gram(g)}<span>Last typed</span><span class="muted">${when}</span></li>`;
+// `fresh` is the first launch: nothing is typed, so the brain starts with the most frequent letter.
+function brainGrid({ later = false, fresh = false } = {}) {
+  return `<div class="grid">
+  <section class="sheet s7 stack">
+    <div class="next__h"><h2>In focus: ${gram('e')}</h2><span class="tag tag--target">${later ? 'Chosen by ML, A/B session' : 'Chosen by the heuristic'}</span></div>
+    ${fresh
+      ? `<p>${gram('e')} has too few recent samples to judge, so it comes first.</p><p class="sec__note">Nothing is typed yet, so the brain starts with the most frequent letter. Your first session gives it data.</p>`
+      : `<p>${gram('e')} takes about 412 ms, and the bar is 343 ms.</p>
+    <div><h3 style="margin-bottom:var(--space-xs)">Transitions into it</h3><p class="grams">${gram('re')} ${gram('he')} ${gram('de')}</p></div>
+    ${later ? pickBars : ''}`}
+    <div class="row"><a class="btn btn--primary" href="typing-words.html">Start session</a></div>
+  </section>
+  <div class="s5 stack" style="gap:var(--space-lg)">
+    ${sec('Recipe for the next session', `<table class="tbl"><tbody>
+      <tr><td>Words with ${gram('e')}</td><td class="n">60%</td></tr>
+      <tr><td>${fresh ? 'Review, nothing is due' : 'Review'}</td><td class="n">${fresh ? '0%' : '10%'}</td></tr>
+      <tr><td>Any open letters</td><td class="n">${fresh ? '40%' : '30%'}</td></tr>
+      <tr><td>Length</td><td class="n">About 3 min</td></tr>
+    </tbody></table>`)}
+    ${sec('Due for review', fresh
+      ? '<div class="state state--empty"><p class="state__h">Nothing is due</p><p>A key or transition comes back here once you have learned it and not typed it for a while.</p></div>'
+      : `<ul class="rows">${reviewRow('st', 'Nov 1')}${reviewRow('n', 'Oct 30')}${reviewRow('ta', 'Oct 28')}</ul>`)}
+  </div>
+  ${sec('Open letters', fresh
+    ? `<p class="sec__note">0 of 6 open letters keep within the bar of 343 ms and 5% errors. ${gram('s')} opens once all of them do.</p>
+    <table class="tbl tbl--rows"><thead><tr><th>Letter</th><th class="n">Time</th><th class="n">Errors</th><th>Against the bar</th></tr></thead><tbody>
+      ${['e', 't', 'a', 'o', 'i', 'n'].map((g) => `<tr><td>${gram(g)}</td><td class="n">—</td><td class="n">—</td><td><span class="tag">Needs samples</span></td></tr>`).join('')}
+    </tbody></table>`
+    : lettersTable, '', 's12')}
+  ${later ? mlSections : `<section class="sec s12"><div class="state state--empty"><p class="state__h">Still on the heuristic</p><p>For now simple rules pick each session: the weakest open key is in focus, and letters open by frequency. A learned model comes later, and it has to beat these rules before it takes over.</p></div></section>`}
+</div>`;
+}
+const brainPage = (later) => page({
+  title: later ? 'Keymind: brain, later stages' : 'Keymind: brain',
+  description: later
+    ? 'The brain once ML picks sessions: what drove the pick, and how ML compares with the heuristic.'
+    : 'What the heuristic works on next and why, the recipe, keys due for review and the open letters.',
+  data: true,
+  gam: later,
+  note: later ? '' : 'Empty is the first launch: the brain starts with the most frequent letter. Error keeps the way back to the journal.',
+  body: shell('brain', `<div class="page-head"><h1>Brain</h1><a class="link" href="settings.html#brain">Letter settings</a></div>
+${region({
+    full: brainGrid({ later }),
     rows: 6,
-    empty: ['Still on the heuristic', 'ML starts once there are enough sessions. Until then the weakest key is in focus and letters open by frequency.', '<a class="btn btn--primary" href="typing-words.html">Start session</a>'],
-    error: ['The model could not be trained', 'The heuristic picks sessions for now, and practice still counts.', '<button class="btn" type="button">Retrain</button>'],
-  })}`),
+    empty: brainGrid({ later, fresh: true }),
+    error: ['The brain could not read your statistics', 'Adaptive still starts from the most frequent letters, and your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
+  })}`, later ? {} : { nav: ['home', 'stats', 'brain', 'settings'], gam: false }),
 });
+const brain = brainPage(false);
+const brainLater = brainPage(true);
 
-export const dataPages = { home, 'session-summary': summary, statistics, 'statistics-later': statisticsLater, brain };
+export const dataPages = { home, 'session-summary': summary, statistics, 'statistics-later': statisticsLater, brain, 'brain-later': brainLater };
 export { sessionTable };
