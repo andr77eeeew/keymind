@@ -11,8 +11,9 @@ use tauri::ipc::{InvokeBody, Request};
 use time::OffsetDateTime;
 
 use crate::brain::heuristic::{Choice, Knowledge, choose};
-use crate::brain::model::day_number;
+use crate::brain::model::{PRIOR_SAMPLES, day_number};
 use crate::brain::session::{AdaptiveSession, next_session};
+use crate::brain::{BAR_ERRORS, BAR_MS};
 use crate::generator::{self, ContentError, ContentStore, Passage, adaptive};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
 use crate::journal::{Event, EventBody, JournalService, ServiceError};
@@ -245,6 +246,14 @@ pub struct Shares {
     pub general: f64,
 }
 
+/// The bar a key has to keep within, so the screen does not repeat the numbers.
+#[derive(Serialize)]
+pub struct Bar {
+    pub ms: f64,
+    pub errors: f64,
+    pub samples: f64,
+}
+
 /// What the next adaptive session would work on, without its text, for Home and the Brain screen.
 #[derive(Serialize)]
 pub struct BrainView {
@@ -252,6 +261,7 @@ pub struct BrainView {
     pub choice: Choice,
     pub shares: Shares,
     pub minutes: f64,
+    pub bar: Bar,
     /// False when the statistics could not be read and the brain started from nothing.
     pub informed: bool,
     /// True once any letter has data.
@@ -282,6 +292,11 @@ pub async fn brain_next(
                 general: 1.0 - adaptive::FOCUS_SHARE - review,
             },
             minutes: adaptive::MINUTES,
+            bar: Bar {
+                ms: BAR_MS,
+                errors: BAR_ERRORS,
+                samples: PRIOR_SAMPLES,
+            },
             informed,
             known: !knowledge.keys.is_empty(),
             choice,

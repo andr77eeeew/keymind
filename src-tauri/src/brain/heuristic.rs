@@ -44,6 +44,19 @@ pub struct Target {
     pub estimate: Estimate,
     /// The last day it was practised, `YYYY-MM-DD`, or nothing when it never was.
     pub last_date: Option<String>,
+    /// Keeps within the bar now, the rule that opens letters.
+    pub meets_bar: bool,
+}
+
+impl Target {
+    fn new(gram: String, estimate: Estimate, trace: Option<&Trace>) -> Self {
+        Self {
+            gram,
+            meets_bar: estimate.meets_bar(),
+            last_date: trace.and_then(|t| date_text(t.last_day)),
+            estimate,
+        }
+    }
 }
 
 /// The heuristic's choice for the next session.
@@ -95,17 +108,9 @@ pub fn choose(order: &[char], knowledge: &Knowledge, today: i32, gradual: bool) 
         };
         estimate(knowledge.pairs.get(&(a, b)), prior, today)
     };
-    let last = |trace: Option<&Trace>| trace.and_then(|t| date_text(t.last_day));
-    let key_target = |c: char| Target {
-        gram: c.to_string(),
-        estimate: key(c),
-        last_date: last(knowledge.keys.get(&c)),
-    };
-    let pair_target = |a: char, b: char| Target {
-        gram: format!("{a}{b}"),
-        estimate: pair(a, b),
-        last_date: last(knowledge.pairs.get(&(a, b))),
-    };
+    let key_target = |c: char| Target::new(c.to_string(), key(c), knowledge.keys.get(&c));
+    let pair_target =
+        |a: char, b: char| Target::new(format!("{a}{b}"), pair(a, b), knowledge.pairs.get(&(a, b)));
 
     // The weakest open key. On a tie the more frequent letter wins, as it comes first.
     let mut focus = letters.open.first().copied().unwrap_or('e');
@@ -318,8 +323,8 @@ mod tests {
             choice.open_keys[0].last_date.as_deref(),
             date_text(0).as_deref()
         );
-        assert!(choice.open_keys[0].estimate.mastered);
-        assert!(!choice.open_keys[1].estimate.mastered);
+        assert!(choice.open_keys[0].meets_bar);
+        assert!(!choice.open_keys[1].meets_bar);
         assert_eq!(choice.open_keys[2].last_date, None);
     }
 
