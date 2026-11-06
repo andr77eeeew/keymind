@@ -17,6 +17,7 @@ export type Screen =
   | "summary"
   | "statistics"
   | "past"
+  | "brain"
   | "settings";
 
 export const useAppStore = defineStore("app", () => {

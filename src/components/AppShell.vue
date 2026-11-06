@@ -3,10 +3,11 @@ import { useAppStore, type Screen } from "../stores/app";
 
 const app = useAppStore();
 
-// Later stages add Brain and Progress here, as the mockups show.
+// A later stage adds Progress here, as the mockups show.
 const items: { screen: Screen; label: string }[] = [
   { screen: "home", label: "Home" },
   { screen: "statistics", label: "Statistics" },
+  { screen: "brain", label: "Brain" },
   { screen: "settings", label: "Settings" },
 ];
 
