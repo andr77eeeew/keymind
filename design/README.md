@@ -331,6 +331,24 @@ rhythm evenness and time in one row. There is no XP on it.
 
 `session-summary.html` stays the summary for an adaptive session.
 
+## The adaptive mode
+
+At stage 3 the heuristic picks every session (ADR-0010), so the mockups show one key in focus, not a
+pair of transitions.
+
+- **One key.** Home says "Next session works on e", the typing bar "Focus on e", Setup "The next
+  session works on e". The text marks no targets, as in the app.
+- **Brain** (`brain`): "In focus: e" with "Chosen by the heuristic", the reason with its number, the
+  transitions into the key, the recipe, keys due for review, and Open letters: each letter's time,
+  errors and where it stands against the bar, with the letter that opens next. The note "Still on the
+  heuristic" closes the page. Empty is the first launch, with every letter at Needs samples.
+- **Length:** about three minutes, in Setup and in the recipe.
+- **Summary** (`session-summary`): the heading follows the focus key, Targets lists the key and the pairs
+  into it. There is no relief before and after.
+- **Starting test result** (`onboarding-result`): the map and the figures, no daily goal and no reminder.
+- **Later** (`brain-later`): the ML page of stage 8 keeps what drove the pick, ML against the
+  heuristic, the weekly chart and the experiments.
+
 ### A saved summary
 
 `summary-saved` opens from a row of Recent sessions, on Statistics or Home, and from a record. It is
