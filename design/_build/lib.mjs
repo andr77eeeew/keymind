@@ -26,8 +26,12 @@ ROWS.forEach((r, y) => { let x = 0; r.forEach((key) => { const u = key.u || 1; k
 // Sample skill data. E, S, P, ; and X are the weak keys on every screen.
 export const keyMs = { KeyA: 171, KeyB: 158, KeyC: 150, KeyD: 132, KeyE: 212, KeyF: 118, KeyG: 141, KeyH: 124, KeyI: 138, KeyJ: 112, KeyK: 121, KeyL: 133, KeyM: 149, KeyN: 128, KeyO: 143, KeyP: 205, KeyQ: 189, KeyR: 147, KeyS: 188, KeyT: 129, KeyU: 136, KeyV: 162, KeyW: 166, KeyX: 171, KeyY: 158, KeyZ: 184, Semicolon: 240, Comma: 152, Period: 148, Slash: 196, Quote: 201, Space: 96, BracketLeft: 262, BracketRight: 248, Minus: 214, Equal: 226, Digit1: 231, Digit2: 219, Digit3: 208, Digit4: 214, Digit5: 243, Digit6: 251, Digit7: 229, Digit8: 216, Digit9: 224, Digit0: 233, Backquote: 281, Backslash: 257, Enter: 164, Tab: 193 };
 export const keyErr = { KeyE: 6.1, KeyS: 5.4, KeyP: 4.2, Semicolon: 7.8, KeyX: 3.9, KeyA: 2.8, KeyZ: 3.6, KeyQ: 3.1, KeyB: 2.4, KeyV: 2.2, BracketLeft: 8.4, BracketRight: 7.1, Digit5: 6.2, Digit6: 6.8, Backquote: 9.2, Quote: 4.4 };
-export const msStep = (v) => (v < 125 ? 0 : v < 145 ? 1 : v < 165 ? 2 : v < 190 ? 3 : v < 220 ? 4 : 5);
-export const errStep = (v = 1.2) => (v < 1.5 ? 0 : v < 2.5 ? 1 : v < 3.5 ? 2 : v < 4.5 ? 3 : v < 6.5 ? 4 : 5);
+// Speed is personal (ADR-0009): the step is the ratio to the person's own median key. Errors are absolute.
+const stepOf = (v, limits) => { const i = limits.findIndex((limit) => v < limit); return i === -1 ? limits.length : i; };
+export const medianOf = (list) => { const s = [...list].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+export const msStep = (v, median) => stepOf(v / median, [0.85, 1, 1.15, 1.3, 1.5]);
+export const errStep = (v = 1.2) => stepOf(v, [1.5, 2.5, 3.5, 4.5, 6.5]);
+export const keyMedian = medianOf(Object.values(keyMs));
 const fingerMs = {};
 const fingerErr = {};
 for (const [f, codes] of Object.entries(F)) {
@@ -58,7 +62,7 @@ export function keyboard({ next = null, targets = ['KeyE', 'KeyA', 'KeyS'], heat
     if (heat && keyMs[x.code]) {
       const name = x.code === 'Space' ? 'Space' : label;
       const err = (keyErr[x.code] ?? 1.2).toFixed(1);
-      a.push(`data-h="${msStep(keyMs[x.code])}" data-hs="${msStep(keyMs[x.code])}" data-he="${errStep(keyErr[x.code])}" data-hf="${msStep(fingerMs[fingerOf[x.code]])}" data-hfe="${errStep(fingerErr[fingerOf[x.code]])}" data-tip="${esc(name)}: ${keyMs[x.code]} ms, ${err}% errors"`);
+      a.push(`data-h="${msStep(keyMs[x.code], keyMedian)}" data-hs="${msStep(keyMs[x.code], keyMedian)}" data-he="${errStep(keyErr[x.code])}" data-hf="${msStep(fingerMs[fingerOf[x.code]], keyMedian)}" data-hfe="${errStep(fingerErr[fingerOf[x.code]])}" data-tip="${esc(name)}: ${keyMs[x.code]} ms, ${err}% errors"`);
       extra = `<small class="key__v key__v--s">${keyMs[x.code]}</small><small class="key__v key__v--e">${err}</small>`;
     }
     return `<span class="${c.join(' ')}" ${a.join(' ')}><span class="key__l">${esc(label)}</span>${extra}</span>`;
@@ -236,7 +240,7 @@ export function shell(active, content, { nav = NAV.map(([id]) => id), gam = true
   return `<div class="shell">
 <header class="top">
   <a class="wordmark" href="home.html" aria-label="Keymind home">Keymind</a>
-  <nav class="nav" aria-label="Main">${NAV.filter(([id]) => nav.includes(id)).map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
+  <nav class="nav" aria-label="Main">${NAV.filter(([id]) => nav.includes(id)).map(([id, page, label]) => [id, id === 'stats' && nav.includes('brain') ? 'statistics-later.html' : page, label]).map(([id, href, label]) => `<a class="nav__item${id === 'progress' ? ' gam' : ''}" href="${href}"${id === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}</nav>
   ${gam ? `<div class="top__right gam">
     <a class="top__stat" href="achievements.html"><span>Level</span> <b><span data-show="full loading error">14</span><span data-show="empty">1</span></b></a>
     <a class="top__stat" href="quests.html"><span>Streak</span> <b><span data-show="full loading error">23</span><span data-show="empty">0</span></b></a>

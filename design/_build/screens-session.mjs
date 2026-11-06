@@ -72,11 +72,11 @@ const homeNow = page({
 });
 
 // Stage 2 onward: Statistics joins the menu, and the sheet gains the map. The start stays first.
-const STAGE2 = [['many', 'Enough sessions'], ['few', 'Three sessions'], ['paste', 'Last setup cannot repeat']];
+const STAGE2 = [['many', 'Ten sessions or more'], ['few', 'Fewer than ten sessions'], ['paste', 'Last setup cannot repeat']];
 const v2 = variantsOf(STAGE2);
 const flatMap = (caption) => `<div class="map map--flat">${relief({ weak: [], seedValue: 7 })}${keyboard({ targets: [], cls: 'kbd--map' })}<p class="map__note">${caption}</p></div>`;
-const RECENT = [['Today, 12:04', 'Words', '00:27', 58, '97%'], ['Today, 11:58', 'Texts', '00:46', 52, '98%'], ['Yesterday, 18:40', 'Words', '01:00', 61, '96%'], ['Yesterday, 18:20', 'Zen', '04:12', 49, 'None']];
-const recentTable = (rows) => `<table class="tbl tbl--rows"><thead><tr><th>When</th><th>Mode</th><th class="n">Time</th><th class="n">WPM</th><th class="n">Accuracy</th></tr></thead><tbody>${rows.map(([a, b, c, d, e]) => `<tr><td><a class="link" href="summary-plain.html">${a}</a></td><td>${b}</td><td class="n">${c}</td><td class="n">${d}</td><td class="n">${e}</td></tr>`).join('')}</tbody></table>`;
+const RECENT = [['Today, 12:04', 'Words', '00:27', 58, '97%', 'home-words'], ['Today, 11:58', 'Texts', '00:46', 52, '98%', 'home'], ['Yesterday, 18:40', 'Words', '01:00', 61, '96%', 'home-words'], ['Yesterday, 18:20', 'Zen', '04:12', 49, 'None', 'home-words']];
+const recentTable = (rows) => `<table class="tbl tbl--rows"><thead><tr><th>When</th><th>Mode</th><th class="n">Time</th><th class="n">WPM</th><th class="n">Accuracy</th></tr></thead><tbody>${rows.map(([a, b, c, d, e, v]) => `<tr><td><a class="link" href="summary-saved.html?variant=${v}">${a}</a></td><td>${b}</td><td class="n">${c}</td><td class="n">${d}</td><td class="n">${e}</td></tr>`).join('')}</tbody></table>`;
 const pin = (x, y, text) => `<span class="pin" style="left:calc(50% + ${(x - 7.5).toFixed(2)} * (var(--key) + var(--key-gap)));top:calc(50% + ${(y - 3.5).toFixed(2)} * (var(--key) + var(--key-gap)))">${text}</span>`;
 const homeStats = page({
   title: 'Keymind: home with statistics',
@@ -341,6 +341,36 @@ const summaryPlain = page({
     <div class="row"><a class="btn btn--primary" href="${s.next}">${s.nextLabel}</a><a class="btn" href="session-setup.html">Change setup</a><a class="btn btn--quiet" href="home-now.html">Back to home</a></div>`)).join('\n')}`, { nav: ['home', 'settings'], gam: false }),
 });
 
+// ---- Saved summaries: the numbers from the sessions table, with no journal read (ADR-0009). The text,
+// the cursor and the book title are not in that row, so there is no reading progress, and a passage is
+// named in general words. The only way on is back to where it was opened from.
+const SAVED = [['words', 'From Statistics'], ['closed', 'The app closed during it'], ['file', 'Text from a file'], ['home', 'From Home, a passage'], ['home-words', 'From Home, words']];
+const vsv = variantsOf(SAVED);
+const CLOSED_NOTE = 'The app closed before this session ended. These figures cover what you typed.';
+const savedBody = {
+  words: { from: 'stats', h: 'Session complete', sub: 'Words, 50 words from the 1,000 most common. Today, 01:11.', fig: { lead: [['67', 'WPM'], ['97.2%', 'Accuracy']], rest: [['334', 'CPM'], ['84%', 'Rhythm evenness'], ['00:45', 'Time']] } },
+  closed: { from: 'stats', h: 'Session ended early', sub: 'Words, 60 seconds from the 1,000 most common. Nov 2, 20:15.', fig: { lead: [['47', 'WPM'], ['94.0%', 'Accuracy']], rest: [['236', 'CPM'], ['71%', 'Rhythm evenness'], ['00:38', 'Time']], note: `${CLOSED_NOTE} ${RHYTHM_NOTE}` } },
+  file: { from: 'stats', h: 'Session complete', sub: 'Walden, your file. Yesterday, 21:30.', fig: { lead: [['52', 'WPM'], ['99.1%', 'Accuracy']], rest: [['262', 'CPM'], ['87%', 'Rhythm evenness'], ['04:02', 'Time']] } },
+  home: { from: 'home', h: 'Session complete', sub: 'A passage from a public-domain book. Today, 11:58.', fig: { lead: [['52', 'WPM'], ['98.1%', 'Accuracy']], rest: [['262', 'CPM'], ['87%', 'Rhythm evenness'], ['00:46', 'Time']] } },
+  'home-words': { from: 'home', h: 'Session complete', sub: 'Words, 25 words from the 1,000 most common. Today, 12:04.', fig: { lead: [['58', 'WPM'], ['97.2%', 'Accuracy']], rest: [['291', 'CPM'], ['84%', 'Rhythm evenness'], ['00:27', 'Time']] } },
+};
+// The heading waits for the row, so a loading or unreadable session is only "Session".
+const summarySaved = page({
+  title: 'Keymind: saved session summary',
+  description: 'A past session opened from Recent sessions or a record: the saved figures, what the session was, when, and the way back.',
+  data: true,
+  variants: SAVED,
+  note: 'Empty cannot happen here: a row that is missing reads as could not be read.',
+  body: Object.entries(savedBody).map(([id, s]) => vsv(id, shell(s.from, `<div class="page-head page-head--stack"><h1><span data-show="full">${s.h}</span><span data-show="loading empty error">Session</span></h1><p data-show="full">${s.sub}</p></div>
+    ${region({
+      full: result(s.fig),
+      rows: 3,
+      empty: ['This session could not be read', 'Your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
+      error: ['This session could not be read', 'Your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
+    })}
+    <div class="row"><a class="btn btn--primary" href="${s.from === 'stats' ? 'statistics.html' : 'home-stats.html'}" autofocus>${s.from === 'stats' ? 'Back to statistics' : 'Back to home'}</a></div>`, { nav: ['home', 'stats', 'settings'], gam: false }))).join('\n'),
+});
+
 export const sessionPages = {
   'home-now': homeNow,
   'home-stats': homeStats,
@@ -351,4 +381,5 @@ export const sessionPages = {
   'typing-zen': zen,
   'typing-messages': messages,
   'summary-plain': summaryPlain,
+  'summary-saved': summarySaved,
 };
