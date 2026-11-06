@@ -87,11 +87,25 @@ export interface Records {
   best_accuracy: StatsRecord | null;
 }
 
+/** Mirrors `queries::SessionTarget`: what an adaptive session measured on one target. */
+export interface SessionTarget {
+  gram: string;
+  /** `null` when the brain knew too little about it at the start. */
+  before_ms: number | null;
+  presses: number;
+  samples: number;
+  /** Mean time in this session, from any number of samples. */
+  ms: number | null;
+  errors: number;
+}
+
 /** Mirrors `queries::SessionRow`. It has every field of a `SessionSummary`. */
 export interface SessionRow extends SessionSummary {
   ts: string;
   mode: string;
   source: TextSource | null;
+  /** Adaptive sessions only, the focus key first. */
+  targets: SessionTarget[];
 }
 
 export interface Skipped {
@@ -142,16 +156,42 @@ export interface Estimate {
 export interface BrainTarget {
   gram: string;
   estimate: Estimate;
+  /** The last day it was practised, `YYYY-MM-DD`. */
+  last_date: string | null;
+  /** Keeps within the bar now, the rule that opens letters. */
+  meets_bar: boolean;
 }
+
+export type BrainReason = "new" | "slow" | "errors";
 
 /** Mirrors `brain::heuristic::Choice`. */
 export interface BrainChoice {
   letters: { open: string[]; next: string | null; new: string[] };
   focus: string;
-  reason: "new" | "slow" | "errors";
+  reason: BrainReason;
   targets: BrainTarget[];
   review: BrainTarget[];
+  /** Every open letter, in the order it opened. */
+  open_keys: BrainTarget[];
   chars_per_minute: number;
+}
+
+/** The bar a key has to keep within: time in ms, errors from 0 to 1, and samples. */
+export interface BrainBar {
+  ms: number;
+  errors: number;
+  samples: number;
+}
+
+/** Mirrors `commands::BrainView`. Shares are from 0 to 1. */
+export interface BrainView extends BrainChoice {
+  shares: { focus: number; review: number; general: number };
+  minutes: number;
+  bar: BrainBar;
+  /** False when the statistics could not be read and the brain started from nothing. */
+  informed: boolean;
+  /** True once any letter has data. */
+  known: boolean;
 }
 
 /** Mirrors `commands::AdaptivePlan`. */
@@ -171,7 +211,7 @@ export function nextAdaptive(
   return invoke("next_adaptive", { seed, today });
 }
 
-export function brainNext(today: string): Promise<BrainChoice> {
+export function brainNext(today: string): Promise<BrainView> {
   return invoke("brain_next", { today });
 }
 

@@ -25,6 +25,9 @@ export interface Recipe {
   focus: string;
   review?: string[];
   words: number;
+  /** The focus key first, then transitions into it. Early recipes have none. */
+  targets?: string[];
+  /** Estimates at the start, only for targets with enough samples to know. */
   before: Record<string, number>;
 }
 
