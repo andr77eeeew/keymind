@@ -50,6 +50,8 @@ a1 | e | 600.0 | 7 | 7 | 1400000 | 0
 a2 | a | 600.0 | 7 | 6 | 2700000 | 1
 a2 | ea | 420.0 | 7 | 6 | 2700000 | 1
 a2 | ta | NULL | 0 | 0 | 0 | 0
+# session_keys
+sid | layout | code | presses | samples | sum_us | errors
 # daily_stats
 date | sessions | duration_ms | typed_ms | correct | judged | judged_correct | rhythm_weighted | rhythm_chars
 2026-11-05 | 1 | 5200.0 | 5200.0 | 27 | 27 | 27 | 2700.0 | 27

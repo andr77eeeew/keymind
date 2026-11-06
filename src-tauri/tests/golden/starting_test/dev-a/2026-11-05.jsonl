@@ -1,0 +1,16 @@
+{"v":1,"type":"session_started","ts":"2026-11-05T10:00:00+02:00","mode":"test","layout":"en-qwerty","source":{"kind":"test","passages":["p1","p2"],"seconds":60},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0","sid":"t1","seq":1}
+{"v":1,"type":"keystroke","t":0.0,"kind":"modifier","code":"ShiftLeft","sid":"t1","seq":2}
+{"v":1,"type":"keystroke","t":10.0,"kind":"char","code":"KeyT","key":"T","expected":"T","correct":true,"pos":0,"sid":"t1","seq":3}
+{"v":1,"type":"keystroke","t":170.0,"kind":"char","code":"KeyH","key":"h","expected":"h","correct":true,"pos":1,"sid":"t1","seq":4}
+{"v":1,"type":"keystroke","t":320.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":2,"sid":"t1","seq":5}
+{"v":1,"type":"keystroke","t":460.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":3,"sid":"t1","seq":6}
+{"v":1,"type":"keystroke","t":600.0,"kind":"char","code":"KeyC","key":"c","expected":"c","correct":true,"pos":4,"sid":"t1","seq":7}
+{"v":1,"type":"keystroke","t":800.0,"kind":"char","code":"KeyS","key":"s","expected":"a","correct":false,"pos":5,"sid":"t1","seq":8}
+{"v":1,"type":"keystroke","t":1000.0,"kind":"backspace","code":"Backspace","sid":"t1","seq":9}
+{"v":1,"type":"keystroke","t":1200.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":5,"sid":"t1","seq":10}
+{"v":1,"type":"keystroke","t":1350.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":6,"sid":"t1","seq":11}
+{"v":1,"type":"session_ended","t":1350.0,"reason":"completed","duration":1350.0,"sid":"t1","seq":12}
+{"v":1,"type":"session_started","ts":"2026-11-05T10:05:00+02:00","mode":"words","layout":"en-qwerty","source":{"kind":"words","seed":7,"pool":1000,"count":1},"settings":{"on_error":"continue","backspace":"allowed","theme":"system"},"app":"0.1.0","sid":"w1","seq":1}
+{"v":1,"type":"keystroke","t":0.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":0,"sid":"w1","seq":2}
+{"v":1,"type":"keystroke","t":200.0,"kind":"char","code":"KeyH","key":"h","expected":"h","correct":true,"pos":1,"sid":"w1","seq":3}
+{"v":1,"type":"session_ended","t":200.0,"reason":"completed","duration":200.0,"sid":"w1","seq":4}

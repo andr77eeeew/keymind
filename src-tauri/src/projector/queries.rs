@@ -319,6 +319,28 @@ pub fn session(connection: &Connection, sid: &str) -> Result<Option<SessionRow>,
     Ok(rows.pop())
 }
 
+/// The keys of one starting test, for the map on its result. Empty for any other session, and until
+/// the projector reaches it.
+pub fn session_keys(connection: &Connection, sid: &str) -> Result<Vec<KeyRow>, ProjectorError> {
+    let mut statement = connection.prepare_cached(
+        "SELECT layout, code, presses, samples, sum_us, errors FROM session_keys
+         WHERE sid = ?1
+         ORDER BY layout, code",
+    )?;
+    let rows = statement.query_map([sid], |row| {
+        let samples = row.get(3)?;
+        Ok(KeyRow {
+            layout: row.get(0)?,
+            code: row.get(1)?,
+            presses: row.get(2)?,
+            samples,
+            mean_ms: mean_ms(row.get(4)?, samples),
+            errors: row.get(5)?,
+        })
+    })?;
+    Ok(rows.collect::<Result<_, _>>()?)
+}
+
 fn recent(connection: &Connection) -> Result<Vec<SessionRow>, ProjectorError> {
     let mut statement = connection.prepare_cached(&format!(
         "SELECT {SESSION_COLUMNS}
@@ -390,6 +412,7 @@ pub fn dump(connection: &Connection) -> String {
         ("bigram_stats", "1, 2, 3, 4"),
         ("model_state", "1, 2"),
         ("session_targets", "1, 2"),
+        ("session_keys", "1, 2, 3"),
         ("daily_stats", "1"),
         ("last_setups", "1"),
     ] {

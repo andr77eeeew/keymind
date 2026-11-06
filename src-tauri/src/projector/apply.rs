@@ -39,6 +39,9 @@ struct Checkpoint {
     /// checkpoints have none.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     targets: BTreeMap<String, Counters>,
+    /// The keys of a starting test by code, for its own map. `None` in every other mode.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    keys: Option<BTreeMap<String, Counters>>,
 }
 
 struct Slot {
@@ -211,6 +214,7 @@ impl<'a> Applier<'a> {
                 targets.insert(gram, Counters::default());
             }
         }
+        let keys = matches!(start.source, TextSource::Test { .. }).then(BTreeMap::new);
         let mut stats = SessionStats::new(&start.sid);
         stats.push(event);
         self.sessions.insert(
@@ -223,6 +227,7 @@ impl<'a> Applier<'a> {
                     layout: start.layout.clone(),
                     previous: None,
                     targets,
+                    keys,
                 }),
                 closed: false,
             },
@@ -242,6 +247,15 @@ impl<'a> Applier<'a> {
         let mut target = self.connection.prepare_cached(
             "UPDATE session_targets SET presses = ?3, samples = ?4, sum_us = ?5, errors = ?6
              WHERE sid = ?1 AND gram = ?2",
+        )?;
+        let mut key = self.connection.prepare_cached(
+            "INSERT INTO session_keys (sid, layout, code, presses, samples, sum_us, errors)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+             ON CONFLICT (sid, layout, code) DO UPDATE SET
+                 presses = excluded.presses,
+                 samples = excluded.samples,
+                 sum_us = excluded.sum_us,
+                 errors = excluded.errors",
         )?;
         let mut save = self.connection.prepare_cached(
             "INSERT INTO session_state (sid, last_seq, state) VALUES (?1, ?2, ?3)
@@ -279,6 +293,17 @@ impl<'a> Applier<'a> {
             };
             for (gram, c) in &checkpoint.targets {
                 target.execute(params![sid, gram, c.presses, c.samples, c.sum_us, c.errors])?;
+            }
+            for (code, c) in checkpoint.keys.iter().flatten() {
+                key.execute(params![
+                    sid,
+                    checkpoint.layout,
+                    code,
+                    c.presses,
+                    c.samples,
+                    c.sum_us,
+                    c.errors
+                ])?;
             }
             save.execute(params![sid, int(slot.last_seq), state])?;
         }
@@ -390,6 +415,11 @@ fn push_key(
                     .and_then(|letter| checkpoint.targets.get_mut(letter.to_string().as_str()))
                 {
                     counters.add(interval_us, !correct);
+                }
+                if let Some(own) = checkpoint.keys.as_mut() {
+                    own.entry(code.to_owned())
+                        .or_default()
+                        .add(interval_us, !correct);
                 }
             }
 
