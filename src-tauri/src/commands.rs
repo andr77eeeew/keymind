@@ -13,7 +13,7 @@ use time::OffsetDateTime;
 use crate::brain::heuristic::{Choice, Knowledge, choose};
 use crate::brain::model::day_number;
 use crate::brain::session::{AdaptiveSession, next_session};
-use crate::generator::{self, ContentError, ContentStore, Passage};
+use crate::generator::{self, ContentError, ContentStore, Passage, adaptive};
 use crate::imports::{ImportError, ImportedText, Library, Normalized, normalize_text};
 use crate::journal::{Event, EventBody, JournalService, ServiceError};
 use crate::projector::queries::{self, LastSetup, SessionRow, StatsOverview};
@@ -236,16 +236,56 @@ pub async fn next_adaptive(
     .await
 }
 
-/// What the next adaptive session would work on, without its text.
+/// Parts of a session, from 0 to 1. Review is 0 when nothing is due, and its share goes to the
+/// general words.
+#[derive(Serialize)]
+pub struct Shares {
+    pub focus: f64,
+    pub review: f64,
+    pub general: f64,
+}
+
+/// What the next adaptive session would work on, without its text, for Home and the Brain screen.
+#[derive(Serialize)]
+pub struct BrainView {
+    #[serde(flatten)]
+    pub choice: Choice,
+    pub shares: Shares,
+    pub minutes: f64,
+    /// False when the statistics could not be read and the brain started from nothing.
+    pub informed: bool,
+    /// True once any letter has data.
+    pub known: bool,
+}
+
 #[tauri::command]
-pub async fn brain_next(state: State<'_, AppState>, today: String) -> Result<Choice, CommandError> {
+pub async fn brain_next(
+    state: State<'_, AppState>,
+    today: String,
+) -> Result<BrainView, CommandError> {
     let day = day_number(&today).ok_or(CommandError::BadDate(today))?;
     let gradual = letters_gradual(&state)?;
     let content = state.content.clone();
     let projector = state.projector.clone();
     blocking(move || {
-        let (knowledge, _) = knowledge_or_nothing(&projector);
-        Ok(choose(&content.letter_order()?, &knowledge, day, gradual))
+        let (knowledge, informed) = knowledge_or_nothing(&projector);
+        let choice = choose(&content.letter_order()?, &knowledge, day, gradual);
+        let review = if choice.review.is_empty() {
+            0.0
+        } else {
+            adaptive::REVIEW_SHARE
+        };
+        Ok(BrainView {
+            shares: Shares {
+                focus: adaptive::FOCUS_SHARE,
+                review,
+                general: 1.0 - adaptive::FOCUS_SHARE - review,
+            },
+            minutes: adaptive::MINUTES,
+            informed,
+            known: !knowledge.keys.is_empty(),
+            choice,
+        })
     })
     .await
 }
