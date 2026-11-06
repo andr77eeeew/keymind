@@ -328,6 +328,7 @@ pub fn dump(connection: &Connection) -> String {
         ("sessions", "1"),
         ("key_stats", "1, 2, 3"),
         ("bigram_stats", "1, 2, 3, 4"),
+        ("model_state", "1, 2"),
         ("daily_stats", "1"),
         ("last_setups", "1"),
     ] {

@@ -887,3 +887,32 @@ fn reading_before_the_database_exists_says_not_ready() {
     let error = schema::open_reader(&dir.path().join("derived.sqlite")).unwrap_err();
     assert!(matches!(error, ProjectorError::NotReady));
 }
+
+#[test]
+fn the_brain_reads_its_traces_and_every_opened_letter() {
+    let dir = tempfile::tempdir().unwrap();
+    let journal = dir.path().join("journal");
+    write_files(&journal, &case_files(&golden_root().join("adaptive")));
+    let (mut projector, _) =
+        Projector::open(&dir.path().join("derived.sqlite"), &journal, false).unwrap();
+    projector.catch_up(&mut |_| {}).unwrap();
+    let knowledge = super::model::knowledge(projector.connection(), "en-qwerty").unwrap();
+
+    // The second session opened `s`, and letters never close.
+    assert_eq!(knowledge.opened.iter().collect::<String>(), "aeinost");
+    let e = knowledge.keys[&'e'];
+    // Seven samples at 200 ms, halved by two days, then seven at 450 ms.
+    assert_eq!(e.samples, 10.5);
+    assert_eq!(e.sum_ms, 3850.0);
+    assert_eq!(e.half_life, 1.0);
+    assert!(e.mastered);
+    assert_eq!(knowledge.pairs[&('e', 'a')].errors, 1.0);
+    // Only letters take part: the space is in no trace.
+    assert_eq!(knowledge.keys.len(), 3);
+    assert!(
+        super::model::knowledge(projector.connection(), "ru")
+            .unwrap()
+            .keys
+            .is_empty()
+    );
+}

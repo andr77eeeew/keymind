@@ -5,6 +5,7 @@ export const SCHEMA_VERSION = 1;
 export type OnError = "continue" | "stop";
 export type BackspacePolicy = "allowed" | "blocked";
 export type Theme = "light" | "dark" | "system";
+export type LetterPolicy = "gradual" | "all";
 
 /** Mirrors `settings::Settings`. */
 export interface Settings {
@@ -13,6 +14,18 @@ export interface Settings {
   theme: Theme;
   live_figures: boolean;
   theme_chosen: boolean;
+  letters: LetterPolicy;
+}
+
+/** Mirrors `journal::event::Recipe`. */
+export interface Recipe {
+  v: number;
+  brain: string;
+  letters: string;
+  focus: string;
+  review?: string[];
+  words: number;
+  before: Record<string, number>;
 }
 
 export type TextSource =
@@ -26,9 +39,11 @@ export type TextSource =
   | { kind: "passage"; id: string; difficulty?: number }
   | { kind: "paste"; chars: number }
   | { kind: "import"; id: string; offset: number }
-  | { kind: "zen" };
+  | { kind: "zen" }
+  | { kind: "adaptive"; seed: number; recipe: Recipe }
+  | { kind: "test"; passages: string[]; seconds: number };
 
-export type Mode = "words" | "texts" | "zen";
+export type Mode = "adaptive" | "words" | "texts" | "zen" | "test";
 export type EndReason = "completed" | "aborted";
 
 interface SessionEvent {
@@ -99,6 +114,8 @@ export interface SessionPlan {
   seconds?: number;
   /** Shown beside the mode, such as "25 words, top 1,000". Empty in Zen. */
   detail: string;
+  /** Letters and transitions in focus, shown beside the mode of an adaptive session. */
+  focus?: string[];
   /** Shown under the text, such as the author of a passage. */
   caption?: string;
   /** Author, title and year of a passage. */

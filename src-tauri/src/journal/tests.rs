@@ -153,3 +153,34 @@ fn a_missing_folder_reads_as_an_empty_journal() {
     assert!(events.is_empty());
     assert_eq!(report, ReadReport::default());
 }
+
+#[test]
+fn adaptive_and_test_sources_read_back_and_tolerate_new_fields() {
+    let line = r#"{"kind":"adaptive","seed":7,"recipe":{"v":1,"brain":"heuristic","letters":"etaoin","focus":"e","review":["ta"],"words":40,"before":{"e":412.5},"later":true}}"#;
+    let source: event::TextSource = serde_json::from_str(line).unwrap();
+    let event::TextSource::Adaptive { seed, recipe } = &source else {
+        panic!("not adaptive: {source:?}");
+    };
+    assert_eq!(*seed, 7);
+    assert_eq!(recipe.letters, "etaoin");
+    assert_eq!(recipe.before["e"], 412.5);
+
+    // A recipe with fields missing takes their defaults.
+    let bare: event::TextSource =
+        serde_json::from_str(r#"{"kind":"adaptive","seed":1,"recipe":{}}"#).unwrap();
+    assert!(matches!(bare, event::TextSource::Adaptive { recipe, .. } if recipe.v == 1));
+
+    let test: event::TextSource =
+        serde_json::from_str(r#"{"kind":"test","passages":["a","b"],"seconds":60}"#).unwrap();
+    assert_eq!(
+        test,
+        event::TextSource::Test {
+            passages: vec!["a".to_owned(), "b".to_owned()],
+            seconds: 60
+        }
+    );
+
+    // A source from a later version is kept as unknown, not refused.
+    let future: event::TextSource = serde_json::from_str(r#"{"kind":"music","id":"x"}"#).unwrap();
+    assert_eq!(future, event::TextSource::Unknown);
+}

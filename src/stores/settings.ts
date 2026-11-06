@@ -10,6 +10,7 @@ const DEFAULTS: Settings = {
   theme: "system",
   live_figures: true,
   theme_chosen: false,
+  letters: "gradual",
 };
 
 export const useSettingsStore = defineStore("settings", () => {

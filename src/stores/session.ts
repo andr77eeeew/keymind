@@ -101,6 +101,11 @@ export const useSessionStore = defineStore("session", () => {
 
   function currentSetup(): SessionSetup | null {
     switch (mode.value) {
+      case "adaptive":
+        return { mode: "adaptive" };
+      case "test":
+        // The starting test has its own screen and never starts from here.
+        return null;
       case "words":
         return wordsBy.value === "count"
           ? {
@@ -158,6 +163,9 @@ export const useSessionStore = defineStore("session", () => {
         }
         break;
       case "zen":
+      case "adaptive":
+      case "test":
+        // The brain or the test picks everything, so nothing is remembered.
         break;
     }
   }

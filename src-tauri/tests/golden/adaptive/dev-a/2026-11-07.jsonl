@@ -1,0 +1,29 @@
+{"v":1,"type":"session_started","sid":"a2","seq":1,"ts":"2026-11-07T10:00:00+02:00","mode":"adaptive","layout":"en-qwerty","source":{"kind":"adaptive","seed":5,"recipe":{"v":1,"brain":"heuristic","letters":"etaoins","focus":"a","words":7,"before":{"a":600.0}}},"settings":{"on_error":"continue","backspace":"blocked","theme":"system","live_figures":true,"theme_chosen":true,"letters":"gradual"},"app":"0.1.0"}
+{"v":1,"type":"keystroke","sid":"a2","seq":2,"t":0.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":0}
+{"v":1,"type":"keystroke","sid":"a2","seq":3,"t":450.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":1}
+{"v":1,"type":"keystroke","sid":"a2","seq":4,"t":900.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":2}
+{"v":1,"type":"keystroke","sid":"a2","seq":5,"t":1350.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":3}
+{"v":1,"type":"keystroke","sid":"a2","seq":6,"t":1800.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":4}
+{"v":1,"type":"keystroke","sid":"a2","seq":7,"t":2250.0,"kind":"char","code":"KeyX","key":"x","expected":"a","correct":false,"pos":5}
+{"v":1,"type":"keystroke","sid":"a2","seq":8,"t":2700.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":6}
+{"v":1,"type":"keystroke","sid":"a2","seq":9,"t":3150.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":7}
+{"v":1,"type":"keystroke","sid":"a2","seq":10,"t":3600.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":8}
+{"v":1,"type":"keystroke","sid":"a2","seq":11,"t":4050.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":9}
+{"v":1,"type":"keystroke","sid":"a2","seq":12,"t":4500.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":10}
+{"v":1,"type":"keystroke","sid":"a2","seq":13,"t":4950.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":11}
+{"v":1,"type":"keystroke","sid":"a2","seq":14,"t":5400.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":12}
+{"v":1,"type":"keystroke","sid":"a2","seq":15,"t":5850.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":13}
+{"v":1,"type":"keystroke","sid":"a2","seq":16,"t":6300.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":14}
+{"v":1,"type":"keystroke","sid":"a2","seq":17,"t":6750.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":15}
+{"v":1,"type":"keystroke","sid":"a2","seq":18,"t":7200.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":16}
+{"v":1,"type":"keystroke","sid":"a2","seq":19,"t":7650.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":17}
+{"v":1,"type":"keystroke","sid":"a2","seq":20,"t":8100.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":18}
+{"v":1,"type":"keystroke","sid":"a2","seq":21,"t":8550.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":19}
+{"v":1,"type":"keystroke","sid":"a2","seq":22,"t":9000.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":20}
+{"v":1,"type":"keystroke","sid":"a2","seq":23,"t":9450.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":21}
+{"v":1,"type":"keystroke","sid":"a2","seq":24,"t":9900.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":22}
+{"v":1,"type":"keystroke","sid":"a2","seq":25,"t":10350.0,"kind":"char","code":"Space","key":" ","expected":" ","correct":true,"pos":23}
+{"v":1,"type":"keystroke","sid":"a2","seq":26,"t":10800.0,"kind":"char","code":"KeyT","key":"t","expected":"t","correct":true,"pos":24}
+{"v":1,"type":"keystroke","sid":"a2","seq":27,"t":11250.0,"kind":"char","code":"KeyE","key":"e","expected":"e","correct":true,"pos":25}
+{"v":1,"type":"keystroke","sid":"a2","seq":28,"t":11700.0,"kind":"char","code":"KeyA","key":"a","expected":"a","correct":true,"pos":26}
+{"v":1,"type":"session_ended","sid":"a2","seq":29,"t":11700.0,"reason":"completed","duration":11700.0}

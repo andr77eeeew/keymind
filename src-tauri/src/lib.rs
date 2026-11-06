@@ -79,6 +79,8 @@ pub fn run() -> Result<(), AppError> {
             commands::rebuild_stats,
             commands::generate_words,
             commands::pick_passage,
+            commands::next_adaptive,
+            commands::brain_next,
             commands::clean_text,
             commands::import_file,
             commands::list_imports,

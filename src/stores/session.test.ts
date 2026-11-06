@@ -184,7 +184,7 @@ describe("session store", () => {
     const store = useSessionStore();
     await store.loadHome();
     expect(store.setupsState).toBe("error");
-    expect(store.home.primary.line).toBe("25 words from the 1,000 most common");
+    expect(store.home.primary.line).toBe("The brain picks the session");
   });
 
   it("remembers a session that just ended, before the projector reaches it", async () => {

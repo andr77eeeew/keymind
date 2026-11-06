@@ -20,6 +20,7 @@ const SETTINGS: Settings = {
   theme: "light",
   live_figures: true,
   theme_chosen: false,
+  letters: "gradual",
 };
 
 const WORDS_PLAN: SessionPlan = {
@@ -27,6 +28,25 @@ const WORDS_PLAN: SessionPlan = {
   text: "ab",
   source: { kind: "words", seed: 1, pool: 1000, count: 1 },
   detail: "",
+};
+
+const ADAPTIVE_PLAN: SessionPlan = {
+  mode: "adaptive",
+  text: "ab",
+  source: {
+    kind: "adaptive",
+    seed: 1,
+    recipe: {
+      v: 1,
+      brain: "heuristic",
+      letters: "ab",
+      focus: "a",
+      words: 1,
+      before: { a: 400 },
+    },
+  },
+  detail: "Focus on a",
+  focus: ["a"],
 };
 
 function key(
@@ -233,7 +253,7 @@ describe("TypingSession", () => {
   });
 
   it("logs a blocked Backspace without changing anything", async () => {
-    const { session, events, moved } = setup(WORDS_PLAN, {
+    const { session, events, moved } = setup(ADAPTIVE_PLAN, {
       ...SETTINGS,
       backspace: "blocked",
     });
@@ -246,6 +266,17 @@ describe("TypingSession", () => {
       kind: "backspace",
       ignored: "policy",
     });
+  });
+
+  it("blocks Backspace only in Adaptive, as SPEC says", () => {
+    const { session, moved } = setup(WORDS_PLAN, {
+      ...SETTINGS,
+      backspace: "blocked",
+    });
+    session.handleKeyDown(key("a", 1));
+    session.handleKeyDown(key("Backspace", 2, { code: "Backspace" }));
+    expect(session.engine.cursor).toBe(0);
+    expect(moved).toEqual([1, 0]);
   });
 
   it("applies Backspace when allowed", async () => {
@@ -305,7 +336,7 @@ describe("TypingSession", () => {
 
   it("explains a blocked Backspace until the next key or a few seconds", () => {
     const { session, hints } = setup(
-      { ...WORDS_PLAN, text: "abc" },
+      { ...ADAPTIVE_PLAN, text: "abc" },
       { ...SETTINGS, backspace: "blocked" },
     );
     session.handleKeyDown(key("a", 1));

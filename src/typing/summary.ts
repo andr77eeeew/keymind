@@ -81,6 +81,12 @@ function subLine(
       return `${plan.detail}, your file`;
     case "zen":
       return "Zen, free typing";
+    case "adaptive":
+      return early
+        ? `Adaptive, stopped at ${wordsReached(plan.text, cursor)} of ${source.recipe.words} words`
+        : `Adaptive, focus on ${source.recipe.focus}`;
+    case "test":
+      return "The starting test";
   }
 }
 

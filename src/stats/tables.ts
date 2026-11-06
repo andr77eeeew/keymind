@@ -7,6 +7,8 @@ const DASH = "—";
 const FEW_CHARS = 5;
 
 const MODE_NAMES: Record<string, string> = {
+  adaptive: "Adaptive",
+  test: "Starting test",
   words: "Words",
   texts: "Texts",
   zen: "Zen",

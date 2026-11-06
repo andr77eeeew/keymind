@@ -1,7 +1,9 @@
+import { localDate } from "../stats/trends";
 import {
   cleanText,
   generateWords,
   loadImport,
+  nextAdaptive,
   pickPassage,
   type ImportedText,
 } from "./api";
@@ -12,6 +14,7 @@ import type { SessionPlan } from "./types";
 const TIMED_WORD_COUNT = 800;
 
 export type SessionSetup =
+  | { mode: "adaptive" }
   | { mode: "words"; by: "count"; count: number; pool: number }
   | { mode: "words"; by: "time"; seconds: number; pool: number }
   | { mode: "passage"; difficulty: number | null }
@@ -40,6 +43,16 @@ export async function buildPlan(
   seed: number = randomSeed(),
 ): Promise<SessionPlan> {
   switch (setup.mode) {
+    case "adaptive": {
+      const next = await nextAdaptive(seed, localDate(new Date()));
+      return {
+        mode: "adaptive",
+        text: next.text,
+        source: next.source,
+        detail: `Focus on ${next.choice.focus}`,
+        focus: [next.choice.focus],
+      };
+    }
     case "words":
       return setup.by === "count"
         ? {

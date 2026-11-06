@@ -127,6 +127,54 @@ export function generateWords(
   return invoke("generate_words", { pool, count, seed });
 }
 
+/** Mirrors `brain::model::Estimate`. */
+export interface Estimate {
+  ms: number;
+  ms_upper: number;
+  error: number;
+  error_upper: number;
+  confidence: number;
+  samples: number;
+  total_samples: number;
+  mastered: boolean;
+}
+
+export interface BrainTarget {
+  gram: string;
+  estimate: Estimate;
+}
+
+/** Mirrors `brain::heuristic::Choice`. */
+export interface BrainChoice {
+  letters: { open: string[]; next: string | null; new: string[] };
+  focus: string;
+  reason: "new" | "slow" | "errors";
+  targets: BrainTarget[];
+  review: BrainTarget[];
+  chars_per_minute: number;
+}
+
+/** Mirrors `commands::AdaptivePlan`. */
+export interface AdaptivePlan {
+  text: string;
+  source: Extract<TextSource, { kind: "adaptive" }>;
+  choice: BrainChoice;
+  /** False when the statistics could not be read and the brain started from nothing. */
+  informed: boolean;
+}
+
+/** `today` is the local date, which only the UI knows. */
+export function nextAdaptive(
+  seed: number,
+  today: string,
+): Promise<AdaptivePlan> {
+  return invoke("next_adaptive", { seed, today });
+}
+
+export function brainNext(today: string): Promise<BrainChoice> {
+  return invoke("brain_next", { today });
+}
+
 export function pickPassage(
   difficulty: number | null,
   seed: number,

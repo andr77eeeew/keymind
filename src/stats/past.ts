@@ -20,6 +20,10 @@ function whatItWas(row: SessionRow, fileTitle: string | null): string {
       return fileTitle ? `${fileTitle}, your file` : "Your file";
     case "zen":
       return "Zen, free typing";
+    case "adaptive":
+      return `Adaptive, focus on ${source.recipe.focus}`;
+    case "test":
+      return "The starting test";
     default:
       return modeName(row.mode);
   }

@@ -65,6 +65,29 @@ describe("pastSummaryContent", () => {
     expect(content.lead.map((figure) => figure.label)).toEqual(["WPM", "Time"]);
   });
 
+  it("names the focus of an adaptive session", () => {
+    const content = pastSummaryContent(
+      row({
+        mode: "adaptive",
+        source: {
+          kind: "adaptive",
+          seed: 3,
+          recipe: {
+            v: 1,
+            brain: "heuristic",
+            letters: "etaoin",
+            focus: "e",
+            words: 4,
+            before: { e: 512.3 },
+          },
+        },
+      }),
+      null,
+      NOW,
+    );
+    expect(content.sub).toContain("Adaptive, focus on e");
+  });
+
   it("survives a source it cannot read", () => {
     const content = pastSummaryContent(row({ source: null }), null, NOW);
     expect(content.sub).toContain("Words.");
