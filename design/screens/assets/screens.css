@@ -272,7 +272,7 @@ html[data-data="loading"] .region > [data-when="loading"], html[data-data="empty
 
 /* Session line: written by the live timer, never by a press. Only its transform changes. */
 .run { position: relative; width: min(100%, var(--typing-column)); height: 2px; background: var(--color-rule); overflow: clip; contain: strict; }
-.run i { position: absolute; inset: 0; background: var(--color-ink-2); transform-origin: left; transform: scaleX(var(--v)); transition: transform 500ms linear; }
+.run i { position: absolute; inset: 0; background: var(--color-ink-2); transform-origin: left; transform: scaleX(var(--v)); }
 /* Live figures off: the panel loses them and the line stops. A limit is not a metric, so it stays. */
 html[data-figures="off"] .stat--live { display: none; }
 html[data-figures="off"] .bar__group:last-child { align-items: center; }
