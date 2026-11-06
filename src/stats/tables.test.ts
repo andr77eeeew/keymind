@@ -19,6 +19,7 @@ function row(more: Partial<SessionRow> = {}): SessionRow {
     accuracy: 97.2,
     rhythm: 84,
     source: { kind: "words", seed: 1, pool: 1000, count: 25 },
+    targets: [],
     ...more,
   };
 }
@@ -50,7 +51,28 @@ describe("sessionLine", () => {
       time: "00:27",
       wpm: "58",
       accuracy: "97%",
+      gain: { gram: null, text: "—" },
     });
+  });
+
+  it("gives an adaptive session the change on its focus key", () => {
+    const line = sessionLine(
+      row({
+        mode: "adaptive",
+        targets: [
+          {
+            gram: "e",
+            before_ms: 412,
+            presses: 30,
+            samples: 25,
+            ms: 388,
+            errors: 1,
+          },
+        ],
+      }),
+      NOW,
+    );
+    expect(line.gain).toEqual({ gram: "e", text: "−24 ms" });
   });
 
   it("gives Zen no accuracy", () => {

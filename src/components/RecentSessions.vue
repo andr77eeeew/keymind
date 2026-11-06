@@ -27,6 +27,7 @@ const lines = computed(() => {
         <th class="n">Time</th>
         <th class="n">WPM</th>
         <th class="n">Accuracy</th>
+        <th class="n">Target gain</th>
       </tr>
     </thead>
     <tbody>
@@ -43,6 +44,10 @@ const lines = computed(() => {
         <td class="n">{{ line.time }}</td>
         <td class="n">{{ line.wpm }}</td>
         <td class="n">{{ line.accuracy }}</td>
+        <td class="n">
+          <span v-if="line.gain.gram" class="gram">{{ line.gain.gram }}</span>
+          {{ line.gain.text }}
+        </td>
       </tr>
     </tbody>
   </table>

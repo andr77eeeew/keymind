@@ -19,6 +19,7 @@ function row(more: Partial<SessionRow> = {}): SessionRow {
     accuracy: 97.2,
     rhythm: 84,
     source: { kind: "words", seed: 1, pool: 1000, count: 25 },
+    targets: [],
     ...more,
   };
 }
