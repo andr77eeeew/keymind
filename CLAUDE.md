@@ -37,7 +37,7 @@ src-tauri/src/
   brain/                 student model, letter unlocking, the heuristic and the adaptive session
                          (ADR-0010); the ML decision model joins it at stage 8
   generator/             exercise text generation (words, adaptive recipes, Markov pseudowords,
-                         ADR-0011), and loading of content/
+                         ADR-0011; the starting test, ADR-0012), and loading of content/
   settings/              policies: settings_changed events and their cache
   imports/               TXT and EPUB import, kept only in the local data folder
   rules/                 XP, levels, goals, quests, events, achievements, tips
