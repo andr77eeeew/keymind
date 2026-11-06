@@ -1,5 +1,5 @@
 // Achievements, quests, events, challenges, settings, tray.
-import { gram, meter, page, progressTabs, region, sec, shell, tierMark } from './lib.mjs';
+import { gram, meter, page, progressTabs, region, sec, shell, tierMark, variantsOf } from './lib.mjs';
 
 const TIER = { 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum' };
 const ach = ({ tier, title, text, state = 'locked', when, value, max, label }) => `<li class="ach is-${state}">
@@ -145,12 +145,27 @@ const seg = (label, opts, active = 0, dis = []) => `<span class="seg" data-toggl
 const sel = (id, label, opts, active = 0) => `<select class="select" id="${id}" aria-label="${label}">${opts.map((o, i) => `<option${i === active ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
 const setting = (title, text, control, { dep, labelFor } = {}) => `<div class="setting${dep ? ' setting--dep' : ''}"${dep ? ` data-dep="${dep}"` : ''}><div>${labelFor ? `<label class="setting__t" for="${labelFor}">${title}</label>` : `<p class="setting__t">${title}</p>`}${text ? `<p class="setting__d">${text}</p>` : ''}</div><div class="setting__c">${control}</div></div>`;
 const group = (id, title, inner) => `<section class="sec" id="${id}"><header class="sec__h"><h2>${title}</h2></header>${inner}</section>`;
+// Settings, Data: the statistics row in each state of a rebuild. A rebuild never blocks typing, so only
+// the button waits. Lines left out stay said under the row until the journal changes.
+const DATA = [['idle', 'Data, as usual'], ['rebuilding', 'Data, rebuilding'], ['rebuilt', 'Data, rebuilt'], ['rebuild-error', 'Data, rebuild failed'], ['damaged', 'Data, journal lines left out']];
+const vd = variantsOf(DATA);
+const REBUILD = '<button class="btn" type="button">Rebuild from the journal</button>';
+const statsRow = (extra = '', button = REBUILD) => `<div class="setting"><div><p class="setting__t">Statistics</p><p class="setting__d">Worked out from your journal. Rebuilding reads the journal again and does not change it.</p>${extra}</div><div class="setting__c">${button}</div></div>`;
+const STATS_ROW = [
+  vd('idle', statsRow()),
+  vd('rebuilding', statsRow('<p class="setting__d" role="status">Rebuilding. You can keep typing.</p>', '<button class="btn" type="button" disabled>Rebuild from the journal</button>')),
+  vd('rebuilt', statsRow('<p class="setting__d" role="status">The statistics were rebuilt.</p>')),
+  vd('rebuild-error', statsRow('<p class="field__error" role="alert">The statistics could not be rebuilt: the journal folder could not be read at C:\\Users\\me\\AppData\\Roaming\\Keymind\\journal: Access is denied.</p>')),
+  vd('damaged', statsRow('<p class="setting__d">3 lines of the journal could not be read and were left out.</p>')),
+].join('');
 const NAV = [['typing', 'Typing'], ['code', 'Code'], ['progress', 'Progress'], ['brain', 'Brain'], ['reminders', 'Reminders'], ['app', 'App'], ['layouts', 'Layouts'], ['sync', 'Sync'], ['integrations', 'Integrations'], ['data', 'Data']];
 
 const settings = page({
   title: 'Keymind: settings',
   description: 'Every policy and feature, on by default and switchable.',
   gam: true,
+  variants: DATA,
+  note: 'The states change only the Statistics row under Data.',
   body: shell('settings', `<div class="page-head"><h1>Settings</h1><p>Everything can be turned off. Only sync starts off, until you pick a target.</p></div>
 <div class="set-layout">
   <nav class="set-nav" aria-label="Settings sections">${NAV.map(([id, label]) => `<a href="#${id}">${label}</a>`).join('')}</nav>
@@ -208,7 +223,7 @@ const settings = page({
     ${group('data', 'Data', [
     setting('Export everything', 'One ZIP with journals and settings.', '<button class="btn" type="button">Export ZIP</button>'),
     setting('Import', 'Merges journals from a ZIP. Nothing is overwritten.', '<button class="btn" type="button">Import ZIP</button>'),
-    setting('Rebuild statistics', 'Recomputes the database from your journals. Safe to run at any time.', '<button class="btn" type="button">Rebuild from the journal</button>'),
+    STATS_ROW,
     setting('Telemetry', 'None. Your data only leaves this PC through the sync you choose.', '<span class="muted" style="font-size:var(--text-sm)">No telemetry</span>'),
   ].join(''))}
   </div>

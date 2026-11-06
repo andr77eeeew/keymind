@@ -1,18 +1,32 @@
 // Home, session summary, statistics and the brain panel.
-import { esc, fingerAvg, fingerErrAvg, fingerNames, gram, keyboard, keyErr, keyMs, meter, msStep, errStep, page, region, relief, reseed, rnd, sec, shell } from './lib.mjs';
+import { esc, fingerAvg, fingerErrAvg, fingerNames, gram, keyboard, keyErr, keyMedian, keyMs, medianOf, meter, msStep, errStep, page, region, relief, reseed, rnd, sec, shell, variantsOf } from './lib.mjs';
 import { mapPin } from './screens-typing.mjs';
 import { quickRows } from './screens-session.mjs';
 
 // ---- Line chart: one axis, 2px line, last point marked and labelled
-export function lineChart({ title, unit = '', series, labels, min, max, ticks, legend = false, w = 420, h = 170 }) {
-  const L = 34; const R = 40; const T = 10; const B = 22;
+// Without min and max the range follows the app (src/stats/trends.ts): whole fives a little wider than the
+// data, and three labels on the axis, the ends and one round number between them.
+export function trendRange(values, ceiling) {
+  const low = Math.min(...values); const high = Math.max(...values);
+  const pad = Math.max((high - low) * 0.15, 1);
+  let min = Math.max(0, Math.floor((low - pad) / 5) * 5);
+  let max = Math.ceil((high + pad) / 5) * 5;
+  if (ceiling !== undefined) max = Math.min(ceiling, max);
+  if (max <= min) max = min + 5;
+  const step = max - min >= 10 ? 5 : 1;
+  return { min, max, ticks: [min, Math.round((min + max) / 2 / step) * step, max] };
+}
+export function lineChart({ title, unit = '', series, labels, min, max, ticks, ceiling, legend = false, w = 420, h = 170 }) {
+  if (min === undefined) ({ min, max, ticks } = trendRange(series.flatMap((s) => s.values), ceiling));
+  // B leaves air between the lowest value label and the first date, which sit at the same corner.
+  const L = 34; const R = 40; const T = 10; const B = 30;
   const px = (i) => L + (i / (labels.length - 1)) * (w - L - R);
   const py = (v) => T + (1 - (v - min) / (max - min)) * (h - T - B);
   const grid = ticks.map((t) => `<line class="grid-l" x1="${L}" x2="${w - R}" y1="${py(t)}" y2="${py(t)}"/><text x="${L - 6}" y="${py(t) + 4}" text-anchor="end">${t}</text>`).join('');
   const lines = series.map((s, n) => {
     const d = s.values.map((v, i) => `${i ? 'L' : 'M'}${px(i).toFixed(1)} ${py(v).toFixed(1)}`).join('');
     const last = s.values[s.values.length - 1];
-    return `<path class="ln s${n + 1}" d="${d}"/><circle class="d${n + 1}" cx="${px(labels.length - 1)}" cy="${py(last)}" r="5"/><text class="end" x="${px(labels.length - 1) + 9}" y="${py(last) + 4}">${last}${unit}</text>`;
+    return `<path class="ln s${n + 1}" d="${d}"/><circle class="d${n + 1}" cx="${px(labels.length - 1)}" cy="${py(last)}" r="4"/><text class="end" x="${px(labels.length - 1) + 8}" y="${py(last) + 4}">${Math.round(last)}</text>`;
   }).join('');
   const data = esc(JSON.stringify({ labels, unit: unit ? ` ${unit}` : '', range: [L, w - R], series: series.map((s) => ({ name: s.name, values: s.values })) }));
   const table = `<details class="tv"><summary>View as table</summary><div class="tbl-scroll"><table class="tbl"><thead><tr><th>Date</th>${series.map((s) => `<th class="n">${esc(s.name)}</th>`).join('')}</tr></thead><tbody>${labels.map((l, i) => `<tr><td>${l}</td>${series.map((s) => `<td class="n">${s.values[i]}${unit}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
@@ -23,6 +37,13 @@ export function lineChart({ title, unit = '', series, labels, min, max, ticks, l
     ${table}
   </figure>`;
 }
+
+// One day has no line to draw. The value stands as a figure, in the space the chart takes, with its date.
+// The words hold for a first day ever and for a period with one day of typing in it.
+export const oneDay = ({ title, value, unit, date }) => `<figure class="chart chart--one">
+    <figcaption class="chart__t">${title}</figcaption>
+    <div class="chart__one"><p class="figure"><b>${value}</b><span>${unit} on ${date}</span></p><p class="sec__note">The only day with typing in this period. A line needs two.</p></div>
+  </figure>`;
 
 const days = Array.from({ length: 30 }, (_, i) => { const d = new Date(Date.UTC(2026, 9, 6 + i)); return `${d.toLocaleString('en', { month: 'short', timeZone: 'UTC' })} ${d.getUTCDate()}`; });
 // Sample trend: a noisy line from start to end, ending on the value the summary reports.
@@ -106,7 +127,7 @@ const home = page({
     rows: 5,
     empty: ['No sessions yet', 'Your first session shows up here.', '<a class="btn" href="typing-words.html">Start session</a>'],
     error: ['Sessions could not be loaded', 'Your journal is safe. Rebuild the statistics from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
-  }), '<a class="link" href="statistics.html">Statistics</a>', 's5 cleanwide')}
+  }), '<a class="link" href="statistics-later.html">Statistics</a>', 's5 cleanwide')}
 </div>`),
 });
 
@@ -161,50 +182,76 @@ const summary = page({
 });
 
 // ---- Statistics
+// `statistics` is what the app shows now (ADR-0009). `statistics-later` keeps what needs data from later
+// stages: recovery, streak, errors by type, fatigue, cells in focus and the gain on targets.
 const legend = (lo, hi) => `<span class="legend"><span>${lo}</span><span class="legend__ramp">${[0, 1, 2, 3, 4, 5].map((i) => `<i data-h="${i}"></i>`).join('')}</span><span>${hi}</span></span>`;
 const fingerOrder = ['lp', 'lr', 'lm', 'li', 'lt', 'rt', 'ri', 'rm', 'rr', 'rp'];
 const short = { lp: 'Pinky', lr: 'Ring', lm: 'Mid', li: 'Index', lt: 'Thumb', rt: 'Thumb', ri: 'Index', rm: 'Mid', rr: 'Ring', rp: 'Pinky' };
 const fingersChart = () => {
   const present = fingerOrder.filter((f) => fingerAvg[f]);
   const top = Math.max(...present.map((f) => fingerAvg[f]));
-  return `<div class="fingers">${present.map((f) => `<div data-tip="${fingerNames[f]}: ${fingerAvg[f]} ms, ${fingerErrAvg[f]}% errors"><i class="c-bar" data-h="${msStep(fingerAvg[f])}" style="--v:${(fingerAvg[f] / top).toFixed(2)}"></i><b>${fingerAvg[f]}</b><span>${short[f]}</span></div>`).join('')}</div><div class="fingers__hands"><span>Left hand</span><span>Right hand</span></div>`;
+  return `<div class="fingers">${present.map((f) => `<div data-tip="${fingerNames[f]}: ${fingerAvg[f]} ms, ${fingerErrAvg[f]}% errors"><i class="c-bar" data-h="${msStep(fingerAvg[f], keyMedian)}" style="--v:${(fingerAvg[f] / top).toFixed(2)}"></i><b>${fingerAvg[f]}</b><span>${short[f]}</span></div>`).join('')}</div><div class="fingers__hands"><span>Left hand</span><span>Right hand</span></div>`;
 };
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
-function matrix() {
+// Transitions are measured against their own median, as keys are against theirs.
+function matrix(focus) {
   reseed(77);
   const rare = /^(q[^u]|[jqxz][jqxz]|[vw]x|x[vwk]|k[qz]|z[fgkx]|[bcfgjkmpvwxz][qxz]|j[bcdfgklmnpstvw])/;
+  const cells = [];
+  LETTERS.forEach((a) => LETTERS.forEach((b) => {
+    const g = a + b;
+    if (rare.test(g)) { cells.push({ g }); return; }
+    const base = (keyMs[`Key${a.toUpperCase()}`] + keyMs[`Key${b.toUpperCase()}`]) / 2;
+    const same = a === b ? 18 : 0;
+    const ms = Math.round(base + same + (rnd() - 0.5) * 34);
+    const err = +(((keyErr[`Key${a.toUpperCase()}`] ?? 1.2) + (keyErr[`Key${b.toUpperCase()}`] ?? 1.2)) / 2 + rnd() * 1.1).toFixed(1);
+    cells.push({ g, ms: g === 'ea' ? 188 : g === 'ss' ? 196 : ms, err: g === 'ea' ? 3.8 : g === 'ss' ? 5.1 : err });
+  }));
+  const median = medianOf(cells.filter((c) => c.ms).map((c) => c.ms));
   const out = ['<span></span>', ...LETTERS.map((l) => `<span>${l}</span>`)];
-  const rows = [];
-  LETTERS.forEach((a) => {
+  LETTERS.forEach((a, row) => {
     out.push(`<span>${a}</span>`);
-    LETTERS.forEach((b) => {
-      const g = a + b;
-      if (rare.test(g)) { out.push('<i data-s="x" data-tip="' + g + ': too few samples"></i>'); return; }
-      const base = (keyMs[`Key${a.toUpperCase()}`] + keyMs[`Key${b.toUpperCase()}`]) / 2;
-      const same = a === b ? 18 : 0;
-      const ms = Math.round(base + same + (rnd() - 0.5) * 34);
-      const err = +(((keyErr[`Key${a.toUpperCase()}`] ?? 1.2) + (keyErr[`Key${b.toUpperCase()}`] ?? 1.2)) / 2 + rnd() * 1.1).toFixed(1);
-      const focus = g === 'ea' || g === 'ss';
-      const fixed = g === 'ea' ? 188 : g === 'ss' ? 196 : ms;
-      const fixedErr = g === 'ea' ? 3.8 : g === 'ss' ? 5.1 : err;
-      const s = msStep(fixed); const e = errStep(fixedErr);
-      out.push(`<i data-h="${s}" data-s="${s}" data-e="${e}"${focus ? ' class="is-focus-cell"' : ''} data-tip="${g}: ${fixed} ms, ${fixedErr}% errors"></i>`);
-      rows.push([g, fixed, fixedErr]);
+    cells.slice(row * 26, row * 26 + 26).forEach((c) => {
+      if (!c.ms) { out.push(`<i data-s="x" data-tip="${c.g}: too few samples"></i>`); return; }
+      const st = msStep(c.ms, median); const e = errStep(c.err);
+      out.push(`<i data-h="${st}" data-s="${st}" data-e="${e}"${focus && (c.g === 'ea' || c.g === 'ss') ? ' class="is-focus-cell"' : ''} data-tip="${c.g}: ${c.ms} ms, ${c.err}% errors"></i>`);
     });
   });
   return `<div class="mx-wrap"><div class="mx" id="mx" data-metric="speed" role="img" aria-label="Transition matrix. The first letter is the row, the second is the column. The table beside it lists the slowest transitions.">${out.join('')}</div></div>`;
 }
-const slowest = [['pe', 203, 4.9, 3], ['ex', 198, 4.4, 8], ['ss', 196, 5.1, 0], ['sw', 194, 3.7, 2], ['ax', 192, 3.4, 11], ['ze', 189, 3.3, 5], ['ea', 188, 3.8, 0], ['qu', 186, 3.1, 4]];
-const statistics = page({
-  title: 'Keymind: statistics',
-  description: 'Keyboard heatmap by keys and fingers, bigram matrix, trends, records.',
-  data: true,
-  gam: true,
-  body: shell('stats', `<div class="page-head"><h1>Statistics</h1>
-  <span class="seg" data-toggle role="group" aria-label="Period"><button type="button" aria-pressed="false">7 days</button><button type="button" aria-pressed="true">30 days</button><button type="button" aria-pressed="false">All time</button></span></div>
-${region({
-    full: `<div class="grid">
-  ${sec('Keyboard', `<div class="row" style="justify-content:space-between;margin-block:var(--space-xs) var(--space-sm)">
+// The date a transition was last typed. Today in these mockups is Nov 4, the last day of the trends.
+const slowest = [['pe', 203, 4.9, 'Nov 1'], ['ex', 198, 4.4, 'Oct 27'], ['ss', 196, 5.1, 'Nov 4'], ['sw', 194, 3.7, 'Nov 2'], ['ax', 192, 3.4, 'Oct 24'], ['ze', 189, 3.3, 'Oct 30'], ['ea', 188, 3.8, 'Nov 4'], ['qu', 186, 3.1, 'Oct 31']];
+const slowestTable = (one) => `<table class="tbl tbl--rows"><thead><tr><th>Transition</th><th class="n">Time</th><th class="n">Errors</th><th>Last typed</th></tr></thead><tbody>${slowest.map(([g, ms, e, d]) => `<tr><td>${gram(g)}</td><td class="n">${ms} ms</td><td class="n">${e}%</td><td>${one ? 'Nov 4' : d}</td></tr>`).join('')}</tbody></table>`;
+
+// A row or a record opens the saved summary of that session. Each kind is a variant of summary-saved.
+const SAVED = (v) => `summary-saved.html${v ? `?variant=${v}` : ''}`;
+const STATS_RECENT = [
+  ['Today, 01:11', 'Words', '00:45', 67, '97%', '', 'none'],
+  ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'ea −24 ms'],
+  ['Yesterday, 21:30', 'Texts', '04:02', 52, '99%', 'file', 'none'],
+  ['Yesterday, 18:20', 'Zen', '04:12', 49, 'None', '', 'none'],
+  ['Nov 2, 20:15', 'Words', '00:38', 47, '94%', 'closed', 'none'],
+  ['Nov 2, 12:10', 'Texts', '00:46', 52, '98%', '', 'none'],
+];
+const ONE_DAY_RECENT = [['Today, 01:11', 'Words', '00:45', 67, '97%', '', 'none'], ['Today, 00:58', 'Adaptive', '02:10', 55, '96%', '', 'ea −24 ms'], ['Today, 00:40', 'Texts', '04:02', 52, '99%', 'file', 'none'], ['Today, 00:31', 'Words', '00:38', 47, '94%', 'closed', 'none']];
+const recentStats = (gain, rows = STATS_RECENT) => `<table class="tbl tbl--rows"><thead><tr><th>When</th><th>Mode</th><th class="n">Time</th><th class="n">WPM</th><th class="n">Accuracy</th>${gain ? '<th>Target gain</th>' : ''}</tr></thead><tbody>${rows.map(([a, b, c, d, e, v, f]) => `<tr><td><a class="link" href="${SAVED(v)}">${a}</a></td><td>${b}</td><td class="n">${c}</td><td class="n">${d}</td><td class="n">${e}</td>${gain ? `<td>${f}</td>` : ''}</tr>`).join('')}</tbody></table>`;
+const record = (label, value, date, v) => `<tr><td><a class="link" href="${SAVED(v)}">${label}</a></td><td class="n">${value}</td><td>${date}</td></tr>`;
+
+const WPM = walk(44, 58, 3, 3);
+const ACC = walk(93, 97, 1.4, 5, 1);
+const RHY = walk(58, 72, 4, 9);
+const trends = (one) => [
+  ['Speed, WPM', 'WPM', '', WPM, '58', 'WPM', undefined],
+  ['Accuracy, %', 'Accuracy', '%', ACC, '97%', 'Accuracy', 100],
+  ['Rhythm evenness, %', 'Rhythm evenness', '%', RHY, '72%', 'Rhythm evenness', 100],
+].map(([title, name, unit, values, today, word, ceiling]) => `<section class="sec s4">${one
+  ? oneDay({ title, value: today, unit: word, date: 'Nov 4' })
+  : lineChart({ title, series: [{ name, values }], labels: days, unit, ceiling })}</section>`).join('\n  ');
+
+const STATS = [['many', 'Thirty days'], ['one-day', 'One day of data']];
+const vst = variantsOf(STATS);
+const statsGrid = (later) => `<div class="grid">
+  ${sec('Keyboard', `<div class="sec__tools">
       <span class="row">
         <span class="seg" data-seg-target="#heat" data-seg-attr="view" role="group" aria-label="Group by"><button type="button" data-value="keys" aria-pressed="true">Keys</button><button type="button" data-value="fingers" aria-pressed="false">Fingers</button></span>
         <span class="seg" data-seg-target="#heat" data-seg-attr="metric" role="group" aria-label="Measure"><button type="button" data-value="speed" aria-pressed="true">Speed</button><button type="button" data-value="errors" aria-pressed="false">Errors</button></span>
@@ -212,32 +259,49 @@ ${region({
       ${legend('Fast, clean', 'Slow, many errors')}
     </div>
     <div class="heat" id="heat" data-view="keys" data-metric="speed">${keyboard({ heat: true, targets: [], cls: 'kbd--heat', hidden: false })}</div>`, '', 's8')}
-  ${sec('By finger', `${fingersChart()}<p class="muted" style="font-size:var(--text-xs);margin-top:var(--space-sm)">Average time to press, in ms. Your left ring finger is 22 ms slower than your left index.</p>`, '', 's4')}
-  ${sec('Transitions', `<div class="row" style="justify-content:space-between;margin-block:var(--space-xs) var(--space-sm)">
+  ${sec('By finger', `${fingersChart()}<p class="sec__note sec__note--after">Average time to press, in ms. Your left ring finger is 22 ms slower than your left index.</p>`, '', 's4')}
+  ${sec('Transitions', `<div class="sec__tools">
       <span class="seg" data-seg-target="#mx" data-seg-attr="metric" role="group" aria-label="Measure"><button type="button" data-value="speed" aria-pressed="true">Speed</button><button type="button" data-value="errors" aria-pressed="false">Errors</button></span>
-      <span class="muted" style="font-size:var(--text-xs)">Row is the first key. Outlined cells are in focus.</span>
-    </div>${matrix()}`, '', 's6')}
-  ${sec('Slowest transitions', `<table class="tbl tbl--rows"><thead><tr><th>Transition</th><th class="n">Time</th><th class="n">Errors</th><th class="n">Last trained</th></tr></thead><tbody>${slowest.map(([g, ms, e, d]) => `<tr><td>${gram(g)}</td><td class="n">${ms} ms</td><td class="n">${e}%</td><td class="n">${d === 0 ? 'Today' : `${d} days ago`}</td></tr>`).join('')}</tbody></table>`, '', 's6')}
-  <div class="s4">${lineChart({ title: 'Speed, WPM', series: [{ name: 'WPM', values: walk(44, 58, 3, 3) }], labels: days, min: 40, max: 65, ticks: [40, 50, 60] })}</div>
-  <div class="s4">${lineChart({ title: 'Accuracy, %', series: [{ name: 'Accuracy', values: walk(93, 97, 1.4, 5, 1) }], labels: days, min: 90, max: 100, ticks: [90, 95, 100], unit: '%' })}</div>
-  <div class="s4">${lineChart({ title: 'Rhythm evenness, %', series: [{ name: 'Rhythm', values: walk(58, 72, 4, 9) }], labels: days, min: 50, max: 80, ticks: [50, 65, 80], unit: '%' })}</div>
+      <span class="sec__note">${later ? 'Row is the first key. Outlined cells are in focus.' : 'Row is the first key.'}</span>
+    </div>${matrix(later)}`, '', 's6')}
+  ${later ? sec('Slowest transitions', slowestTable(false), '', 's6') : `${vst('many', sec('Slowest transitions', slowestTable(false), '', 's6'))}${vst('one-day', sec('Slowest transitions', slowestTable(true), '', 's6'))}`}
+  ${later ? trends(false) : `${vst('many', trends(false))}${vst('one-day', trends(true))}`}
   ${sec('Records', `<table class="tbl"><tbody>
-      <tr><td>Best speed, 5 minutes</td><td class="n">67 WPM</td><td>Oct 29</td></tr>
-      <tr><td>Best accuracy, 10 minutes</td><td class="n">99.1%</td><td>Oct 17</td></tr>
-      <tr><td>Fastest recovery after {</td><td class="n">310 ms</td><td>Nov 3</td></tr>
-      <tr class="gam"><td>Longest streak</td><td class="n">23 days</td><td>Now</td></tr>
+      ${record('Best speed', '67 WPM', 'Nov 4', '')}
+      ${record('Best accuracy', '99.1%', later ? 'Nov 3' : `${vst('many', 'Nov 3', true)}${vst('one-day', 'Nov 4', true)}`, 'file')}
+      ${later ? `<tr><td>Fastest recovery after {</td><td class="n">310 ms</td><td>Nov 3</td></tr>
+      <tr class="gam"><td>Longest streak</td><td class="n">23 days</td><td>Now</td></tr>` : ''}
     </tbody></table>`, '', 's4')}
-  ${sec('Errors by type', `<div class="bars">
+  ${sec('Recent sessions', later ? recentStats(true) : `${vst('many', recentStats(false))}${vst('one-day', recentStats(false, ONE_DAY_RECENT))}`, '', 's8')}
+  ${later ? `${sec('Errors by type', `<div class="bars">
       <div><span>Substitution</span><i class="bar-h" style="--v:.68"></i><b>68%</b></div>
       <div><span>Omission</span><i class="bar-h" style="--v:.2"></i><b>20%</b></div>
       <div><span>Transposition</span><i class="bar-h" style="--v:.12"></i><b>12%</b></div>
     </div>`, '', 's4')}
-  <div class="s4">${lineChart({ title: 'Fatigue: accuracy by minute in session', series: [{ name: 'Accuracy', values: [98, 98, 97.8, 97.6, 97.5, 97.2, 97.1, 96.8, 96.4, 96, 95.6, 95.1, 94.7, 94.4, 94.1] }], labels: Array.from({ length: 15 }, (_, i) => `min ${i + 1}`), min: 90, max: 100, ticks: [90, 95, 100], unit: '%' })}</div>
-</div>`,
-    rows: 5,
-    empty: ['No statistics yet', 'Finish one session and the heatmap, matrix and trends fill in.', '<a class="btn btn--primary" href="typing-words.html">Start session</a>'],
-    error: ['The statistics could not be read', 'The local database is damaged or out of date. Your journal is safe; rebuild from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
-  })}`),
+  <section class="sec s8">${lineChart({ title: 'Fatigue: accuracy by minute in session', series: [{ name: 'Accuracy', values: [98, 98, 97.8, 97.6, 97.5, 97.2, 97.1, 96.8, 96.4, 96, 95.6, 95.1, 94.7, 94.4, 94.1] }], labels: Array.from({ length: 15 }, (_, i) => `min ${i + 1}`), unit: '%', ceiling: 100, w: 640 })}</section>` : ''}
+</div>`;
+const statsHead = `<div class="page-head"><h1>Statistics</h1>
+  <span class="seg" data-toggle role="group" aria-label="Period"><button type="button" aria-pressed="false">7 days</button><button type="button" aria-pressed="true">30 days</button><button type="button" aria-pressed="false">All time</button></span></div>`;
+const statsRegion = (later) => region({
+  full: statsGrid(later),
+  rows: 5,
+  empty: ['No statistics yet', 'Finish one session and the heatmap, matrix and trends fill in.', '<a class="btn btn--primary" href="plain-words.html">Start session</a>'],
+  error: ['The statistics could not be read', 'The local database is damaged or out of date. Your journal is safe; rebuild from it.', '<button class="btn" type="button">Rebuild from the journal</button>'],
+});
+const statistics = page({
+  title: 'Keymind: statistics',
+  description: 'Keyboard heatmap by keys and fingers, transition matrix, trends, records and recent sessions, as the app has them now.',
+  data: true,
+  variants: STATS,
+  note: 'Speed is coloured against your own median key, errors in absolute percent. Today is Nov 4 here.',
+  body: shell('stats', `${statsHead}${statsRegion(false)}`, { nav: ['home', 'stats', 'settings'], gam: false }),
+});
+const statisticsLater = page({
+  title: 'Keymind: statistics, later stages',
+  description: 'What the statistics screen gains once the data exists: recovery, streak, errors by type, fatigue, cells in focus and the gain on targets.',
+  data: true,
+  gam: true,
+  body: shell('stats', `${statsHead}${statsRegion(true)}`),
 });
 
 // ---- Brain
@@ -307,5 +371,5 @@ ${region({
   })}`),
 });
 
-export const dataPages = { home, 'session-summary': summary, statistics, brain };
+export const dataPages = { home, 'session-summary': summary, statistics, 'statistics-later': statisticsLater, brain };
 export { sessionTable };
