@@ -132,7 +132,9 @@ takes these variants:
 
 - **Typing:** next key filled in the accent, target keys underlined, the finger named in words.
 - **Locked:** keys that have not opened yet.
-- **Heat:** the statistics screen, one attribute `data-h` per key, switched by metric and by view.
+- **Heat:** the statistics screen, one attribute `data-h` per key, switched by metric and by view. The
+  key size follows the section width, from 34 to 56 px, so all fifteen key widths fit. The home-row
+  mark on F and J sits 3 px from the bottom, under the figure.
 - **Ghost:** quiet keys over the relief on the home and onboarding screens.
 - **Key feedback:** pressed `is-down`, wrong press `is-wrong`.
 
@@ -190,14 +192,14 @@ the delay would leave the file either way without the person knowing which.
 
 ## Home as data arrives
 
-| Stage                       | Page                     | Menu            | What is on it                                  |
-| --------------------------- | ------------------------ | --------------- | ---------------------------------------------- |
-| Now                         | `home-now`               | Home, Settings  | Last setup, quiet ground, other sessions       |
-| Statistics, nothing typed   | `home-stats?data=empty`  | Adds Statistics | Flat ground with the keys, says what raises it |
-| Statistics, a few sessions  | `home-stats?variant=few` | Same            | First hills, marked as drawn from few sessions |
-| Statistics, enough sessions | `home-stats`             | Same            | Relief, weakest keys, recent sessions          |
-| Adaptive                    | `home?gam=off`           | Adds Brain      | The brain picks the session                    |
-| Adaptive and gamification   | `home`                   | Adds Progress   | Level, goals, quests, event                    |
+| Stage                       | Page                     | Menu            | What is on it                                                                |
+| --------------------------- | ------------------------ | --------------- | ---------------------------------------------------------------------------- |
+| Now                         | `home-now`               | Home, Settings  | Last setup, quiet ground, other sessions                                     |
+| Statistics, nothing typed   | `home-stats?data=empty`  | Adds Statistics | Flat ground with the keys, says what raises it                               |
+| Statistics, a few sessions  | `home-stats?variant=few` | Same            | Below ten sessions: hills, no weak-key pins, a line that the map will change |
+| Statistics, enough sessions | `home-stats`             | Same            | Relief, weakest keys, recent sessions                                        |
+| Adaptive                    | `home?gam=off`           | Adds Brain      | The brain picks the session                                                  |
+| Adaptive and gamification   | `home`                   | Adds Progress   | Level, goals, quests, event                                                  |
 
 The ground on `home-now` is not data: it has no keys and no hills, so it cannot be read as a result.
 
@@ -329,6 +331,55 @@ rhythm evenness and time in one row. There is no XP on it.
 
 `session-summary.html` stays the summary for an adaptive session.
 
+### A saved summary
+
+`summary-saved` opens from a row of Recent sessions, on Statistics or Home, and from a record. It is
+`summary-plain` with these differences:
+
+- The line under the title adds the date and time: "Words, 50 words from the 1,000 most common. Today, 01:11."
+- One button, "Back to statistics" or "Back to home", with focus on it. There is no Next session.
+- A session the app closed on says "The app closed before this session ended. These figures cover what
+  you typed."
+- A passage is named "A passage from a public-domain book". There is no reading progress, because it
+  would show today's place, not that session's.
+- Loading keeps the title "Session". A row that cannot be read says "This session could not be read"
+  and offers Rebuild from the journal. Empty cannot happen: a missing row reads as could not be read.
+
+## Statistics
+
+`statistics` is what the app has now. `statistics-later` keeps what returns with later stages: level
+and streak in the menu, Fastest recovery and Longest streak, Errors by type, Fatigue, the cells in
+focus and the Target gain column.
+
+- **Records:** Best speed and Best accuracy, from completed sessions with at least 100 correct
+  characters. Zen does not count. Each opens its saved summary.
+- **Heat:** speed is coloured against the person's own median key time, at 0.85, 1, 1.15, 1.3 and 1.5
+  of it. The matrix uses the median of its own cells. Errors keep absolute limits: 1.5, 2.5, 3.5, 4.5
+  and 6.5%.
+- **By finger:** the Thumb column is 1.3 times wider, so its name fits at 1100.
+- **Slowest transitions:** the last column is "Last typed", a date such as "Nov 5".
+- **Trends:** the Y axis shows the minimum, a round middle and the maximum (a multiple of 5 when the range
+  is 10 or more). The X axis shows the first and last dates. The last value has a dot and its number.
+- **One day of data** (`?variant=one-day`): a trend shows the day's value as a figure in the height of a
+  chart, with "The only day with typing in this period. A line needs two." A lone point at the edge read
+  as a broken chart.
+- **States:** empty says "No statistics yet" with Start session. Error says "The statistics could not be
+  read" with Rebuild from the journal.
+
+## Rebuilding the statistics
+
+Settings → Data has one row now, Statistics: "Worked out from your journal. Rebuilding reads the
+journal again and does not change it." The button is Rebuild from the journal. These words are the
+app's: they say what the person gets and that the journal is safe, where "Recomputes the database"
+named the machinery. Export and Import stay in the mockup for stage 7.
+
+| State          | Page                                  | Under the row                                                 |
+| -------------- | ------------------------------------- | ------------------------------------------------------------- |
+| Rebuilding     | `settings?variant=rebuilding#data`    | "Rebuilding. You can keep typing." The button is disabled     |
+| Done           | `settings?variant=rebuilt#data`       | "The statistics were rebuilt."                                |
+| Failed         | `settings?variant=rebuild-error#data` | "The statistics could not be rebuilt: " and the reason        |
+| Lines left out | `settings?variant=damaged#data`       | "3 lines of the journal could not be read and were left out." |
+
 ## Window sizes
 
 Every state of the screens above was loaded from disk at each size and checked for content past the
@@ -343,6 +394,10 @@ window edge and for a Start button out of view. The main states were also read b
 
 The first-launch step, every case of the last setup that cannot repeat and live figures off were checked
 at all four sizes in both themes. At 720×480 the long title on Home takes one line instead of two.
+
+Statistics, its one-day variant, the saved summary in every state and the Data states were checked at
+1100×720 and 720×480 in both themes. The heat keys are 43 px at 1100, 55 at 1366 and 56 at 1920, with
+no scroll. The old fixed 46 px needed 732 px and overflowed the section at 1100.
 
 The window sizes in `tauri.conf.json` can stay for these screens. The keyboard does not fit a 720 wide
 window at its current size, so the minimum needs another look when it returns.
