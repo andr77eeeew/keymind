@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef, watch } from "vue";
+import OnboardingSteps from "../components/OnboardingSteps.vue";
 import { useAppStore } from "../stores/app";
+import { useSessionStore } from "../stores/session";
 import { useSettingsStore } from "../stores/settings";
 import type { Theme } from "../typing/types";
 
 const app = useAppStore();
 const store = useSettingsStore();
+const session = useSessionStore();
 
 const choice = ref<Theme>(store.settings.theme);
 const saving = ref(false);
@@ -25,17 +28,26 @@ onMounted(() => {
   pick.value?.querySelector<HTMLInputElement>("input:checked")?.focus();
 });
 
+function next(): void {
+  if (app.testStep) {
+    void session.startTest();
+  } else {
+    app.onboarding = false;
+    app.go("home");
+  }
+}
+
 async function proceed(): Promise<void> {
   // A look is no reason to stop anyone, so a second Continue goes on after a failed save.
   if (failed.value) {
-    app.go("home");
+    next();
     return;
   }
   saving.value = true;
   const saved = await store.chooseTheme(choice.value);
   saving.value = false;
   if (saved) {
-    app.go("home");
+    next();
   } else {
     failed.value = true;
   }
@@ -44,7 +56,10 @@ async function proceed(): Promise<void> {
 
 <template>
   <div class="ob">
-    <header class="top"><span class="wordmark">Keymind</span></header>
+    <header class="top">
+      <span class="wordmark">Keymind</span>
+      <OnboardingSteps v-if="app.testStep" current="theme" />
+    </header>
     <main class="ob__body ob__body--narrow">
       <form class="ob__form" @submit.prevent="proceed">
         <div class="stack">
@@ -103,8 +118,12 @@ async function proceed(): Promise<void> {
           <p>Keymind keeps it for now and asks again at the next launch.</p>
         </div>
         <div class="ob__foot">
-          <button type="submit" class="btn btn--primary" :disabled="saving">
-            Continue
+          <button
+            type="submit"
+            class="btn btn--primary"
+            :disabled="saving || session.starting"
+          >
+            {{ app.testStep ? "Continue to the test" : "Continue" }}
           </button>
         </div>
       </form>

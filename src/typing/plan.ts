@@ -5,6 +5,7 @@ import {
   loadImport,
   nextAdaptive,
   pickPassage,
+  startingTest,
   type ImportedText,
 } from "./api";
 import { poolText } from "./remembered";
@@ -12,9 +13,12 @@ import type { SessionPlan } from "./types";
 
 /** More words than anyone types in the longest timed session, which is two minutes. */
 const TIMED_WORD_COUNT = 800;
+/** The starting test is one minute long (SPEC, "Режимы"). */
+export const TEST_SECONDS = 60;
 
 export type SessionSetup =
   | { mode: "adaptive" }
+  | { mode: "test" }
   | { mode: "words"; by: "count"; count: number; pool: number }
   | { mode: "words"; by: "time"; seconds: number; pool: number }
   | { mode: "passage"; difficulty: number | null }
@@ -51,6 +55,20 @@ export async function buildPlan(
         source: next.source,
         detail: `Focus on ${next.choice.focus}`,
         focus: [next.choice.focus],
+      };
+    }
+    case "test": {
+      const test = await startingTest(seed);
+      return {
+        mode: "test",
+        text: test.text,
+        source: {
+          kind: "test",
+          passages: test.passages,
+          seconds: TEST_SECONDS,
+        },
+        seconds: TEST_SECONDS,
+        detail: "One minute",
       };
     }
     case "words":

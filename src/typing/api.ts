@@ -290,6 +290,27 @@ export function setSetting<K extends keyof Settings>(
   return invoke("set_setting", { key, value });
 }
 
-export function asksForTheme(): Promise<boolean> {
-  return invoke("asks_for_theme");
+/** Mirrors `settings::FirstRun`: the first-launch steps still to show. */
+export interface FirstRun {
+  theme: boolean;
+  test: boolean;
+}
+
+export function firstRun(): Promise<FirstRun> {
+  return invoke("first_run");
+}
+
+/** Mirrors `commands::TestText`. */
+export interface TestText {
+  text: string;
+  passages: string[];
+}
+
+export function startingTest(seed: number): Promise<TestText> {
+  return invoke("starting_test", { seed });
+}
+
+/** The keys of one starting test on their own. Empty until the projector reaches its end. */
+export function sessionKeys(sid: string): Promise<KeyRow[]> {
+  return invoke("session_keys", { sid });
 }

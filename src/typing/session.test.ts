@@ -20,6 +20,7 @@ const SETTINGS: Settings = {
   theme: "light",
   live_figures: true,
   theme_chosen: false,
+  test_done: false,
   letters: "gradual",
 };
 

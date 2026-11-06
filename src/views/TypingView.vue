@@ -42,7 +42,13 @@ const MODE_NAMES: Record<SessionPlan["mode"], string> = {
   test: "Starting test",
 };
 const modeName = MODE_NAMES[plan.mode];
-const title = isTimed ? "Timed words session" : `${modeName} session`;
+const isTest = plan.mode === "test";
+let title = `${modeName} session`;
+if (isTest) {
+  title = "Starting test";
+} else if (isTimed) {
+  title = "Timed words session";
+}
 const tags = isZen
   ? []
   : [
@@ -72,6 +78,7 @@ let restarting = false;
 let closed = false;
 let resumeFocus: ReturnType<typeof setTimeout> | null = null;
 let ending = false;
+let skipped = false;
 
 // The figures and the message are written directly: they change during typing, and Vue stays off
 // that path, as ADR-0004 explains.
@@ -192,7 +199,7 @@ async function onEnded(
     open();
     return;
   }
-  void store.ended(sid, ended.engine.cursor, saved);
+  void store.ended(sid, ended.engine.cursor, saved, skipped);
 }
 
 function onKeyDown(event: KeyboardEvent): void {
@@ -213,6 +220,12 @@ function resume(): void {
 function restart(): void {
   closeDialog();
   restarting = true;
+  void session?.finish("aborted");
+}
+
+/** Leaves the test for Home. Whatever was typed stays in the journal, as with any session. */
+function skipTest(): void {
+  skipped = true;
   void session?.finish("aborted");
 }
 
@@ -302,7 +315,11 @@ onBeforeUnmount(() => {
       </div>
       <div class="slot">
         <p ref="noticeEl" class="notice" role="status" data-level="" />
-        <p v-if="plan.caption" class="source">{{ plan.caption }}</p>
+        <p v-if="isTest" class="source">
+          Errors are fine, this only sets a baseline.
+          <a class="link" href="#" @click.prevent="skipTest">Skip the test</a>
+        </p>
+        <p v-else-if="plan.caption" class="source">{{ plan.caption }}</p>
       </div>
     </section>
     <dialog

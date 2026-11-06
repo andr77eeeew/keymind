@@ -2,8 +2,9 @@ import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
 import { useAppStore } from "./stores/app";
+import { useSessionStore } from "./stores/session";
 import { useSettingsStore } from "./stores/settings";
-import { asksForTheme } from "./typing/api";
+import { firstRun } from "./typing/api";
 // Bundled, because the app works offline. Only the Latin subset: the UI and the only layout so far
 // are English, and later stages add Cyrillic when the Russian and Ukrainian layouts arrive.
 import "@fontsource/golos-text/latin-400.css";
@@ -24,12 +25,18 @@ async function start(): Promise<void> {
   const pinia = createPinia();
   const settings = useSettingsStore(pinia);
   settings.paint();
-  const [, asks] = await Promise.all([
+  const [, steps] = await Promise.all([
     settings.load(),
-    asksForTheme().catch(() => false),
+    firstRun().catch(() => ({ theme: false, test: false })),
   ]);
-  if (asks) {
-    useAppStore(pinia).go("onboarding");
+  const app = useAppStore(pinia);
+  app.onboarding = steps.theme || steps.test;
+  app.testStep = steps.test;
+  if (steps.theme) {
+    app.go("onboarding");
+  } else if (steps.test) {
+    // The window was closed after the theme, so the test is where the first launch goes on.
+    await useSessionStore(pinia).startTest();
   }
   createApp(App).use(pinia).mount("#app");
 }

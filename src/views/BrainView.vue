@@ -42,9 +42,18 @@ onMounted(() => brain.showNext());
   <AppShell>
     <div class="page-head">
       <h1>Brain</h1>
-      <a class="link" href="#" @click.prevent="app.go('settings')"
-        >Letter settings</a
-      >
+      <div class="row">
+        <a
+          class="link"
+          href="#"
+          :aria-disabled="session.starting"
+          @click.prevent="session.startTest()"
+          >Take the starting test</a
+        >
+        <a class="link" href="#" @click.prevent="app.go('settings')"
+          >Letter settings</a
+        >
+      </div>
     </div>
 
     <div v-if="brain.nextState === 'error'" class="state state--error">

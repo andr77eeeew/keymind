@@ -11,6 +11,7 @@ const DEFAULTS: Settings = {
   live_figures: true,
   theme_chosen: false,
   letters: "gradual",
+  test_done: false,
 };
 
 export const useSettingsStore = defineStore("settings", () => {

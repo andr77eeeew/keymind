@@ -70,9 +70,6 @@ const pins = computed(() =>
     : weakestPins(overview.value?.keys ?? []),
 );
 const mapNote = computed(() => {
-  if (noSessions.value) {
-    return "The ground is flat for now. Your first session raises the first hills.";
-  }
   if (sessionCount.value >= FEW_SESSIONS) {
     return undefined;
   }
@@ -144,13 +141,30 @@ onMounted(() => {
         <span class="visually-hidden">Loading</span>
         <i style="--w: 100%; height: 190px" />
       </div>
-      <ReliefMap
-        v-else
-        :hills="hills"
-        :pins="pins"
-        :note="mapNote"
-        :flat="noSessions"
-      />
+      <div v-else-if="noSessions" class="state state--empty">
+        <template v-if="session.testFailed">
+          <p class="state__h">The starting test could not be prepared</p>
+          <p>
+            Nothing was started. Try again, or begin with a session: the map
+            grows from every one.
+          </p>
+        </template>
+        <template v-else>
+          <p class="state__h">No relief yet</p>
+          <p>A one-minute test draws your first map.</p>
+        </template>
+        <div class="state__a">
+          <button
+            type="button"
+            class="btn"
+            :disabled="session.starting"
+            @click="session.startTest()"
+          >
+            Take the starting test
+          </button>
+        </div>
+      </div>
+      <ReliefMap v-else :hills="hills" :pins="pins" :note="mapNote" />
 
       <div class="next__a">
         <div class="start__a">
