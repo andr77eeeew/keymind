@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Keymind setup: your relief</title>
-<meta name="description" content="First run: the starting skill relief and a suggested daily goal.">
+<meta name="description" content="First run: the starting skill relief and the figures of the test.">
 <script>(function(){var d=document.documentElement,p=new URLSearchParams(location.search),t=p.get('theme');if(!t){try{t=localStorage.getItem('keymind-mock-theme')}catch(e){}}if(!t||t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t)d.dataset.theme=t;if(p.get('embed'))d.dataset.embed='1';if(p.get('data'))d.dataset.data=p.get('data');if(p.get('gam'))d.dataset.gam=p.get('gam');if(p.get('kbd'))d.dataset.kbd=p.get('kbd');if(p.get('figures'))d.dataset.figures=p.get('figures');})();</script>
 <link rel="stylesheet" href="assets/screens.css">
 </head>
@@ -33,20 +33,10 @@
     <span class="pin" style="left:calc(50% + 3.00 * (var(--key) + var(--key-gap)));top:calc(50% + -2.00 * (var(--key) + var(--key-gap)))"><b>P</b> 205 ms</span>
   </div>
   <div class="grid">
-    <div class="figures s5">
+    <div class="figures s6">
       <div class="figure"><b>34</b><span>WPM</span></div>
       <div class="figure"><b>93%</b><span>Accuracy</span></div>
       <div class="figure"><b>61%</b><span>Rhythm evenness</span></div>
-    </div>
-    <div class="field s3">
-      <label for="ob-goal">Daily goal</label>
-      <select class="select" id="ob-goal"><option>10 minutes</option><option selected>15 minutes</option><option>20 minutes</option><option>30 minutes</option></select>
-      <p class="field__help">Suggested from your test.</p>
-    </div>
-    <div class="field s4">
-      <label for="ob-rem">Reminder</label>
-      <input class="input" id="ob-rem" type="time" value="12:00">
-      <p class="field__help">Turn it off any time in Settings.</p>
     </div>
   </div>
   <div class="ob__foot">

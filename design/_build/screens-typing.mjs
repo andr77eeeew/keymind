@@ -91,7 +91,7 @@ const onboardingTest = page({
 
 const onboardingResult = page({
   title: 'Keymind setup: your relief',
-  description: 'First run: the starting skill relief and a suggested daily goal.',
+  description: 'First run: the starting skill relief and the figures of the test.',
   body: `<div class="ob">${obTop(2)}
 <main class="ob__body">
   <div class="page-head">
@@ -105,20 +105,10 @@ const onboardingResult = page({
     ${mapPin(10.5, 1.5, '<b>P</b> 205 ms')}
   </div>
   <div class="grid">
-    <div class="figures s5">
+    <div class="figures s6">
       <div class="figure"><b>34</b><span>WPM</span></div>
       <div class="figure"><b>93%</b><span>Accuracy</span></div>
       <div class="figure"><b>61%</b><span>Rhythm evenness</span></div>
-    </div>
-    <div class="field s3">
-      <label for="ob-goal">Daily goal</label>
-      <select class="select" id="ob-goal"><option>10 minutes</option><option selected>15 minutes</option><option>20 minutes</option><option>30 minutes</option></select>
-      <p class="field__help">Suggested from your test.</p>
-    </div>
-    <div class="field s4">
-      <label for="ob-rem">Reminder</label>
-      <input class="input" id="ob-rem" type="time" value="12:00">
-      <p class="field__help">Turn it off any time in Settings.</p>
     </div>
   </div>
   <div class="ob__foot">
@@ -131,12 +121,13 @@ const onboardingResult = page({
 const wordsText = 'season lesson great pass each early class reach idea press please glass team across bread speak loss dress mean clear test heat miss learn stress year guess real lead cross';
 const typingWords = page({
   title: 'Typing: adaptive words',
-  description: 'The main typing screen in adaptive mode, focused on two weak transitions.',
+  description: 'The main typing screen in adaptive mode, focused on one weak key.',
   typing: true,
   body: typingScreen({
     title: 'Adaptive session',
-    left: '<span class="bar__mode">Adaptive</span><span>Focus on <b class="gram">ea</b> <b class="gram">ss</b></span>',
-    stage: typedStage({ stream: textStream(wordsText, { cursor: 26, errs: { 16: 'w' }, fixed: [9] }) }),
+    left: '<span class="bar__mode">Adaptive</span><span>Focus on <b class="gram">e</b></span>',
+    stage: typedStage({ stream: textStream(wordsText, { cursor: 26, errs: { 16: 'w' }, fixed: [9], targets: null }) }),
+    targets: ['KeyE'],
     next: wordsText[26],
     finger: fingerFor(wordsText[26]),
   }),
